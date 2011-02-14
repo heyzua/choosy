@@ -115,7 +115,12 @@ This library should never:
                                     # and allow for regular args.
         o.desc  "Other fun words to put in quotes"
         o.default []
-        o.count :at_least => 2  # Also accepts :at_most, :exactly, and :zero
+        
+        # Sets the exact count of the number of arguments it accepts.
+        # also allowable are the single selectors :zero and :one.
+        # By default, the option 'WORDS+' sets the range to be
+        # {:at_least => 1, :at_most => 1000 }
+        o.count {:at_least => 2, :at_most => 10 }
 
         o.validate do |words|
           words.each do |word|

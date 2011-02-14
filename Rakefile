@@ -19,10 +19,7 @@ task :doc => [ :rdoc ]
 #task :rdoc => SOURCE_FILES
 
 desc "Run the RSpec tests"
-RSpec::Core::RakeTask.new do |t|
-  t.rspec_opts = ['-b', '-c', '-f', 'p']
-  t.fail_on_error = false
-end
+RSpec::Core::RakeTask.new :spec
 
 begin
   require 'jeweler'
