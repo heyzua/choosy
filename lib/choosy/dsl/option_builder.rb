@@ -37,12 +37,17 @@ module Choosy::DSL
     end
 
     def count(restriction)
+      @count_called = true
       if restriction.is_a?(Hash)
         lower_bound = restriction[:at_least] || restriction[:exactly] || 1
         upper_bound = restriction[:at_most] || restriction[:exactly] || 1000
 
         check_count(lower_bound)
         check_count(upper_bound)
+        if lower_bound > upper_bound
+          raise Choosy::ConfigurationError.new("The upper bound (#{upper_bound}) is less than the lower bound (#{lower_bound}).")
+        end
+        
         option.arity = (lower_bound .. upper_bound)
       elsif restriction == :zero
         option.arity = ZERO_ARITY
@@ -70,18 +75,26 @@ module Choosy::DSL
       option.validation_step = block
     end
 =end
+
+    def finalize!
+      if option.arity.nil?
+        option.arity = ZERO_ARITY
+      end
+    end
     
     private
     def check_param(param)
       return if param.nil?
+      option.flag_parameter = param
+      return if @count_called
+      
       if param =~ /\?$/
         option.arity = OPTIONAL_ARITY
       elsif param =~ /\+$/
-        option.arity = MANY_ARITY
+        option.arity = MANY_ARITY 
       else
         option.arity = ONE_ARITY
       end
-      option.flag_parameter = param
     end
 
     def check_count(count)

@@ -35,6 +35,12 @@ module Choosy::DSL
           @builder.short '-s', 'STD'
           @option.arity.should eql(1..1)
         end
+
+        it "should not set the arity if :count has already been called" do
+          @builder.count 3
+          @builder.short '-s', 'STD'
+          @option.arity.should eql(3..3)
+        end
       end
 
       describe "and the flag parameter" do
@@ -174,9 +180,22 @@ module Choosy::DSL
             @builder.count 'p'
           }.should raise_error(Choosy::ConfigurationError, /number/)
         end
+
+        it "should fail when the :at_least is greater than :at_most" do
+          attempting {
+            @builder.count :at_least => 3, :at_most => 2
+          }.should raise_error(Choosy::ConfigurationError, /lower bound/)
+        end
       end
     end#count
-
+=begin
+    describe :cast do
+      it "should allow simple casts" do
+        @builder.cast :int
+        @option.cast_to.should eql(:int)
+      end
+    end
+=end
     describe :fail do
       it "should format the error message with both flags" do
         @builder.short '-k'
@@ -207,6 +226,14 @@ module Choosy::DSL
       it "should save theh context of the validation in a Proc to call later"
       it "should allow for formatted failures"
       it "should have access to the larger context when called"
+    end
+
+    describe :finalize! do
+      it "should set the arity if not already set" do
+        @builder.short '-s'
+        @builder.finalize!
+        @option.arity.should eql(0..0)
+      end
     end
   end
 end
