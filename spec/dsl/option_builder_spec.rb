@@ -188,14 +188,31 @@ module Choosy::DSL
         end
       end
     end#count
-=begin
+
     describe :cast do
-      it "should allow simple casts" do
+      it "should allow symbol casts" do
         @builder.cast :int
-        @option.cast_to.should eql(:int)
+        @option.cast_to.should eql(:integer)
       end
-    end
-=end
+
+      it "should allow for Type casts" do
+        @builder.cast Date
+        @option.cast_to.should eql(:date)
+      end
+
+      it "should fail if it doesn't know about a Type" do
+        attempting {
+          @builder.cast Choosy::Error
+        }.should raise_error(Choosy::ConfigurationError, /Unknown conversion/)
+      end
+
+      it "should fail if it doesn't know about a symbol" do
+        attempting {
+          @builder.cast :unknown_type
+        }.should raise_error(Choosy::ConfigurationError, /Unknown conversion/)
+      end
+    end#cast
+
     describe :fail do
       it "should format the error message with both flags" do
         @builder.short '-k'
@@ -223,9 +240,21 @@ module Choosy::DSL
     end
 
     describe :validate do
-      it "should save theh context of the validation in a Proc to call later"
-      it "should allow for formatted failures"
-      it "should have access to the larger context when called"
+      it "should save the context of the validation in a Proc to call later" do
+        @builder.validate do
+          puts "Hi!"
+        end
+        @option.validation_step.should be_a(Proc)
+      end
+      
+      it "should have access to the larger context when called" do
+        value = nil
+        @builder.validate do
+          value = 'here'
+        end
+        @option.validation_step.call
+        value.should eql('here')
+      end
     end
 
     describe :finalize! do
@@ -233,6 +262,18 @@ module Choosy::DSL
         @builder.short '-s'
         @builder.finalize!
         @option.arity.should eql(0..0)
+      end
+
+      it "should set the cast to :string on regular arguments" do
+        @builder.short '-s', 'SHORT'
+        @builder.finalize!
+        @option.cast_to.should eql(:string)
+      end
+
+      it "should set the cast to :boolean on single flags" do
+        @builder.short '-s'
+        @builder.finalize!
+        @option.cast_to.should eql(:boolean)
       end
     end
   end
