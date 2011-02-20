@@ -1,5 +1,6 @@
 require 'choosy/option'
 require 'choosy/errors'
+require 'choosy/converter'
 
 module Choosy::DSL
   class OptionBuilder
@@ -59,6 +60,17 @@ module Choosy::DSL
       end
     end
 
+    def cast(ty)
+      option.cast_to = Choosy::Converter.for(ty)
+      if option.cast_to.nil?
+        raise Choosy::ConfigurationError.new("Unknown conversion cast: #{ty}")
+      end
+    end
+    
+    def validate(&block)
+      option.validation_step = block
+    end
+    
     def fail(msg)
       flag_fmt = if option.short_flag && option.long_flag
                    "#{option.short_flag}/#{option.long_flag}"
@@ -70,15 +82,17 @@ module Choosy::DSL
       raise Choosy::ValidationError.new("#{flag_fmt}#{flag_param}: #{msg}")
     end
 
-=begin
-    def validate(&block)
-      option.validation_step = block
-    end
-=end
-
     def finalize!
       if option.arity.nil?
         option.arity = ZERO_ARITY
+      end
+
+      if option.cast_to.nil?
+        if option.arity == ZERO_ARITY
+          option.cast_to = :boolean
+        else
+          option.cast_to = :string
+        end
       end
     end
     

@@ -4,19 +4,30 @@ require 'time'
 module Choosy
   class Converter
     CONVERSIONS = {
-      Integer => :integer,
-      Float => :float,
-      Symbol => :symbol,
-      File => :file,
-      Date => :date,
-      Time => :time,
-      DateTime => :datetime
+      Integer => [:integer, :int],
+      Float => [:float],
+      Symbol => [:symbol],
+      File => [:file],
+      Date => [:date],
+      Time => [:time],
+      DateTime => [:datetime],
+      String => [:string]
     }
+    BOOLEANS = [:bool, :boolean]
     
-    def self.for_type(ty)
-      CONVERSIONS[ty]
-    end
+    def self.for(ty)
+      if ty.is_a?(Class)
+        vals = CONVERSIONS[ty]
+        return vals[0] if !vals.nil?
+      elsif BOOLEANS.include?(ty)
+        return :boolean
+      elsif ty.is_a?(Symbol)
+        CONVERSIONS.each_value do |v|
+          return v[0] if v.include?(ty)
+        end
+      end
 
-    
+      nil
+    end
   end
 end
