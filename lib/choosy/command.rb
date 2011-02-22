@@ -3,12 +3,12 @@ require 'choosy/dsl/command_builder'
 
 module Choosy
   class Command
-    attr_reader :name
+    attr_accessor :name, :executor, :summary, :description
     
     def initialize(name)
       @name = name
-      @builder = CommandBuilder.new(self)
-      yield builder if block_given?
+      @builder = Choosy::DSL::CommandBuilder.new(self)
+      yield @builder if block_given?
     end
 
     

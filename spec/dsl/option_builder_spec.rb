@@ -7,7 +7,7 @@ module Choosy::DSL
       @option = Choosy::Option.new(:stub)
       @builder = OptionBuilder.new(@option)
     end
-
+    
     describe :short do
       it "should set the option" do
         @builder.short '-s'
