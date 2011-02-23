@@ -8,28 +8,28 @@ it makes some different design decisions than they do.  It is
 opinionated software.
 
 This library should:
-- Make creating command line clients relatively easy.
-- Allow you to add validation logic for your arguments
-  within the parsing phase, allowing for dependencies between options,
-  so that you can more easily validate related options (i.e. if the
-  <pre>--bold</pre> flag requires the <pre>--font Arial</pre> flag,
-  then you should be able to ask for the <pre>--font</pre> option to
-  be validatedfirst, and then the <pre>--bold</pre> option.
-- Allow you to customize its output using simple ERB templates, 
-  so that you can (dynamically) change the output you present to
-  your end user without relying upon my formatting.  You should even
-  be able to add internationalization printing with relatively little
-  effort.
+  - Make creating command line clients relatively easy.
+  - Allow you to add validation logic for your arguments
+    within the parsing phase, allowing for dependencies between options,
+    so that you can more easily validate related options (i.e. if the
+    <code>--bold</code> flag requires the <code>--font Arial</code> flag,
+    then you should be able to ask for the <code>--font</code> option to
+    be validatedfirst, and then the <code>--bold</code> option.
+  - Allow you to customize its output using simple ERB templates, 
+    so that you can (dynamically) change the output you present to
+    your end user without relying upon my formatting.  You should even
+    be able to add internationalization printing with relatively little
+    effort.
 
 This library should never:
-- Interact with your execution logic.  You can attach executors
-  to commands for convenience, but the execution phase
-  should be delegated to you, not the parsing library.  Separation
-  of concerns, people.
-- Rely on display or user interface libraries like
-  Highline, since this is only for parsing command lines.
-- Pollute your namespaces with my DSL function names.  (I really,
-  really hate it when libraries do this.) 
+  - Interact with your execution logic.  You can attach executors
+    to commands for convenience, but the execution phase
+    should be delegated to you, not the parsing library.  Separation
+    of concerns, people.
+  - Rely on display or user interface libraries like
+    Highline, since this is only for parsing command lines.
+  - Pollute your namespaces with my DSL function names.  (I really,
+    really hate it when libraries do this.) 
 
 # Examples
 
@@ -53,6 +53,9 @@ This library should never:
     end
 
     foo_cmd = Choosy::Command.new :foo do |foo|
+      # Add a class to do the execution when you call foo_cmd.execute!
+      # You can also use a proc that takes the options and the args, like:
+      #    foo.executor { |opts, args| puts 'Hi!' }
       foo.executor FooExecutor.new
 
       # You can add your custom printer by giving the
@@ -88,7 +91,7 @@ This library should never:
         o.required
 
         o.validate do |suffix|
-          if suffix == foo[:prefix].value
+          if suffix == foo[:prefix]      
             o.fail "You can't matching prefixes and suffixes, you heathen!"
           end
         end
@@ -156,7 +159,7 @@ This library should never:
       # Tail options
 
       foo.option :debug => {:long => '--debug', 
-                            :desc "Prints out extra debugging output." }
+                            :desc => "Prints out extra debugging output." }
 
       foo.option :nocolor do |o|
         o.long '--no-color'
@@ -170,24 +173,17 @@ This library should never:
       # Should skip the '-h' flag if already set.
       foo.help  
 
-      # Adds the --version option.
-      foo.version do 
-        puts "Foo: #{FOO_VERSION}"
-        # Automatically cals exit for you.
-      end
+      # Adds the -v/--version option.
+      foo.version "Foo: #{FOO_VERSION}"
 
       # Now, add some validation for any addtional arguments
       # that are left over after the parsing.
-      foo.arguments do |a|
-        a.count :at_least => 1
-
-        a.validate do |args|
-          if args.empty?
-            a.fail "You have to pass in empty arguments that do nothing!"
-          end
-          if args.count >= 3
-            a.fail "Whoa there!  You're going argument crazy!"
-          end
+      foo.arguments do |args|
+        if args.empty?
+          a.fail "You have to pass in empty arguments that do nothing!"
+        end
+        if args.count >= 3
+          a.fail "Whoa there!  You're going argument crazy!"
         end
       end
     end
@@ -208,12 +204,12 @@ This library should never:
                      ]
       
       require 'pp'
-      pp foo_cmd[:prefix].value # => '{'
-      pp foo_cmd[:suffix].value # => '}'
-      pp foo_cmd[:count].value  # => 3
-      pp foo_cmd[:bold].value   # => false
-      pp foo_cmd[:words].value  # => ['high', 'there', 'you']
-      pp foo_cmd[:http].value   # => 'http://www.reddit.com'
+      pp foo_cmd[:prefix]# => '{'
+      pp foo_cmd[:suffix]       # => '}'
+      pp foo_cmd[:count]        # => 3
+      pp foo_cmd[:bold]         # => false
+      pp foo_cmd[:words]        # => ['high', 'there', 'you']
+      pp foo_cmd[:http]         # => 'http://www.reddit.com'
       pp foo_cmd.args           # => ['handsom', 'devil',
                                 #     'http://not.posting.here',
                                 #     '-h', '--help', '-v', '--version']
@@ -263,6 +259,7 @@ First, we create another command.
     
     # Create a new command
     bar_cmd = Choosy::Command.new :bar do |bar|
+      bar.executor BarExecutor.new
       bar.summary "Just prints 'bar'"
       bar.desc "A truly unremarkable command"
 
@@ -336,12 +333,12 @@ We can now create our super command.
                        '--bold']
                        
       require 'pp'
-      pp superfoo[:config].value            # => '~/.superfoo'
+      pp superfoo[:config]                  # => '~/.superfoo'
       pp superfoo.subcommand.name           # => :foo
-      pp superfoo.subcommand[:prefix].value # => '{'
-      pp superfoo.subcommand[:suffix].value # => '}'
-      pp superfoo.subcommand[:count].value  # => 2
-      pp superfoo.subcommand[:bold].value   # => true
+      pp superfoo.subcommand[:prefix]       # => '{'
+      pp superfoo.subcommand[:suffix]       # => '}'
+      pp superfoo.subcommand[:count]        # => 2
+      pp superfoo.subcommand[:bold]         # => true
       pp superfoo.subcommand.options        # => {:prefix => '{', :suffix => '}'
                                             #     :count => 2,
                                             #     :bold => true, 
@@ -389,13 +386,13 @@ We can now create our super command.
                        'bar',
                        '--bold']
                        
-      pp superfoo[:config].value                # => '~/.superfoo'
+      pp superfoo[:config]                      # => '~/.superfoo'
       pp superfoo.subcommand.name               # => :foo
       pp superfoo.subcommands[0].name           # => :foo
-      pp superfoo.subcommands[0][:prefix].value # => '{'
-      pp superfoo.subcommands[0][:suffix].value # => '}'
-      pp superfoo.subcommands[0][:count].value  # => 2
-      pp superfoo.subcommands[0][:bold].value   # => true
+      pp superfoo.subcommands[0][:prefix]       # => '{'
+      pp superfoo.subcommands[0][:suffix]       # => '}'
+      pp superfoo.subcommands[0][:count]        # => 2
+      pp superfoo.subcommands[0][:bold]         # => true
       pp superfoo.subcommands[0].options        # => {:prefix => '{', :suffix => '}'
                                                 #     :count => 2,
                                                 #     :bold => false, 

@@ -1,9 +1,13 @@
 require 'choosy/errors'
+require 'choosy/dsl/option_builder'
 
 module Choosy::DSL
   class CommandBuilder
-    
-    
+    HELP = :__help__
+    VERSION = :__version__
+
+    attr_reader :command
+
     def initialize(command)
       @command = command
     end
@@ -29,6 +33,79 @@ module Choosy::DSL
     
     def desc(msg)
       @command.description = msg
+    end
+
+    def separator(msg=nil)
+      @command.listing << (msg.nil? ? "" : msg)
+    end
+
+    def option(arg)
+      raise Choosy::ConfigurationError.new("The option name was nil") if arg.nil?
+      
+      builder = nil
+
+      if arg.is_a?(Hash)
+        raise Choosy::ConfigurationError.new("Malformed option hash") if arg.count != 1
+        name = arg.keys[0]
+        builder = OptionBuilder.new(name)
+
+        to_process = arg[name]
+        if to_process.is_a?(Array)
+          builder.dependencies to_process
+        elsif to_process.is_a?(Hash)
+          builder.from_hash to_process
+        else
+          raise Choosy::ConfigurationError.new("Unable to process option hash")
+        end
+      else
+        builder = OptionBuilder.new(arg)
+        raise Choosy::ConfigurationError.new("No configuration block was given") if !block_given?
+      end
+
+      yield builder if block_given?
+      finalize_builder builder
+    end
+
+    def help(msg=nil)
+      h = OptionBuilder.new(HELP)
+      h.short '-h'
+      h.long '--help'
+      h.desc (msg || "Show this help message")
+
+      h.validate do
+        raise Choosy::HelpCalled.new
+      end 
+
+      finalize_builder h
+    end
+
+    def version(msg)
+      v = OptionBuilder.new(VERSION)
+      v.short '-v'
+      v.long '--version'
+      v.desc "The version number"
+
+      v.validate do
+        raise Choosy::VersionCalled.new(msg)
+      end
+
+      yield v if block_given?
+      finalize_builder v
+    end
+
+    def arguments(&block)
+      raise Choosy::ConfigurationError.new("No block to arguments call") if !block_given?
+
+      command.argument_validation = block
+    end
+
+    private
+    def finalize_builder(builder)
+      builder.finalize!
+      command.builders[builder.option.name] = builder
+      command.listing << builder.option
+
+      builder.option
     end
   end
 end

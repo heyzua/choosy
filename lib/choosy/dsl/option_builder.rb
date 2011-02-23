@@ -11,8 +11,8 @@ module Choosy::DSL
     
     attr_reader :option
     
-    def initialize(option)
-      @option = option
+    def initialize(name)
+      @option = Choosy::Option.new(name)
     end
 
     def short(flag, param=nil)
@@ -92,6 +92,30 @@ module Choosy::DSL
           option.cast_to = :boolean
         else
           option.cast_to = :string
+        end
+      end
+    end
+
+    def dependencies(*args)
+      if args.count == 1 && args[0].is_a?(Array)
+        option.dependent_options = args[0]
+      else
+        option.dependent_options = args
+      end
+    end
+
+    def from_hash(hash)
+      raise Choosy::ConfigurationError.new("Only hash arguments allowed") if !hash.is_a?(Hash)
+
+      hash.each do |k, v|
+        if respond_to?(k)
+          if v.is_a?(Array)
+            self.send(k, *v)
+          else
+            self.send(k, v)
+          end
+        else
+          raise Choosy::ConfigurationError.new("Not a recognized option: #{k}")
         end
       end
     end

@@ -4,8 +4,8 @@ require 'choosy'
 module Choosy::DSL
   describe OptionBuilder do
     before :each do
-      @option = Choosy::Option.new(:stub)
-      @builder = OptionBuilder.new(@option)
+      @builder = OptionBuilder.new(:stub)
+      @option = @builder.option
     end
     
     describe :short do
@@ -237,7 +237,7 @@ module Choosy::DSL
       end
 
       it "should alse set the pragram name in the error message"
-    end
+    end#fail
 
     describe :validate do
       it "should save the context of the validation in a Proc to call later" do
@@ -255,7 +255,7 @@ module Choosy::DSL
         @option.validation_step.call
         value.should eql('here')
       end
-    end
+    end#validate
 
     describe :finalize! do
       it "should set the arity if not already set" do
@@ -275,6 +275,53 @@ module Choosy::DSL
         @builder.finalize!
         @option.cast_to.should eql(:boolean)
       end
+    end#finalize!
+
+    describe :dependencies do
+      it "should be able to process multiple arguments" do
+        @builder.dependencies :a, :b
+        @option.dependent_options.should eql([:a, :b])
+      end
+
+      it "should be able to process Array arguments" do
+        @builder.dependencies [:a, :b]
+        @option.dependent_options.should eql([:a, :b])
+      end
+    end#dependencies
+
+    describe :from_hash do
+      it "should fail on unrecognized methods" do
+        attempting {
+          @builder.from_hash :not_a_method => "ha!"
+        }.should raise_error(Choosy::ConfigurationError, /Not a recognized option/)
+      end
+      
+      it "should handle the short option" do
+        @builder.from_hash :short => ['-s', 'SHORT+']
+        @option.short_flag.should eql('-s')
+      end
+
+      it "should handle the desc option" do
+        @builder.from_hash :desc => "description"
+        @option.description.should eql("description")
+      end
+
+      it "should be able to handle multiple options" do
+        @builder.from_hash({:short => '-s', :desc => 'description'})
+        @option.short_flag.should eql('-s')
+        @option.description.should eql('description')
+      end
+
+      it "should be able to handle complicated arguments like :count" do
+        @builder.from_hash({:count => {:at_least => 3, :at_most => 5}})
+        @option.arity.should eql(3..5)
+      end
+
+      it "should fail when the argument isn't a hash" do
+        attempting {
+          @builder.from_hash("")
+        }.should raise_error(Choosy::ConfigurationError, /Only hash arguments allowed/)
+      end#from_hash
     end
   end
 end

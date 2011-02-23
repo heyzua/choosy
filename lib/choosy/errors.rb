@@ -3,5 +3,7 @@ module Choosy
 
   ConfigurationError = Class.new(Choosy::Error)
   ValidationError    = Class.new(Choosy::Error)
+  HelpCalled         = Class.new(Choosy::Error)
+  VersionCalled      = Class.new(Choosy::Error)
   ParseError         = Class.new(Choosy::Error)
 end
