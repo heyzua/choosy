@@ -1,4 +1,5 @@
 require 'choosy/errors'
+require 'choosy/converter'
 require 'choosy/dsl/option_builder'
 
 module Choosy::DSL
@@ -67,18 +68,44 @@ module Choosy::DSL
     end
 
     # Option types
-    
+    def self.create_conversions
+      Choosy::Converter::CONVERSIONS.values.flatten!.each do |method|
+        define_method method do |sym, desc, config=nil, &block|
+          simple_option(sym, desc, true, :one, method, config, &block)
+        end
+
+        plural = "#{method}s".to_sym
+        define_method plural do |sym, desc, config=nil, &block|
+          simple_option(sym, desc, true, :many, method, config, &block)
+        end
+
+        underscore = "#{method}_"
+        define_method underscore do |sym, desc, config=nil, &block|
+          simple_option(sym, desc, false, :one, method, config, &block)
+        end
+
+        plural_underscore = "#{plural}_".to_sym
+        define_method plural_underscore do |sym, desc, config=nil, &block|
+          simple_option(sym, desc, false, :many, method, config, &block)
+        end
+      end
+    end
+
+    create_conversions
+    alias :single :string
+    alias :single_ :string_
+
+    alias :multiple :strings
+    alias :multiple_ :strings_
+
     def boolean(sym, desc, config=nil, &block)
-      simple_option(sym, desc, nil, config, &block)
+      simple_option(sym, desc, true, :zero, :boolean, config, &block)
     end
-
-    def single(sym, desc, config=nil, &block)
-      simple_option(sym, desc, sym.to_s.upcase, config, &block)
+    def boolean_(sym, desc, config=nil, &block)
+      simple_option(sym, desc, false, :zero, :boolean, config, &block)
     end
-
-    def multiple(sym, desc, config=nil, &block)
-      simple_option(sym, desc, "#{sym}+".upcase, config, &block)
-    end
+    alias :bool :boolean
+    alias :bool_ :boolean_
 
     def help(msg=nil)
       h = OptionBuilder.new(HELP)
@@ -121,13 +148,22 @@ module Choosy::DSL
       builder.option
     end
 
-    def simple_option(sym, desc, param, config, &block)
+    def format_param(name, count)
+      case count
+      when :zero then nil
+      when :one then name.upcase
+      when :many then "#{name.upcase}+"
+      end
+    end
+
+    def simple_option(sym, desc, allow_short, param, cast, config, &block)
       name = sym.to_s
       builder = OptionBuilder.new sym
       builder.desc desc
-      builder.short "-#{name[0]}"
+      builder.short "-#{name[0]}" if allow_short
       builder.long "--#{name.downcase.gsub(/_/, '-')}"
-      builder.param param
+      builder.param format_param(name, param)
+      builder.cast cast
       builder.from_hash config if config
 
       yield builder if block_given?

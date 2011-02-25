@@ -13,7 +13,7 @@ module Choosy
       DateTime => [:datetime],
       String => [:string]
     }
-    BOOLEANS = [:bool, :boolean]
+    BOOLEANS = [:boolean, :bool]
     
     def self.for(ty)
       if ty.is_a?(Class)

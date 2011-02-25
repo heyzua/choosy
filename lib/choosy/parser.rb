@@ -14,6 +14,10 @@ module Choosy
     def remnants?
       !@unparsed.nil? && @unparsed.length > 0
     end
+
+    def [](opt)
+      @options[opt]
+    end
   end
 
   class Parser

@@ -74,15 +74,15 @@ This library should never:
 
       foo.separator 'Required Options:'
 
-      foo.option :prefix do |o|
-        o.short '-p'
-        o.long  '--prefix', 'PREFIX'
-        o.desc  'A prefix for "foo"'
-        o.default '<'
-        o.required
+      # A shorthand for a common option type.
+      # It adds the '-p/--prefix PREFIX' infomation for you.
+      foo.single :prefix, "A prefix for 'foo'" do |p|
+        p.default '<'
+        p.required
       end
 
-      # Make sure we validate :suffix after :prefix
+      # The long way to do the same thing as above, except with
+      # explicitly named dependencies
       foo.option :suffix => [:prefix] do |o|
         o.short '-s'
         o.long  '--suffix', 'SUFFIX'
@@ -96,13 +96,11 @@ This library should never:
         end
       end
 
-      foo.option :count do |o|
-        o.short '-c', 'COUNT'
-        # No long option
-        o.desc  'The number of times to repeat "foo"'
-        o.cast Integer
-        o.required
-      end
+      # Just like the 'single' method above, except now it automatically
+      # requires/casts the argument to this flag into an integer.  These commands
+      # also take an optional hash as the last argument, which can be used instead
+      # of a block.
+      foo.integer :count, 'The number of times to repeat "foo"', :required => true
 
       foo.separator 
       foo.separator 'Options:'
@@ -116,7 +114,7 @@ This library should never:
                                     # to stop parsing this option
                                     # and allow for regular args.
         o.desc  "Other fun words to put in quotes"
-        o.default []
+        o.default []                # The default anyway on multple arg options
         
         # Sets the exact count of the number of arguments it accepts.
         # also allowable are the single selectors :zero and :one.
@@ -133,27 +131,32 @@ This library should never:
         end
       end
 
-      # Use the shorthand notation for options
-      foo.option :bold => {:long => '--bold', :default => false}
+      # Alternatively, we could have done the following:
+      foo.strings :words, "Other fun words to put in quotes" do |w|
+        w.count {:at_least => 2, :at_most => 10 }
+        w.validate do |words|
+          words.each do |word|
+            if word !~ /\w+/
+              w.fail "I can't print that: #{word}"
+            end
+          end
+        end
+      end
 
-      # Replaces:
-      # foo.option :bold do |o|
-      #   # No short option
-      #   o.long '--bold' # No additional arg name means no argument
-      #                   # allowed
-      #   o.default false # Defaults to false anyway, but you can be
-      #                   # explicit.
-      # end
+      # Yet another shorthand notation for options, since they
+      # are boolean by default
+      foo.option :bold => {:long => '--bold', :default => false}
 
       options.separator
       # Tail options
 
-      foo.option :debug => {:long => '--debug', 
-                            :desc => "Prints out extra debugging output." }
+      # When any of the simpler notations are suffixed with a '_' 
+      # character, the short option is always suppressed.
+      foo.boolean_ :debug, "Prints out extra debugging output."
 
-      foo.option :nocolor do |o|
-        o.long '--no-color'
-        o.desc 'Turns off coloring in the output"
+      # The '_' characters are replaced with '-' in flags, so the 
+      # following creates a '--no-color' flag.
+      foo.boolean_ :no_color, "Turns off coloring in the output" do |o|
         o.validate do
           foo.printer :standard, :colored => false
         end
@@ -180,29 +183,29 @@ This library should never:
 
     if __FILE__ == $0
       # Parses and validates the options.
-      foo_cmd.parse! ['--prefix', '{', 
-                      '--suffix', '}',
-                      '--words', 'high', 'there', 'you', '-', 
-                      # The '-' stops parsing this option, so that:
-                      'handsom', 'devil',
-                      'http://not.posting.here',
-                      '-c, '23', # Count
-                      '--', # Stops parsing all arguments
-                      '-h', '--help', '-v', '--version' # Ignored
-                     ]
+      args =  ['--prefix', '{', 
+               '--suffix', '}',
+               '--words', 'high', 'there', 'you', '-', 
+               # The '-' stops parsing this option, so that:
+               'handsom', 'devil',
+               'http://not.posting.here', # will be regular arguments
+               '-c, '3', # Count
+               '--', # Stops parsing all arguments
+               '-h', '--help', '-v', '--version' # Ignored
+              ]
+      result = foo_cmd.parse!(args)
       
       require 'pp'
-      pp foo_cmd[:prefix]# => '{'
-      pp foo_cmd[:suffix]       # => '}'
-      pp foo_cmd[:count]        # => 3
-      pp foo_cmd[:bold]         # => false
-      pp foo_cmd[:words]        # => ['high', 'there', 'you']
-      pp foo_cmd.args           # => ['handsom', 'devil',
+      pp result[:prefix]        # => '{'
+      pp result[:suffix]        # => '}'
+      pp reuslt[:count]         # => 3
+      pp result[:bold]          # => false
+      pp reuslt[:words]         # => ['high', 'there', 'you']
+      pp reuslt.args            # => ['handsom', 'devil',
                                 #     'http://not.posting.here',
                                 #     '-h', '--help', '-v', '--version']
-      pp foo_cmd.options        # => {:prefix => '{', :suffix => '}'
+      pp result.options         # => {:prefix => '{', :suffix => '}'
                                 #     :count => 3, :bold => false,
-                                #     :bold => false, 
                                 #     :words => ['high', 'there', 'you']}
   
       # Now, call the command that does the actual work.
@@ -212,7 +215,7 @@ This library should never:
       # This allows you to easily associate command classes with
       # commands, without resorting to a hash or combining
       # execution logic with command parsing logic.
-      foo_cmd.execute!          # {high,there,you,foo}
+      foo_cmd.execute!(args)    # {high,there,you,foo}
                                 # {high,there,you,foo}
                                 # {high,there,you,foo}
                                 # and handsom devil http://not.posting.here -h --help -v --verbose
@@ -248,9 +251,7 @@ First, we create another command.
       bar.summary "Just prints 'bar'"
       bar.desc "A truly unremarkable command"
 
-      bar.option :bold do
-        long '--bold'
-      end
+      bar.boolean :bold, "Bolds something" 
 
       # Because there is no bar.arguments call,
       # it is now an error if there are extra

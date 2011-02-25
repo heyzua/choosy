@@ -1,6 +1,7 @@
 require 'spec_helpers'
 require 'choosy/dsl/command_builder'
 require 'choosy/command'
+require 'choosy/converter'
 require 'choosy/errors'
 
 module Choosy::DSL
@@ -211,6 +212,11 @@ module Choosy::DSL
         end
         o.short_flag.should eql("-D")
       end
+
+      it "should suppress the short flag for boolean_" do
+        o = @builder.boolean_ :debug, "Show debug output"
+        o.short_flag.should be(nil)
+      end
     end#boolean
 
     describe :single do
@@ -243,6 +249,35 @@ module Choosy::DSL
         o.long_flag.should eql('--files')
       end
     end#multiple
+
+    describe "dynamically generated method" do
+      Choosy::Converter::CONVERSIONS.values.flatten!.each do |method|
+        it "for #{method}" do
+          o = @builder.send(method, method, "Desc of #{method}")
+          o.cast_to.should eql(Choosy::Converter.for(method))
+          o.flag_parameter.should eql(method.to_s.upcase)
+        end
+
+        it "for #{method}s" do
+          plural = "#{method}s".to_sym
+          o = @builder.send(plural, plural, "Desc of #{plural}")
+          o.cast_to.should eql(Choosy::Converter.for(method))
+          o.flag_parameter.should eql("#{plural.to_s.upcase}+")
+        end
+
+        it "for #{method}_" do
+          underscore = "#{method}_".to_sym
+          o = @builder.send(underscore, method, "Desc of #{method}_")
+          o.short_flag.should be(nil)
+        end
+
+        it "for #{method}s_" do
+          underscore = "#{method}s_".to_sym
+          o = @builder.send(underscore, method, "Desc of #{method}s_")
+          o.short_flag.should be(nil)
+        end
+      end
+    end
 
     describe :help do
       it "should allow for a no arg" do
