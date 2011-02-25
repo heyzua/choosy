@@ -66,6 +66,20 @@ module Choosy::DSL
       finalize_builder builder
     end
 
+    # Option types
+    
+    def boolean(sym, desc, config=nil, &block)
+      simple_option(sym, desc, nil, config, &block)
+    end
+
+    def single(sym, desc, config=nil, &block)
+      simple_option(sym, desc, sym.to_s.upcase, config, &block)
+    end
+
+    def multiple(sym, desc, config=nil, &block)
+      simple_option(sym, desc, "#{sym}+".upcase, config, &block)
+    end
+
     def help(msg=nil)
       h = OptionBuilder.new(HELP)
       h.short '-h'
@@ -81,7 +95,6 @@ module Choosy::DSL
 
     def version(msg)
       v = OptionBuilder.new(VERSION)
-      v.short '-v'
       v.long '--version'
       v.desc "The version number"
 
@@ -106,6 +119,19 @@ module Choosy::DSL
       command.listing << builder.option
 
       builder.option
+    end
+
+    def simple_option(sym, desc, param, config, &block)
+      name = sym.to_s
+      builder = OptionBuilder.new sym
+      builder.desc desc
+      builder.short "-#{name[0]}"
+      builder.long "--#{name.downcase.gsub(/_/, '-')}"
+      builder.param param
+      builder.from_hash config if config
+
+      yield builder if block_given?
+      finalize_builder builder
     end
   end
 end

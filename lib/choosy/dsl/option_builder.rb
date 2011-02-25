@@ -6,7 +6,6 @@ module Choosy::DSL
   class OptionBuilder
     ZERO_ARITY     = (0 .. 0)
     ONE_ARITY      = (1 .. 1)
-    OPTIONAL_ARITY = (0 .. 1)
     MANY_ARITY     = (1 .. 1000)
     
     attr_reader :option
@@ -17,12 +16,12 @@ module Choosy::DSL
 
     def short(flag, param=nil)
       option.short_flag = flag
-      check_param(param)
+      param(param)
     end
 
     def long(flag, param=nil)
       option.long_flag = flag
-      check_param(param)
+      param(param)
     end
 
     def desc(description)
@@ -33,8 +32,24 @@ module Choosy::DSL
       option.default_value = value
     end
 
-    def required
-      option.required = true
+    def required(value=nil)
+      option.required = if value.nil? || value == true
+                          true
+                        else 
+                          false
+                        end
+    end
+
+    def param(param)
+      return if param.nil?
+      option.flag_parameter = param
+      return if @count_called
+      
+      if param =~ /\+$/
+        option.arity = MANY_ARITY 
+      else
+        option.arity = ONE_ARITY
+      end
     end
 
     def count(restriction)
@@ -50,7 +65,7 @@ module Choosy::DSL
         end
         
         option.arity = (lower_bound .. upper_bound)
-      elsif restriction == :zero
+      elsif restriction == :zero || restriction == :none
         option.arity = ZERO_ARITY
       elsif restriction == :once
         option.arity = ONE_ARITY
@@ -82,20 +97,6 @@ module Choosy::DSL
       raise Choosy::ValidationError.new("#{flag_fmt}#{flag_param}: #{msg}")
     end
 
-    def finalize!
-      if option.arity.nil?
-        option.arity = ZERO_ARITY
-      end
-
-      if option.cast_to.nil?
-        if option.arity == ZERO_ARITY
-          option.cast_to = :boolean
-        else
-          option.cast_to = :string
-        end
-      end
-    end
-
     def dependencies(*args)
       if args.count == 1 && args[0].is_a?(Array)
         option.dependent_options = args[0]
@@ -120,21 +121,21 @@ module Choosy::DSL
       end
     end
     
-    private
-    def check_param(param)
-      return if param.nil?
-      option.flag_parameter = param
-      return if @count_called
-      
-      if param =~ /\?$/
-        option.arity = OPTIONAL_ARITY
-      elsif param =~ /\+$/
-        option.arity = MANY_ARITY 
-      else
-        option.arity = ONE_ARITY
+    def finalize!
+      if option.arity.nil?
+        option.arity = ZERO_ARITY
+      end
+
+      if option.cast_to.nil?
+        if option.arity == ZERO_ARITY
+          option.cast_to = :boolean
+        else
+          option.cast_to = :string
+        end
       end
     end
 
+    private
     def check_count(count)
       if !count.is_a?(Integer)
         raise Choosy::ConfigurationError.new("Expected a number to count, got '#{count}'")

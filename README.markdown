@@ -48,7 +48,6 @@ This library should never:
           puts "#{options[:prefix]}#{options[:words].push('foo').join(',')#{options[:suffix}}"
         end
         puts "and #{args.join ' '}"
-        puts "Pushing to #{options[:http]}"
       end
     end
 
@@ -146,15 +145,6 @@ This library should never:
       #                   # explicit.
       # end
 
-      foo.option :http do |o|
-        o.long '--http', 'HTTP?' # The '?' indicates an argument that
-                                 # takes 0 or 1 parameters.  You put
-                                 # a '-' at the end if enforcing zero
-                                 # args to this option.
-        o.desc 'Post this fascinating line to the Interwebs!!!'
-        o.default "http://www.reddit.com"
-      end
-      
       options.separator
       # Tail options
 
@@ -173,7 +163,7 @@ This library should never:
       # Should skip the '-h' flag if already set.
       foo.help  
 
-      # Adds the -v/--version option.
+      # Adds the --version option.
       foo.version "Foo: #{FOO_VERSION}"
 
       # Now, add some validation for any addtional arguments
@@ -195,8 +185,6 @@ This library should never:
                       '--words', 'high', 'there', 'you', '-', 
                       # The '-' stops parsing this option, so that:
                       'handsom', 'devil',
-                      '--http-', # The '-' at the end stops parsing this
-                                 # '?' option
                       'http://not.posting.here',
                       '-c, '23', # Count
                       '--', # Stops parsing all arguments
@@ -209,15 +197,13 @@ This library should never:
       pp foo_cmd[:count]        # => 3
       pp foo_cmd[:bold]         # => false
       pp foo_cmd[:words]        # => ['high', 'there', 'you']
-      pp foo_cmd[:http]         # => 'http://www.reddit.com'
       pp foo_cmd.args           # => ['handsom', 'devil',
                                 #     'http://not.posting.here',
                                 #     '-h', '--help', '-v', '--version']
       pp foo_cmd.options        # => {:prefix => '{', :suffix => '}'
                                 #     :count => 3, :bold => false,
                                 #     :bold => false, 
-                                #     :words => ['high', 'there', 'you']
-                                #     :http => 'http://www.reddit.com' }
+                                #     :words => ['high', 'there', 'you']}
   
       # Now, call the command that does the actual work.
       # This passes the foo_cmd.options and the foo_cmd.args
@@ -230,7 +216,6 @@ This library should never:
                                 # {high,there,you,foo}
                                 # {high,there,you,foo}
                                 # and handsom devil http://not.posting.here -h --help -v --verbose
-                                # Pushing to http://www.reddit.com    
   
     end
 
@@ -343,7 +328,6 @@ We can now create our super command.
                                             #     :count => 2,
                                             #     :bold => true, 
                                             #     :words => [],
-                                            #     :http => 'http://www.reddit.com',
                                             #     :config => '~/.superfoo' }
       pp superfoo.subcommand.args           # => ['cruft', 'bar']
       
@@ -351,7 +335,6 @@ We can now create our super command.
                                             #     :count => 2,
                                             #     :bold => true, 
                                             #     :words => [],
-                                            #     :http => 'http://www.reddit.com'
                                             #     :config => '~/.superfoo' }
       pp superfoo.args                      # => ['cruft', 'bar']
   
@@ -362,7 +345,6 @@ We can now create our super command.
                                             # {foo}
                                             # {foo}
                                             # and cruft bar
-                                            # pushing to http://www.reddit.com
   
       # We got what we wanted, so reset the parser.
       superfoo.reset!
@@ -397,7 +379,6 @@ We can now create our super command.
                                                 #     :count => 2,
                                                 #     :bold => false, 
                                                 #     :words => [],
-                                                #     :http => 'http://www.reddit.com'
                                                 #     :config => '~/.superfoo' }
       pp superfoo.subcommands[0].args           # => ['cruft']
   
@@ -419,7 +400,6 @@ We can now create our super command.
                                # {foo}
                                # {foo}
                                # and cruft
-                               # pushing to http://www.reddit.com
                                # BOLDED BAR
     end
 

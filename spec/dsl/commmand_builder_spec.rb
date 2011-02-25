@@ -179,6 +179,71 @@ module Choosy::DSL
       end
     end#option
 
+    describe :boolean do
+      it "should be able to set short flag" do
+        o = @builder.boolean :Debug, "Show the debug output"
+        o.short_flag.should eql('-D')
+      end
+
+      it "should be able to set the long flag" do
+        o = @builder.boolean :Debug, "show debug"
+        o.long_flag.should eql('--debug')
+      end
+
+      it "should be able to fix the naming convention for long names" do
+        o = @builder.boolean :no_COLOR, "No color output"
+        o.long_flag.should eql('--no-color')
+      end
+
+      it "should set the description" do
+        o = @builder.boolean :no_color, "No color output"
+        o.description.should eql("No color output")
+      end
+
+      it "should handle optional configuration" do
+        o = @builder.boolean :debug, "Debug", {:short => '-D'}
+        o.short_flag.should eql('-D')
+      end
+
+      it "should be able to capture block level data" do
+        o = @builder.boolean :debug, "Show debug output" do |d|
+          d.short '-D'
+        end
+        o.short_flag.should eql("-D")
+      end
+    end#boolean
+
+    describe :single do
+      it "should be able to set the short flag" do
+        o = @builder.single :count, "Show the count"
+        o.short_flag.should eql('-c')
+      end
+
+      it "should be able to set the parameter name" do
+        o = @builder.single :count, "Show the count"
+        o.flag_parameter.should eql('COUNT')
+      end
+    end#single
+
+    describe :multiple do
+      it "should be able to set the short flag" do
+        o = @builder.multiple :file_names, "The file names"
+        o.short_flag.should eql('-f')
+      end
+
+      it "should be able to set the parameter name" do
+        o = @builder.multiple :file_names, "The file names"
+        o.flag_parameter.should eql('FILE_NAMES+')
+      end
+
+      it "should be able to yield a block" do
+        o = @builder.multiple :file_names, "The file names" do |f|
+          f.long '--files'
+        end
+        o.long_flag.should eql('--files')
+      end
+    end#multiple
+
     describe :help do
       it "should allow for a no arg" do
         h = @builder.help

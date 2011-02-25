@@ -26,11 +26,6 @@ module Choosy::DSL
           @option.arity.should eql(1..1000)
         end
 
-        it "should be set on STD? parameter" do
-          @builder.short '-s', 'STD?'
-          @option.arity.should eql(0..1)
-        end
-      
         it "should set single arity on STD parameter" do
           @builder.short '-s', 'STD'
           @option.arity.should eql(1..1)
@@ -53,11 +48,6 @@ module Choosy::DSL
           @builder.short '-s', 'STD+'
           @option.flag_parameter.should eql('STD+')
         end
-
-        it "on STD? parameters" do
-          @builder.short '-s', 'STD?'
-          @option.flag_parameter.should eql('STD?')
-        end
       end
     end#short
 
@@ -78,11 +68,6 @@ module Choosy::DSL
           @option.arity.should eql(1..1)
         end
 
-        it "should set the arity on STD? to 0-1" do
-          @builder.long '--short', 'STD?'
-          @option.arity.should eql(0..1)
-        end
-
         it "should set the arity on STD+ to 1+" do
           @builder.long '--short', 'STD+'
           @option.arity.should eql(1..1000)
@@ -98,11 +83,6 @@ module Choosy::DSL
         it "on STD+ parameters" do
           @builder.long '-s', 'STD+'
           @option.flag_parameter.should eql('STD+')
-        end
-
-        it "on STD? parameters" do
-          @builder.long '-s', 'STD?'
-          @option.flag_parameter.should eql('STD?')
         end
       end
     end#long
@@ -126,7 +106,34 @@ module Choosy::DSL
         @builder.required
         @option.required?.should be(true)
       end
+
+      it "should set the option on non-nil/non-true" do
+        @builder.required 1
+        @option.required?.should be(false)
+      end
+
+      it "should set the option on false" do
+        @builder.required false
+        @option.required?.should be(false)
+      end
     end#required
+
+    describe :param do
+      it "should be able to set the name of the parameter" do
+        @builder.param 'PARAM'
+        @option.flag_parameter.should eql('PARAM')
+      end
+
+      it "should set the arity on STD+ to 1+" do
+        @builder.param 'STD+'
+        @option.arity.should eql(1..1000)
+      end
+
+      it "should set the arity on STD to 1" do
+        @builder.param 'STD'
+        @option.arity.should eql(1..1)
+      end
+    end#param
 
     describe :count do
       describe "when welformed" do
@@ -140,13 +147,18 @@ module Choosy::DSL
           @option.arity.should eql(1..31)
         end
 
-        it "should set :once the right arity" do
+        it "should set :once to the right arity" do
           @builder.count :once
           @option.arity.should eql(1..1)
         end
 
-        it "should set :zero te right arity" do
+        it "should set :zero to the right arity" do
           @builder.count :zero
+          @option.arity.should eql(0..0)
+        end
+
+        it "should set :none to the right arity" do
+          @builder.count :none
           @option.arity.should eql(0..0)
         end
 
@@ -235,8 +247,6 @@ module Choosy::DSL
           @builder.fail "Didn't keep anything"
         }.should raise_error(Choosy::ValidationError, /--keep: Didn't keep anything/)
       end
-
-      it "should alse set the pragram name in the error message"
     end#fail
 
     describe :validate do
@@ -321,7 +331,7 @@ module Choosy::DSL
         attempting {
           @builder.from_hash("")
         }.should raise_error(Choosy::ConfigurationError, /Only hash arguments allowed/)
-      end#from_hash
-    end
+      end
+    end#from_hash
   end
 end
