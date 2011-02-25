@@ -250,28 +250,28 @@ module Choosy::DSL
       end
     end#multiple
 
-    describe "dynamically generated method" do
+    describe "dynamically generated method for" do
       Choosy::Converter::CONVERSIONS.values.flatten!.each do |method|
-        it "for #{method}" do
+        it "#{method}" do
           o = @builder.send(method, method, "Desc of #{method}")
           o.cast_to.should eql(Choosy::Converter.for(method))
           o.flag_parameter.should eql(method.to_s.upcase)
         end
 
-        it "for #{method}s" do
+        it "#{method}s" do
           plural = "#{method}s".to_sym
           o = @builder.send(plural, plural, "Desc of #{plural}")
           o.cast_to.should eql(Choosy::Converter.for(method))
           o.flag_parameter.should eql("#{plural.to_s.upcase}+")
         end
 
-        it "for #{method}_" do
+        it "#{method}_" do
           underscore = "#{method}_".to_sym
           o = @builder.send(underscore, method, "Desc of #{method}_")
           o.short_flag.should be(nil)
         end
 
-        it "for #{method}s_" do
+        it "#{method}s_" do
           underscore = "#{method}s_".to_sym
           o = @builder.send(underscore, method, "Desc of #{method}s_")
           o.short_flag.should be(nil)

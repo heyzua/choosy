@@ -18,6 +18,10 @@ module Choosy
     def [](opt)
       @options[opt]
     end
+
+    def []=(opt, val)
+      @options[opt] = val
+    end
   end
 
   class Parser

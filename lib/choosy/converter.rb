@@ -14,7 +14,7 @@ module Choosy
       String => [:string]
     }
     BOOLEANS = [:boolean, :bool]
-    
+
     def self.for(ty)
       if ty.is_a?(Class)
         vals = CONVERSIONS[ty]
