@@ -5,5 +5,6 @@ module Choosy
   ValidationError    = Class.new(Choosy::Error)
   HelpCalled         = Class.new(Choosy::Error)
   VersionCalled      = Class.new(Choosy::Error)
+  ConversionError    = Class.new(Choosy::Error)
   ParseError         = Class.new(Choosy::Error)
 end

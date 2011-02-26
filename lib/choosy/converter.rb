@@ -1,6 +1,7 @@
 require 'choosy/errors'
 require 'time'
 require 'date'
+require 'yaml'
 
 module Choosy
   class Converter
@@ -10,6 +11,9 @@ module Choosy
       :float   => nil,
       :symbol  => nil,
       :file    => nil,
+      :file!   => nil,  # Requires a file
+      :yaml    => nil,  # Loads a YAML file, if present
+      :yaml!   => nil,  # Requires a YAML file be present
       :date    => nil,
       :time    => nil,
       :datetime => nil,
@@ -62,7 +66,20 @@ module Choosy
     end
 
     def self.file(value)
-      File.new(value)
+      if File.exist?(value)
+        File.new(value)
+      else
+        raise Choosy::ValidationError.new("Unable to locate file: '#{value}'")
+      end
+    end
+
+    def self.yaml(value)
+      fd = file(value)
+      begin
+        return YAML::load_file(fd.path)
+      rescue Error
+        raise Choosy::ConversionError.new("Unable to load YAML from file: '#{value}'")
+      end
     end
 
     def self.date(value)

@@ -1,4 +1,5 @@
 require 'spec_helpers'
+require 'choosy/version'
 require 'choosy/converter'
 
 module Choosy
@@ -84,6 +85,29 @@ module Choosy
       describe :file do
         it "should return a file" do
           Converter.convert(:file, __FILE__).path.should eql(__FILE__)
+        end
+
+        it "should succeed if the file is present" do
+          Converter.convert(:file, __FILE__).path.should eql(__FILE__)
+        end
+
+        it "should fail if the file is not present" do
+          attempting {
+            Converter.convert(:file, __FILE__ + "nothere")
+          }.should raise_error(Choosy::ValidationError, /Unable to locate file:/)
+        end
+      end
+
+      describe :yaml do
+        it "should raise an error if the file doesn't exist" do
+          attempting {
+            Converter.convert(:yaml, __FILE__ + "non")
+          }.should raise_error(Choosy::ValidationError, /Unable to locate/)
+        end
+
+        it "should be able to parse a good yaml file" do
+          y = Converter.convert(:yaml, File.join(File.dirname(__FILE__), '..', 'lib', 'VERSION'))
+          y.should eql(Choosy::Version.to_s.chomp)
         end
       end
 

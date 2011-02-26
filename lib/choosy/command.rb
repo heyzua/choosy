@@ -25,13 +25,33 @@ module Choosy
       opts = options
       parser = Parser.new(opts)
       result = parser.parse!(args)
-      verifier = Verifier.new(opts)
+      # TODO: Doesn't order dependencies yet
+      verifier = Verifier.new(self)
       verifier.verify!(result)
       result
     end
 
+    def execute!(args, propagate=false)
+      if propagate
+        execute(args)
+      else
+        begin
+          execute(args)
+        # TODO: Refine this
+        rescue Choosy::Error => e
+          STDERR.puts "#{name}: #{e.message}"
+          exit 1
+        end
+      end
+    end
+
     def options
       @builders.values.map {|b| b.option}
+    end
+
+    private
+    def execute(args)
+      # TODO
     end
   end
 end
