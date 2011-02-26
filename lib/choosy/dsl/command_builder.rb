@@ -69,7 +69,7 @@ module Choosy::DSL
 
     # Option types
     def self.create_conversions
-      Choosy::Converter::CONVERSIONS.values.flatten!.each do |method|
+      Choosy::Converter::CONVERSIONS.keys.each do |method|
         define_method method do |sym, desc, config=nil, &block|
           simple_option(sym, desc, true, :one, method, config, &block)
         end

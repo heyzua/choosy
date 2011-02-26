@@ -251,11 +251,15 @@ module Choosy::DSL
     end#multiple
 
     describe "dynamically generated method for" do
-      Choosy::Converter::CONVERSIONS.values.flatten!.each do |method|
+      Choosy::Converter::CONVERSIONS.keys.each do |method|
         it "#{method}" do
           o = @builder.send(method, method, "Desc of #{method}")
           o.cast_to.should eql(Choosy::Converter.for(method))
-          o.flag_parameter.should eql(method.to_s.upcase)
+          if o.cast_to == :boolean
+            o.flag_parameter.should be(nil)
+          else
+            o.flag_parameter.should eql(method.to_s.upcase)
+          end
         end
 
         it "#{method}s" do

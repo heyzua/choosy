@@ -5,41 +5,6 @@ module Choosy
   describe Converter do
 
     describe :for do
-      
-      describe "types" do
-        it "knows about Strings" do
-          Converter.for(String).should eql(:string)
-        end
-        
-        it "knows about Files" do
-          Converter.for(File).should eql(:file)
-        end
-
-        it "knows about Integers" do
-          Converter.for(Integer).should eql(:integer)
-        end
-
-        it "knows about Float" do
-          Converter.for(Float).should eql(:float)
-        end
-
-        it "knows about Symbols" do
-          Converter.for(Symbol).should eql(:symbol)
-        end
-
-        it "should know about Date" do
-          Converter.for(Date).should eql(:date)
-        end
-
-        it "should know about Time" do
-          Converter.for(Time).should eql(:time)
-        end
-
-        it "should know about DateTime" do
-          Converter.for(DateTime).should eql(:datetime)
-        end
-      end
-
       describe "symbols" do
         it "knows about strings" do
           Converter.for(:string).should eql(:string)
@@ -96,5 +61,61 @@ module Choosy
         end
       end
     end#for
+
+    describe "converting" do
+      describe :integer do
+        it "should return an integer value" do
+          Converter.convert(:integer, "42").should eql(42)
+        end
+      end
+
+      describe :float do
+        it "should return an float value" do
+          Converter.convert(:float, "3.2").should eql(3.2)
+        end
+      end
+
+      describe :symbol do
+        it "should return a symbol" do
+          Converter.convert(:symbol, "this").should eql(:this)
+        end
+      end
+
+      describe :file do
+        it "should return a file" do
+          Converter.convert(:file, __FILE__).path.should eql(__FILE__)
+        end
+      end
+
+      describe :date do
+        it "should return a Date" do
+          date = Converter.convert(:date, "July 17, 2010")
+          date.month.should eql(7)
+          date.day.should eql(17)
+          date.year.should eql(2010)
+        end
+      end
+
+      describe :time do
+        it "should return a Time" do
+          time = Converter.convert(:time, "12:30:15")
+          time.hour.should eql(12)
+          time.min.should eql(30)
+          time.sec.should eql(15)
+        end
+      end
+
+      describe :datetime do
+        it "should return a DateTime" do
+          datetime = Converter.convert(:datetime, "July 17, 2010 12:30:15")
+          datetime.month.should eql(7)
+          datetime.day.should eql(17)
+          datetime.year.should eql(2010)
+          datetime.hour.should eql(12)
+          datetime.min.should eql(30)
+          datetime.sec.should eql(15)
+        end
+      end
+    end#converting
   end
 end

@@ -7,8 +7,16 @@ require 'choosy/command'
 module Choosy
 
   module VerifierHelper
-    def v(cb)
-      Verifier.new(cb.command.options)
+    def reset!
+      @c = Command.new(:verifier)
+    end
+
+    def v
+      Verifier.new(@c)
+    end
+
+    def b
+      @c.builder
     end
   end
 
@@ -16,45 +24,65 @@ module Choosy
     include VerifierHelper
 
     before :each do
-      @cb = Command.new(:verifier).builder
+      reset!
       @res = ParseResult.new
     end
 
-    describe :populate_defaults! do
+    describe :verify! do
+      it "should not try to validate arguments if not set" do
+        b.boolean :debug, "Debug"
+        @res.args << "a"
+        attempting {
+          v.verify!(@res)
+        }.should_not raise_error
+      end
+
+      it "should validate arguments if asked" do
+        b.arguments do |args|
+          raise RuntimeError.new('Called!')
+        end
+
+        attempting {
+          v.verify!(@res)
+        }.should raise_error(RuntimeError, 'Called!')
+      end
+    end
+
+    describe :populate! do
       it "should fill in default boolean values to false if unset" do
-        @cb.boolean :debug, "Debug"
-        v(@cb).populate_defaults!(@res)
+        o = b.boolean :debug, "Debug"
+        v.populate!(o, @res)
         @res.options.should eql({:debug => false})
       end
 
       it "should fill in the default boolean to true if set to true" do
-        @cb.boolean :verbose, "Verbose", :default => true
-        v(@cb).populate_defaults!(@res)
+        o = b.boolean :verbose, "Verbose", :default => true
+        v.populate!(o, @res)
         @res.options.should eql({:verbose => true})
       end
 
       it "should set the default of multi-arg options to []" do
-        @cb.strings :words, "Words"
-        v(@cb).populate_defaults!(@res)
+        o = b.strings :words, "Words"
+        v.populate!(o, @res)
         @res.options.should eql({:words => []})
       end
 
       it "should set the default value for other options to nil if empty" do
-        @cb.string :line, "Line"
-        v(@cb).populate_defaults!(@res)
+        o = b.string :line, "Line"
+        v.populate!(o, @res)
         @res.options.should eql({:line => nil})
       end
 
       it "should set the default value for other options if set" do
-        @cb.string :line, "Line", :default => "line!"
-        v(@cb).populate_defaults!(@res)
+        o = b.string :line, "Line", :default => "line!"
+        v.populate!(o, @res)
         @res.options.should eql({:line => "line!"})
       end
     end#populate_defaults!
 
-    describe :validate_options! do
+    describe :validate! do
       it "should call the validate proc associated with each option" do
-        @cb.string :line, "Line" do |l|
+        o = b.string :line, "Line" do |l|
           l.validate do |arg|
             l.fail "Validated!"
           end
@@ -62,8 +90,57 @@ module Choosy
         @res[:line] = "line"
 
         attempting {
-          v(@cb).validate_options!(@res)
+          v.validate!(o, @res)
         }.should raise_error(Choosy::ValidationError, /Validated!/)
+      end
+
+      it "should not call the proc on empty arguments" do
+        o = b.strings :line, "Line" do |l|
+          l.validate do |arg|
+            l.fail "Validated!"
+          end
+        end
+        @res[:line] = []
+
+        v.validate!(o, @res)
+        @res[:line].should eql([])
+      end
+
+      it "should not call the proc when the arguments are null" do
+        o = b.string :line, "Line" do |l|
+          l.validate do |arg|
+            l.fail "Validated!"
+          end
+        end
+        @res[:line] = nil
+
+        v.validate!(o, @res)
+        @res[:line].should be(nil)
+      end
+    end#validate!
+
+    describe :convert! do
+      it "should convert files" do
+        o = b.file :afile, "A File"
+        @res[:afile] = __FILE__
+        v.convert!(o, @res)
+        @res[:afile].path.should eql(__FILE__)
+      end
+
+      class CustomConverter
+        def convert(value)
+          value.to_i
+        end
+      end
+
+      it "should convert a custom type" do
+        o = b.single :an_int, "An int" do |i|
+          i.cast CustomConverter.new
+        end
+        @res[:an_int] = "1"
+
+        v.convert!(o, @res)
+        @res[:an_int].should eql(1)
       end
     end
   end

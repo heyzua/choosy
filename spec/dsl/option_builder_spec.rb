@@ -206,10 +206,16 @@ module Choosy::DSL
         @builder.cast :int
         @option.cast_to.should eql(:integer)
       end
+  
+      class CustomConverter
+        def convert(value)
+        end
+      end
 
-      it "should allow for Type casts" do
-        @builder.cast Date
-        @option.cast_to.should eql(:date)
+      it "should allow for custom conversions" do
+        conv = CustomConverter.new
+        @builder.cast conv
+        @option.cast_to.should be(conv)
       end
 
       it "should fail if it doesn't know about a Type" do
