@@ -119,6 +119,24 @@ module Choosy
       end
     end#validate!
 
+    describe :required? do
+      it "should fail when an option is required but not provided" do
+        o = b.string :str, "String" do |s|
+          s.required
+        end
+        attempting {
+          v.required?(o, @res)
+        }.should raise_error(Choosy::ValidationError, /Required/)
+      end
+
+      it "should succeed when nothing is required" do
+        o = b.string :str, "String"
+        attempting {
+          v.required?(o, @res)
+        }.should_not raise_error
+      end
+    end
+
     describe :convert! do
       it "should convert files" do
         o = b.file :afile, "A File"

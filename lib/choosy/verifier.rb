@@ -10,6 +10,7 @@ module Choosy
 
     def verify!(result)
       @command.options.each do |option|
+        required?(option, result)
         populate!(option, result)
         convert!(option, result)
         validate!(option, result)
@@ -20,6 +21,12 @@ module Choosy
       end
     end
 
+    def required?(option, result)
+      if option.required? && result[option.name].nil?
+        raise ValidationError.new("Required option '#{option.long_flag}' missing.")
+      end
+    end
+    
     def populate!(option, result)
       if !result.options.has_key?(option.name) # Not already set
         if !option.default_value.nil? # Has default?
