@@ -10,10 +10,8 @@ module Choosy
       :int     => :integer,
       :float   => nil,
       :symbol  => nil,
-      :file    => nil,
-      :file!   => nil,  # Requires a file
+      :file    => nil,  # Succeeds only if a file is present
       :yaml    => nil,  # Loads a YAML file, if present
-      :yaml!   => nil,  # Requires a YAML file be present
       :date    => nil,
       :time    => nil,
       :datetime => nil,
@@ -43,6 +41,10 @@ module Choosy
       else
         ty.convert(value)
       end
+    end
+
+    def self.boolean(value)
+      value # already set
     end
 
     def self.integer(value)

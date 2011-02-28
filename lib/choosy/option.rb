@@ -9,6 +9,7 @@ module Choosy
 
     def initialize(name)
       @name = name
+      @required = false
     end
     
     def required=(req)

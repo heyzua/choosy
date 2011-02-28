@@ -1,6 +1,7 @@
 require 'choosy/errors'
 require 'choosy/dsl/command_builder'
 require 'choosy/parser'
+require 'choosy/verifier'
 
 module Choosy
   class Command
@@ -15,10 +16,12 @@ module Choosy
 
       @builder = Choosy::DSL::CommandBuilder.new(self)
       yield @builder if block_given?
+      @builder.finalize!
     end
 
     def alter(&block)
       yield @builder if block_given?
+      @builder.finalize!
     end
 
     def parse!(args, propagate=false)

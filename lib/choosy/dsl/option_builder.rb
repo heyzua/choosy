@@ -12,6 +12,7 @@ module Choosy::DSL
     
     def initialize(name)
       @option = Choosy::Option.new(name)
+      @count_called = false
     end
 
     def short(flag, param=nil)

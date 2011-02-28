@@ -99,6 +99,8 @@ module Choosy::DSL
     # Option types
     def self.create_conversions
       Choosy::Converter::CONVERSIONS.keys.each do |method|
+        next if method == :boolean || method == :bool
+
         define_method method do |sym, desc, config=nil, &block|
           simple_option(sym, desc, true, :one, method, config, &block)
         end
@@ -140,7 +142,8 @@ module Choosy::DSL
       h = OptionBuilder.new(HELP)
       h.short '-h'
       h.long '--help'
-      h.desc (msg || "Show this help message")
+      msg ||= "Show this help message"
+      h.desc msg
 
       h.validate do
         raise Choosy::HelpCalled.new

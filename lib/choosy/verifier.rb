@@ -1,4 +1,4 @@
-require 'choosy/verifier'
+require 'choosy/errors'
 
 module Choosy
   class Verifier
