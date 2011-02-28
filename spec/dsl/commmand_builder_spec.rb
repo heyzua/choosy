@@ -44,11 +44,57 @@ module Choosy::DSL
     end#executor
 
     describe :printer do
-      it "should know how to set the default printer"
-      it "should understand how to set custom printers"
-      it "should fail when the printer doesn't implement 'print!'"
-      it "should know how to turn off color"
-      it "should know how to turn on color"
+      it "should know how to set the default printer" do
+        @builder.printer :standard
+        @command.printer.should be_a(Choosy::Printing::HelpPrinter)
+      end
+
+      it "should raise an error on a non-standard printer" do
+        attempting {
+          @builder.printer :non_standard
+        }.should raise_error(Choosy::ConfigurationError, /Unknown printing/)
+      end
+
+      class TestPrinter
+        def print!(cmd)
+        end
+      end 
+
+      it "should understand how to set custom printers" do
+        attempting {
+          @builder.printer TestPrinter.new
+        }.should_not raise_error
+      end
+
+      it "should fail when the printer doesn't implement 'print!'" do
+        attempting {
+          @builder.printer "this"
+        }.should raise_error(Choosy::ConfigurationError, /Unknown printing/)
+      end
+
+      it "should know how to turn off color" do
+        @builder.printer :standard, :color => false
+        @command.printer.color.disabled?.should be(true)
+      end
+
+      describe "for :erb printing" do
+        it "should be able to handle a given template" do
+          @builder.printer :erb, :template => __FILE__
+          @command.printer.should be_a(Choosy::Printing::ERBPrinter)
+        end
+
+        it "should fail when the tempate file doesn't exist" do
+          attempting {
+            @builder.printer :erb, :template => "non"
+          }.should raise_error(Choosy::ConfigurationError, /template file doesn't exist/)
+        end
+
+        it "should fail when no template option is specified" do
+          attempting {
+            @builder.printer :erb
+          }.should raise_error(Choosy::ConfigurationError, /no template/)
+        end
+      end
     end#printer
 
     describe :summary do
@@ -339,7 +385,10 @@ module Choosy::DSL
     end#arguments
 
     describe :finalize! do
-      it "TODO: how to finalize builder"
+      it "should set the printer if not already set" do
+        @builder.finalize!
+        @command.printer.should be_a(Choosy::Printing::HelpPrinter)
+      end
     end#finalize!
   end
 end

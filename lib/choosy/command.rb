@@ -5,7 +5,7 @@ require 'choosy/parser'
 module Choosy
   class Command
     attr_accessor :name, :executor, :summary, :description
-    attr_accessor :argument_validation
+    attr_accessor :argument_validation, :printer
     attr_reader :listing, :builders, :builder
     
     def initialize(name)
@@ -21,28 +21,29 @@ module Choosy
       yield @builder if block_given?
     end
 
-    def parse!(args)
-      opts = options
-      parser = Parser.new(opts)
-      result = parser.parse!(args)
-      # TODO: Doesn't order dependencies yet
-      verifier = Verifier.new(self)
-      verifier.verify!(result)
-      result
-    end
-
-    def execute!(args, propagate=false)
+    def parse!(args, propagate=false)
       if propagate
-        execute(args)
+        return parse(args)
       else
         begin
-          execute(args)
-        # TODO: Refine this
-        rescue Choosy::Error => e
+          return parse(args)
+        rescue Choosy::ValidationError, Choosy::ConversionError, Choosy::ParseError => e
           STDERR.puts "#{name}: #{e.message}"
           exit 1
+        rescue Choosy::HelpCalled => e
+          printer.print!(self)
+          exit 0
+        rescue Choosy::VersionCalled => e
+          STDOUT.puts e.message
+          exit 0
         end
       end
+    end
+
+    def execute!(args)
+      raise Choosy::ConfigurationError.new("No executor given for: #{name}") unless executor
+      result = parse!(args)
+      executor.call(result.options, result.args)
     end
 
     def options
@@ -50,8 +51,14 @@ module Choosy
     end
 
     private
-    def execute(args)
-      # TODO
+    def parse(args)
+      opts = options
+      parser = Parser.new(opts)
+      result = parser.parse!(args)
+      # TODO: Doesn't order dependencies yet
+      verifier = Verifier.new(self)
+      verifier.verify!(result)
+      result
     end
   end
 end
