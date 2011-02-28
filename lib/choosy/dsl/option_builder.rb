@@ -24,6 +24,12 @@ module Choosy::DSL
       param(param)
     end
 
+    def flags(shorter, longer=nil, parameter=nil)
+      short(shorter)
+      long(longer) if longer
+      param(parameter) if parameter
+    end
+
     def desc(description)
       option.description = description
     end

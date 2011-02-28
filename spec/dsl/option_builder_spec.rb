@@ -87,6 +87,43 @@ module Choosy::DSL
       end
     end#long
 
+    describe :flags do
+      it "should be able to set the short flag" do
+        @builder.flags '-s'
+        @option.short_flag.should eql('-s')
+      end
+
+      it "should the long flag unset when just the short flag is given" do
+        @builder.flags '-s'
+        @option.long_flag.should be(nil)
+      end
+
+      it "should leave the param nil when just the short flag is given" do
+        @builder.flags '-s'
+        @option.flag_parameter.should be(nil)
+      end
+
+      it "should be able to set the short when the long flag is given" do
+        @builder.flags '-s', '--short'
+        @option.short_flag.should eql('-s')
+      end
+
+      it "should be able to set the long flag when given" do
+        @builder.flags '-s', '--short'
+        @option.long_flag.should eql('--short')
+      end
+
+      it "should leave the parameter empty when not given" do
+        @builder.flags '-s', '--short'
+        @option.flag_parameter.should be(nil)
+      end
+
+      it "should set the parameter if given" do
+        @builder.flags '-s', '--short', 'SHORT'
+        @option.flag_parameter.should eql('SHORT')
+      end
+    end#flags
+
     describe :desc do
       it "should set the option correctly" do
         @builder.desc "This is an option"
