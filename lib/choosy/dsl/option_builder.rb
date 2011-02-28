@@ -4,6 +4,9 @@ require 'choosy/converter'
 
 module Choosy::DSL
   class OptionBuilder
+    HELP = :__help__
+    VERSION = :__version__
+
     ZERO_ARITY     = (0 .. 0)
     ONE_ARITY      = (1 .. 1)
     MANY_ARITY     = (1 .. 1000)

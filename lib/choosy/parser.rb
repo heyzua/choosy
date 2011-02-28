@@ -97,56 +97,69 @@ module Choosy
       end
 
       if option.arity == Choosy::DSL::OptionBuilder::ZERO_ARITY
+        parse_boolean_option(result, option, index, arg, current)
+      elsif option.arity == Choosy::DSL::OptionBuilder::ONE_ARITY
+        parse_single_option(result, option, index, argv, flag, arg)
+      else # Vararg
+        parse_multiple_option(result, option, index, argv, flag, arg)
+      end
+    end
+
+    def parse_boolean_option(result, option, index, arg, current)
         raise Choosy::ParseError.new("Argument given to boolean flag: '#{current}'") if arg
         result.options[option.name] = !option.default_value 
+        index + 1
+    end
+
+    def parse_single_option(result, option, index, argv, flag, arg)
+      if arg
+        result.options[option.name] = arg
         index += 1
-      elsif option.arity == Choosy::DSL::OptionBuilder::ONE_ARITY
-        if arg
-          result.options[option.name] = arg
-          index += 1
+      else
+        current, index = read_arg(argv, index + 1, result)
+        if current.nil?
+          raise Choosy::ParseError.new("Argument missing for option: '#{flag}'")
         else
-          current, index = read_arg(argv, index + 1, result)
-          if current.nil?
-            raise Choosy::ParseError.new("Argument missing for option: '#{flag}'")
-          else
-            result.options[option.name] = current
-          end
+          result.options[option.name] = current
         end
-      else # Vararg
-        if arg
-          if option.arity.min > 1
-            raise Choosy::ParseError.new("The '#{flag}' flag requires at least #{option.arity.min} arguments")
-          end
-          result.options[option.name] = arg
-          return index + 1
-        end
-
-        index += 1
-        min = index + option.arity.min
-        max = index + option.arity.max
-        args = []
-
-        while index < min
-          current, index = read_arg(argv, index, result)
-          if current.nil?
-            raise Choosy::ParseError.new("The '#{flag}' flag requires at least #{option.arity.min} arguments")
-          end
-          args << current
-        end
-
-        while index < max && index < argv.length
-          current, index = read_arg(argv, index, result)
-          break if current.nil?
-          args << current
-        end
-
-        if index < argv.length && argv[index] == '-'
-          index += 1
-        end
-
-        result.options[option.name] = args
       end
 
+      index
+    end
+
+    def parse_multiple_option(result, option, index, argv, flag, arg)
+      if arg
+        if option.arity.min > 1
+          raise Choosy::ParseError.new("The '#{flag}' flag requires at least #{option.arity.min} arguments")
+        end
+        result.options[option.name] = arg
+        return index + 1
+      end
+
+      index += 1
+      min = index + option.arity.min
+      max = index + option.arity.max
+      args = []
+
+      while index < min
+        current, index = read_arg(argv, index, result)
+        if current.nil?
+          raise Choosy::ParseError.new("The '#{flag}' flag requires at least #{option.arity.min} arguments")
+        end
+        args << current
+      end
+
+      while index < max && index < argv.length
+        current, index = read_arg(argv, index, result)
+        break if current.nil?
+        args << current
+      end
+
+      if index < argv.length && argv[index] == '-'
+        index += 1
+      end
+
+      result.options[option.name] = args
       index
     end
 

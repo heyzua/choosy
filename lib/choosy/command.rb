@@ -1,29 +1,13 @@
 require 'choosy/errors'
+require 'choosy/base_command'
 require 'choosy/dsl/command_builder'
 require 'choosy/parser'
 require 'choosy/verifier'
 
 module Choosy
-  class Command
-    attr_accessor :name, :executor, :summary, :description
-    attr_accessor :argument_validation, :printer
-    attr_reader :listing, :builders, :builder
+  class Command < BaseCommand
+    attr_accessor :executor, :argument_validation
     
-    def initialize(name)
-      @name = name
-      @listing = []
-      @builders = {}
-
-      @builder = Choosy::DSL::CommandBuilder.new(self)
-      yield @builder if block_given?
-      @builder.finalize!
-    end
-
-    def alter(&block)
-      yield @builder if block_given?
-      @builder.finalize!
-    end
-
     def parse!(args, propagate=false)
       if propagate
         return parse(args)
@@ -31,13 +15,13 @@ module Choosy
         begin
           return parse(args)
         rescue Choosy::ValidationError, Choosy::ConversionError, Choosy::ParseError => e
-          STDERR.puts "#{name}: #{e.message}"
+          $stderr << "#{name}: #{e.message}\n"
           exit 1
         rescue Choosy::HelpCalled => e
           printer.print!(self)
           exit 0
         rescue Choosy::VersionCalled => e
-          STDOUT.puts e.message
+          $stdout <<  "#{e.message}\n"
           exit 0
         end
       end
@@ -49,8 +33,9 @@ module Choosy
       executor.call(result.options, result.args)
     end
 
-    def options
-      @builders.values.map {|b| b.option}
+    protected
+    def create_builder
+      Choosy::DSL::CommandBuilder.new(self)
     end
 
     private

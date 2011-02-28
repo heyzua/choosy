@@ -35,7 +35,7 @@ module Choosy::Printing
     def print!(command)
       print_usage(command)
       print_summary(command.summary) if command.summary
-      print_description(commande.description) if command.description
+      print_description(command.description) if command.description
       command.listing.each do |l|
         if l.is_a?(String)
           print_separator(l)
@@ -51,7 +51,7 @@ module Choosy::Printing
              else
                ""
              end
-      options = if command.builders.length == 0
+      options = if command.option_builders.length == 0
                   ""
                 else
                   " [OPTIONS]"

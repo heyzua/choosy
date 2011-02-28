@@ -225,7 +225,7 @@ module Choosy
         res.options.should eql({})
       end
 
-      it "should sjip irrelevant boolean args" do
+      it "should skip irrelevant boolean args" do
         res = @pb.lazy!.boolean(:opt).parse!('a', '-b', '--opt', 'c')
         res.unparsed.should eql(['a', '-b', 'c'])
       end
