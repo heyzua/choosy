@@ -15,7 +15,17 @@ module Choosy::DSL
           @builder.printer :non_standard
         }.should raise_error(Choosy::ConfigurationError, /Unknown printing/)
       end
+      
+      it "should know how to set the default printer" do
+        @builder.printer :standard
+        @command.printer.should be_a(Choosy::Printing::HelpPrinter)
+      end
 
+      it "should know how to turn off color" do
+        @builder.printer :standard, :color => false
+        @command.printer.color.disabled?.should be(true)
+      end
+      
       class TestPrinter
         def print!(cmd)
         end
@@ -307,5 +317,12 @@ module Choosy::DSL
         v.description.should eql("The version number")
       end
     end#version
+
+    describe :finalize! do
+      it "should set the printer if not already set" do
+        @builder.finalize!
+        @command.printer.should be_a(Choosy::Printing::HelpPrinter)
+      end
+    end#finalize!
   end
 end

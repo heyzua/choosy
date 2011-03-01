@@ -28,7 +28,7 @@ module Choosy::DSL
       h.desc msg
 
       h.validate do
-        raise Choosy::HelpCalled.new
+        raise Choosy::HelpCalled.new(@name)
       end 
 
       finalize_option_builder h
@@ -38,17 +38,6 @@ module Choosy::DSL
       raise Choosy::ConfigurationError.new("No block to arguments call") if !block_given?
 
       command.argument_validation = block
-    end
-    
-    def finalize!
-      if @command.printer.nil?
-        printer :standard
-      end
-    end
-
-    protected
-    def create_printer
-      Choosy::Printing::HelpPrinter.new
     end
   end
 end

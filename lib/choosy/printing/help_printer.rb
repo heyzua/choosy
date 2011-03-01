@@ -39,8 +39,10 @@ module Choosy::Printing
       command.listing.each do |l|
         if l.is_a?(String)
           print_separator(l)
-        else
+        elsif l.is_a?(Choosy::Option)
           print_option(l)
+        else
+          print_command(l)
         end
       end
     end
@@ -92,6 +94,10 @@ module Choosy::Printing
 
       $stdout << "\n"
       write_lines(option.description, "        ")
+    end
+
+    def print_command(command)
+      raise "Whoa!!!!"
     end
 
     protected

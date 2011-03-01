@@ -43,18 +43,6 @@ module Choosy::DSL
       end
     end#executor
 
-    describe :printer do
-      it "should know how to set the default printer" do
-        @builder.printer :standard
-        @command.printer.should be_a(Choosy::Printing::HelpPrinter)
-      end
-
-      it "should know how to turn off color" do
-        @builder.printer :standard, :color => false
-        @command.printer.color.disabled?.should be(true)
-      end
-    end
-
     describe :help do
       it "should allow for a no arg" do
         h = @builder.help
@@ -88,12 +76,5 @@ module Choosy::DSL
         @command.argument_validation.call([1, 2, 3])
       end
     end#arguments
-
-    describe :finalize! do
-      it "should set the printer if not already set" do
-        @builder.finalize!
-        @command.printer.should be_a(Choosy::Printing::HelpPrinter)
-      end
-    end#finalize!
   end
 end

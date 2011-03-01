@@ -24,8 +24,35 @@ module Choosy
       @option_builders.values.map {|b| b.option}
     end
 
+    def parse!(args, propagate=false)
+      if propagate
+        return parse(args)
+      else
+        begin
+          return parse(args)
+        rescue Choosy::ValidationError, Choosy::ConversionError, Choosy::ParseError => e
+          $stderr << "#{@name}: #{e.message}\n"
+          exit 1
+        rescue Choosy::HelpCalled => e
+          handle_help(e)
+          exit 0
+        rescue Choosy::VersionCalled => e
+          $stdout <<  "#{e.message}\n"
+          exit 0
+        end
+      end
+    end
+
     protected
     def create_builder
+      # Override in subclasses
+    end
+
+    def parse(args)
+      # Override in subclasses
+    end
+
+    def handle_help(hc)
       # Override in subclasses
     end
   end

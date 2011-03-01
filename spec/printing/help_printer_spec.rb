@@ -86,6 +86,8 @@ EOF
       o.should eql("    -c, --count COUNT\n        The count\n")
     end
     
+    it "should print out any commands that are present"
+
     it "should print out the description" do
       @h.columns = 80
       o = capture_stdout do

@@ -8,44 +8,44 @@ module Choosy
       @c = Command.new :foo
     end
 
-    it "should finalize the builder" do
-      @c.printer.should be_a(Choosy::Printing::HelpPrinter)
-    end
+    describe :parse! do
+      it "should print out the version number" do
+        @c.alter do |c|
+          c.version "blah"
+        end
 
-    it "should print out the version number" do
-      @c.alter do |c|
-        c.version "blah"
+        o = capture_stdout do
+          attempting {
+            @c.parse!(['--version'])
+          }.should raise_error(SystemExit)
+        end
+
+        o.should eql("blah\n")
       end
 
-      o = capture_stdout do
+      it "should print out the help info" do
+        @c.alter do |c|
+          c.summary "Summary"
+          c.desc "this is a description"
+          c.help
+        end
+
+        o = capture_stdout do
+          attempting {
+            @c.parse!(['--help'])
+          }.should raise_error(SystemExit)
+        end
+
+        o.should match(/-h, --help/)
+      end
+    end
+
+    describe :execute! do
+      it "should fail when no executor is given" do
         attempting {
-          @c.parse!(['--version'])
-        }.should raise_error(SystemExit)
+         @c.execute!(['a', 'b'])
+        }.should raise_error(Choosy::ConfigurationError, /No executor/)
       end
-
-      o.should eql("blah\n")
-    end
-
-    it "should print out the help info" do
-      @c.alter do |c|
-        c.summary "Summary"
-        c.desc "this is a description"
-        c.help
-      end
-
-      o = capture_stdout do
-        attempting {
-          @c.parse!(['--help'])
-        }.should raise_error(SystemExit)
-      end
-
-      o.should match(/-h, --help/)
-    end
-
-    it "should fail when no executor is given" do
-      attempting {
-        @c.execute!(['a', 'b'])
-      }.should raise_error(Choosy::ConfigurationError, /No executor/)
     end
   end
 end

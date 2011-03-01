@@ -19,7 +19,7 @@ module Choosy::DSL
 
       p = nil
       if kind == :standard
-        p = create_printer
+        p = Choosy::Printing::HelpPrinter.new
       elsif kind == :erb
         p = Choosy::Printing::ERBPrinter.new
         if options.nil? || options[:template].nil?
@@ -131,15 +131,17 @@ module Choosy::DSL
       finalize_option_builder v
     end
 
-    protected
-    def create_printer
-      # Subclass override
+    def finalize!
+      if @command.printer.nil?
+        printer :standard
+      end
     end
 
+    protected
     def finalize_option_builder(option_builder)
       option_builder.finalize!
-      command.option_builders[option_builder.option.name] = option_builder
-      command.listing << option_builder.option
+      @command.option_builders[option_builder.option.name] = option_builder
+      @command.listing << option_builder.option
 
       option_builder.option
     end

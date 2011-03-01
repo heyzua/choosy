@@ -19,5 +19,13 @@ module Choosy
     def create_builder
       Choosy::DSL::SuperCommandBuilder.new(self)
     end
+
+    def parse(args)
+
+    end
+
+    def handle_help(hc)
+      
+    end
   end
 end
