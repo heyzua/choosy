@@ -13,7 +13,7 @@ module Choosy
           c.version "superblah"
         end
 
-        o = capture_stdout do
+        o = capture :stdout do
           attempting {
             @c.parse!(['--version'])
           }.should raise_error(SystemExit)
@@ -24,6 +24,9 @@ module Choosy
 
       it "should print out the supercommand help message"
       it "should print out a subcommand help message"
+      it "should raise a HelpCalled when it has a :help command" 
+      it "should raise a CommandLineError when a :help command is absent"
+      
     end
 
     describe :execute! do

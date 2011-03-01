@@ -1,4 +1,5 @@
 require 'choosy/errors'
+require 'choosy/dsl/option_builder'
 
 module Choosy
   class Verifier
@@ -28,6 +29,8 @@ module Choosy
     end
     
     def populate!(option, result)
+      return if option.name == Choosy::DSL::OptionBuilder::HELP || option.name == Choosy::DSL::OptionBuilder::VERSION
+
       if !result.options.has_key?(option.name) # Not already set
         if !option.default_value.nil? # Has default?
           result[option.name] = option.default_value

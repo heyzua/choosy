@@ -78,6 +78,18 @@ module Choosy
         v.populate!(o, @res)
         @res.options.should eql({:line => "line!"})
       end
+
+      it "should not populate the default help option" do
+        o = b.help
+        v.populate!(o, @res)
+        @res.options.should be_empty
+      end
+
+      it "should not populate the default version option" do
+        o = b.version "blah"
+        v.populate!(o, @res)
+        @res.options.should be_empty
+      end
     end#populate_defaults!
 
     describe :validate! do

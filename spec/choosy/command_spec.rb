@@ -14,7 +14,7 @@ module Choosy
           c.version "blah"
         end
 
-        o = capture_stdout do
+        o = capture :stdout do
           attempting {
             @c.parse!(['--version'])
           }.should raise_error(SystemExit)
@@ -30,7 +30,7 @@ module Choosy
           c.help
         end
 
-        o = capture_stdout do
+        o = capture :stdout do
           attempting {
             @c.parse!(['--help'])
           }.should raise_error(SystemExit)

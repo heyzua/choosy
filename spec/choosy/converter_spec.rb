@@ -106,7 +106,7 @@ module Choosy
         end
 
         it "should be able to parse a good yaml file" do
-          y = Converter.convert(:yaml, File.join(File.dirname(__FILE__), '..', 'lib', 'VERSION'))
+          y = Converter.convert(:yaml, File.join(File.dirname(__FILE__), '..', '..', 'lib', 'VERSION'))
           y.should eql(Choosy::Version.to_s.chomp)
         end
       end

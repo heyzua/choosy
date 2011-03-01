@@ -7,15 +7,22 @@ def attempting_to(&block)
   lambda &block
 end
 
-# From: https://github.com/cldwalker/hirb/blob/master/lib/hirb/util.rb
-# Captures STDOUT of anything run in its block and returns it as string.
-def capture_stdout(&block)
+# Ammended from: https://github.com/cldwalker/hirb/blob/master/lib/hirb/util.rb
+def capture(kind=nil, &block)
   original_stdout = $stdout
-  $stdout = fake = StringIO.new
+  original_stderr = $stderr
+  $stdout = fake_out = StringIO.new
+  $stderr = fake_err = StringIO.new
   begin
     yield
   ensure
     $stdout = original_stdout
+    $stderr = original_stderr
   end
-  fake.string
+  res = {:stdout => fake_out.string, :stderr => fake_err.string}
+  if kind
+    res[kind]
+  else
+    res
+  end
 end

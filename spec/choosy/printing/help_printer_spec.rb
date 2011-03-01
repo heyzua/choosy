@@ -34,7 +34,7 @@ EOF
     end
 
     it "should now how to format a usage string" do
-      o = capture_stdout do
+      o = capture :stdout do
         @h.print_usage(@c)
       end
 
@@ -47,7 +47,7 @@ EOF
         end
       end
 
-      o = capture_stdout do
+      o = capture :stdout do
         @h.print_usage(@c)
       end
 
@@ -55,7 +55,7 @@ EOF
     end
 
     it "should print a newline on an empty separator" do
-      o = capture_stdout do
+      o = capture :stdout do
         @h.print_separator("")
       end
 
@@ -63,7 +63,7 @@ EOF
     end
 
     it "should print a line with separator text" do
-      o = capture_stdout do
+      o = capture :stdout do
         @h.print_separator("this line")
       end
 
@@ -71,7 +71,7 @@ EOF
     end
 
     it "should print the summary, if present" do
-      o = capture_stdout do
+      o = capture :stdout do
         @h.print_summary(@c.summary)
       end
 
@@ -79,7 +79,7 @@ EOF
     end
 
     it "should print out an option on 2 lines." do
-      o = capture_stdout do
+      o = capture :stdout do
         @h.print_option(@c.listing[2])
       end
 
@@ -90,7 +90,7 @@ EOF
 
     it "should print out the description" do
       @h.columns = 80
-      o = capture_stdout do
+      o = capture :stdout do
         @h.print_description(@c.description)
       end
 

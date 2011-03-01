@@ -30,7 +30,7 @@ module Choosy
       else
         begin
           return parse(args)
-        rescue Choosy::ValidationError, Choosy::ConversionError, Choosy::ParseError => e
+        rescue Choosy::ValidationError, Choosy::ConversionError, Choosy::ParseError, Choosy::CommandLineError => e
           $stderr << "#{@name}: #{e.message}\n"
           exit 1
         rescue Choosy::HelpCalled => e
