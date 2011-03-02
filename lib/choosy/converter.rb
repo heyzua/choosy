@@ -47,6 +47,10 @@ module Choosy
       value # already set
     end
 
+    def self.string(value)
+      value # already set
+    end
+
     def self.integer(value)
       begin
         return Integer(value)

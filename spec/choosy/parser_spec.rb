@@ -6,10 +6,9 @@ require 'choosy/dsl/command_builder'
 module Choosy
   class ParserBuilder
     def initialize
-      @options = []
       @terminals = nil
       @lazy = false
-      @cbuilder = Choosy::DSL::CommandBuilder.new(Choosy::Command.new(:parser))
+      @command = Choosy::Command.new(:parser)
     end
 
     def lazy!
@@ -22,33 +21,39 @@ module Choosy
       parser.parse!(args)
     end
 
-    def terminals(terms)
+    def terminals(*terms)
       @terminals = terms
       self
     end
 
     def boolean(sym, default=nil)
       default ||= false
-      @options << @cbuilder.boolean(sym, sym.to_s, :default => default)
+      @command.alter do |c|
+        c.boolean(sym, sym.to_s, :default => default)
+      end
       self
     end
 
     def single(sym)
-      @options << @cbuilder.single(sym, sym.to_s)
+      @command.alter do |c|
+        c.single(sym, sym.to_s)
+      end
       self
     end
 
     def multiple(sym, min=nil, max=nil)
       min ||= 1
       max ||= 1000
-      @options << @cbuilder.multiple(sym, sym.to_s) do |m|
-        m.count :at_least => min, :at_most => max
+      @command.alter do |c|
+        c.multiple(sym, sym.to_s) do |m|
+          m.count :at_least => min, :at_most => max
+        end
       end
       self
     end
 
     def build
-      Parser.new(@options, @lazy, @terminals)
+      Parser.new(@command, @lazy, @terminals)
     end
   end
 
@@ -67,10 +72,15 @@ module Choosy
       end
 
       it "should stop when it encounters a terminal" do
-        @pb.terminals(['a', 'b'])
+        @pb.terminals('a', 'b')
         res = @pb.parse!('c', 'n', 'b', 'q')
         res.args.should eql(['c', 'n'])
         res.unparsed.should eql(['b', 'q'])
+      end
+
+      it "should capture even if the first item is a terminal" do
+        res = @pb.terminals('a').parse!('a', 'b')
+        res.unparsed.should eql(['a', 'b'])
       end
     end
 
@@ -253,6 +263,11 @@ module Choosy
       it "should skip anything stopped by the '-' in a multi-arg parse" do
         res = @pb.lazy!.multiple(:opt).parse!('-a', '-o', 'r', 's', 't', '-', 'q')
         res.unparsed.should eql(['-a', 'q'])
+      end
+
+      it "should include the terminals in the unparsed part" do
+        res = @pb.lazy!.boolean(:a).terminals('b', 'c').parse!('q', '-a', 'b', 'c')
+        res.unparsed.should eql(['q', 'b', 'c'])
       end
     end#lazy
   end

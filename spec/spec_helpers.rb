@@ -15,6 +15,8 @@ def capture(kind=nil, &block)
   $stderr = fake_err = StringIO.new
   begin
     yield
+  rescue SystemExit => e
+    # Skip
   ensure
     $stdout = original_stdout
     $stderr = original_stderr

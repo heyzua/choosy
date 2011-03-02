@@ -1,46 +1,26 @@
 require 'choosy/errors'
+require 'choosy/parse_result'
 require 'choosy/dsl/option_builder'
 
 module Choosy
-  class ParseResult
-    attr_reader :args, :options, :unparsed
-
-    def initialize
-      @args = []
-      @options = {}
-      @unparsed = []
-    end 
-
-    def remnants?
-      !@unparsed.nil? && @unparsed.length > 0
-    end
-
-    def [](opt)
-      @options[opt]
-    end
-
-    def []=(opt, val)
-      @options[opt] = val
-    end
-  end
-
   class Parser
-    attr_reader :args, :options, :unparsed, :flags
+    attr_reader :flags, :terminals, :command
 
-    def initialize(options, lazy=nil, terminals=nil)
+    def initialize(command, lazy=nil, terminals=nil)
+      @command = command
       @lazy = lazy || false
       @terminals = terminals || []
 
       @flags = {}
-      return if options.nil?
-      options.each do |o|
+      return if command.options.nil?
+      command.options.each do |o|
         verify_option(o)
       end
     end
     
     def parse!(argv, result=nil)
       index = 0
-      result ||= ParseResult.new
+      result ||= ParseResult.new(@command)
 
       while index < argv.length
         case argv[index]
@@ -182,7 +162,7 @@ module Choosy
       current = argv[index]
       return [nil, index] if current[0] == '-'
       if @terminals.include? current
-        result.unparsed.push(*argv[index, argv.length - 1])
+        result.unparsed.push(*argv[index, argv.length])
         return [nil, argv.length]
       end
       [current, index + 1]

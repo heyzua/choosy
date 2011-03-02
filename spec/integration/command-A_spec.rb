@@ -14,9 +14,7 @@ describe "Command A" do
 
   it "should print a help message" do
     o = capture :stdout do
-      attempting {
-        @cmd.parse! ['--help']
-      }.should raise_error(SystemExit)
+      @cmd.parse! ['--help']
     end
 
     o.should match /Usage:/
@@ -31,9 +29,7 @@ describe "Command A" do
   
   it "should print out the version number" do
     o = capture :stdout do
-      attempting {
-        @cmd.parse! ['--count', '5', '--version']
-      }.should raise_error(SystemExit)
+      @cmd.parse! ['--count', '5', '--version']
     end
 
     o.should eql("blah\n")

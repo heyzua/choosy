@@ -3,22 +3,18 @@ require 'choosy/dsl/option_builder'
 
 module Choosy
   class Verifier
-    attr_reader :options
-
-    def initialize(command)
-      @command = command
-    end
-
-    def verify!(result)
-      @command.options.each do |option|
+    def verify_options!(result)
+      result.command.options.each do |option|
         required?(option, result)
         populate!(option, result)
         convert!(option, result)
         validate!(option, result)
       end
+    end
 
-      if @command.argument_validation
-        @command.argument_validation.call(result.args)
+    def verify_arguments!(result)
+      if result.command.respond_to?(:argument_validation) && result.command.argument_validation
+        result.command.argument_validation.call(result.args)
       end
     end
 

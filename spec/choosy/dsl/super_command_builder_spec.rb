@@ -40,6 +40,13 @@ module Choosy::DSL
       end
     end
 
+    describe "standard options" do
+      it "should also be able to set flags" do
+        o = @builder.boolean :count, "The count"
+        @command.option_builders[:count].option.name.should eql(:count)
+      end
+    end
+
     describe :help do
       it "should create a help command when asked" do
         h = @builder.help

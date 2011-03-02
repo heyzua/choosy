@@ -24,13 +24,9 @@ module Choosy
     end
 
     def parse(args)
-      opts = options
-      parser = Parser.new(opts)
+      parser = Parser.new(self)
       result = parser.parse!(args)
-      # TODO: Doesn't order dependencies yet
-      verifier = Verifier.new(self)
-      verifier.verify!(result)
-      result
+      result.verify!
     end
   end
 end

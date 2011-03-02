@@ -12,7 +12,8 @@ module Choosy
     end
 
     def v
-      Verifier.new(@c)
+      @c.builder.finalize!
+      Verifier.new
     end
 
     def b
@@ -25,25 +26,27 @@ module Choosy
 
     before :each do
       reset!
-      @res = ParseResult.new
+      @res = ParseResult.new(@c)
     end
 
-    describe :verify! do
+    describe :verify_options! do
       it "should not try to validate arguments if not set" do
         b.boolean :debug, "Debug"
         @res.args << "a"
         attempting {
-          v.verify!(@res)
+          v.verify_options!(@res)
         }.should_not raise_error
       end
+    end
 
+    describe :verify_arguments! do
       it "should validate arguments if asked" do
         b.arguments do |args|
           raise RuntimeError.new('Called!')
         end
 
         attempting {
-          v.verify!(@res)
+          v.verify_arguments!(@res)
         }.should raise_error(RuntimeError, 'Called!')
       end
     end
@@ -172,6 +175,6 @@ module Choosy
         v.convert!(o, @res)
         @res[:an_int].should eql(1)
       end
-    end
+    end#convert!
   end
 end

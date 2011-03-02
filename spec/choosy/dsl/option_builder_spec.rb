@@ -8,6 +8,12 @@ module Choosy::DSL
       @option = @builder.option
     end
     
+    describe :name do
+      it "should set the name" do
+        @option.name.should eql(:stub)
+      end
+    end
+
     describe :short do
       it "should set the option" do
         @builder.short '-s'
