@@ -54,11 +54,11 @@ module Choosy
   end
 
   class SuperParseResult < BaseParseResult
-    attr_reader :commands
+    attr_reader :subresults
 
     def initialize(command)
       super(command)
-      @commands = []
+      @subresults = []
     end
   end
 end

@@ -69,26 +69,26 @@ module Choosy
         @p.super.builder.help
         attempting {
           @p.parse!()
-        }.should raise_error(Choosy::HelpCalled)
+        }.should raise_error(Choosy::HelpCalled, :super)
       end
     end
 
     describe "with subcommands" do
       describe "being liberal" do
         it "should be able to parse a single subcommand" do
-          @p.command(:bar).parse!('bar').commands.should have(1).item
+          @p.command(:bar).parse!('bar').subresults.should have(1).item
         end
 
         it "should merge parent option with child commands" do
-          @p.single(:count).command(:bar).parse!('bar').commands[0].options.should eql({:count => nil})
+          @p.single(:count).command(:bar).parse!('bar').subresults[0].options.should eql({:count => nil})
         end
 
         it "should merge parent option value with child" do
-          @p.single(:count).command(:bar).parse!('bar', '--count', '3').commands[0].options.should eql({:count => '3'})
+          @p.single(:count).command(:bar).parse!('bar', '--count', '3').subresults[0].options.should eql({:count => '3'})
         end
           
         it "should collect other names of commands as arguments" do
-          @p.command(:bar).command(:baz).parse!('bar', 'baz').commands.should have(1).item
+          @p.command(:bar).command(:baz).parse!('bar', 'baz').subresults.should have(1).item
         end
       end
 
@@ -98,7 +98,7 @@ module Choosy
         end
 
         it "should parse separate commands" do
-          @p.command(:bar).command(:baz).parse!('bar', 'baz').commands.should have(2).items
+          @p.command(:bar).command(:baz).parse!('bar', 'baz').subresults.should have(2).items
         end
       end
     end

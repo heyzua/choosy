@@ -70,6 +70,14 @@ EOF
       o.should eql("this line\n")
     end
 
+    it "should print out a command" do
+      o = capture :stdout do
+        @h.print_command(@c)
+      end
+
+      o.should eql("  foo\tThis is a summary of a command.\n")
+    end
+
     it "should print the summary, if present" do
       o = capture :stdout do
         @h.print_summary(@c.summary)

@@ -23,7 +23,7 @@ module Choosy
       while unparsed.length > 0
         command_result = parse_command(unparsed, terminals)
         command_result.options.merge!(result.options)
-        result.commands << command_result
+        result.subresults << command_result
         
         unparsed = command_result.unparsed
       end
@@ -50,7 +50,7 @@ module Choosy
       # if we found a global action, we should have hit it by now...
       if result.unparsed.length == 0
         if @super_command.command_builders[:help]
-          raise Choosy::HelpCalled.new(@name)
+          raise Choosy::HelpCalled.new(@super_command.name)
         else
           raise Choosy::SuperParseError.new("requires a command")
         end

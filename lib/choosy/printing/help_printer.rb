@@ -47,8 +47,9 @@ module Choosy::Printing
       end
     end
 
+    # FIXME: hideously ugly
     def print_usage(command)
-      args = if command.argument_validation
+      args = if command.respond_to?(:argument_validation) && command.argument_validation
                " [ARGS]"
              else
                ""
@@ -97,7 +98,7 @@ module Choosy::Printing
     end
 
     def print_command(command)
-      raise "Whoa!!!!"
+      write_lines("#{command.name}\t#{command.summary}", "  ")
     end
 
     protected
