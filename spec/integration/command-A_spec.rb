@@ -17,7 +17,7 @@ describe "Command A" do
       @cmd.parse! ['--help']
     end
 
-    o.should match /Usage:/
+    o.should match /USAGE:/
   end
 
   it "should handle multiple arguments" do

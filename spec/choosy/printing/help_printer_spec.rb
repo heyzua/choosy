@@ -38,7 +38,7 @@ EOF
         @h.print_usage(@c)
       end
 
-      o.should eql("Usage: foo [OPTIONS]\n")
+      o.should eql("USAGE: foo [OPTIONS]\n")
     end
 
     it "should show the usage string if it accepts extra arguments" do
@@ -51,7 +51,7 @@ EOF
         @h.print_usage(@c)
       end
 
-      o.should eql("Usage: foo [OPTIONS] [ARGS]\n")
+      o.should eql("USAGE: foo [OPTIONS] [ARGS]\n")
     end
 
     it "should print a newline on an empty separator" do
@@ -59,7 +59,7 @@ EOF
         @h.print_separator("")
       end
 
-      o.should eql("\n")
+      o.should eql("\n\n")
     end
 
     it "should print a line with separator text" do
@@ -67,7 +67,7 @@ EOF
         @h.print_separator("this line")
       end
 
-      o.should eql("this line\n")
+      o.should eql("\nthis line\n")
     end
 
     it "should print out a command" do
@@ -83,7 +83,7 @@ EOF
         @h.print_summary(@c.summary)
       end
 
-      o.should eql("This is a summary of a command.\n")
+      o.should eql("  This is a summary of a command.\n")
     end
 
     it "should print out an option on 2 lines." do
@@ -91,7 +91,7 @@ EOF
         @h.print_option(@c.listing[2])
       end
 
-      o.should eql("    -c, --count COUNT\n        The count\n")
+      o.should eql("  -c, --count COUNT\n       The count\n")
     end
     
     it "should print out any commands that are present"
@@ -103,12 +103,13 @@ EOF
       end
 
       o.should eql(<<EOF
-Description:
-    This is a description of this command that should span
 
-    multiple lines and carry itself beyond the average line length when actually
-    called out from the unit tests itself so that we can correctly guage the
-    line wrapping.
+DESCRIPTION
+  This is a description of this command that should span
+
+  multiple lines and carry itself beyond the average line length when actually
+  called out from the unit tests itself so that we can correctly guage the line
+  wrapping.
 EOF
                   )
     end

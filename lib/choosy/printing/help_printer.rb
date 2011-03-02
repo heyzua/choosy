@@ -54,29 +54,34 @@ module Choosy::Printing
              else
                ""
              end
+      cmds = if command.respond_to?(:commands) 
+               " [COMMANDS]"
+             else
+               ""
+             end
       options = if command.option_builders.length == 0
                   ""
                 else
                   " [OPTIONS]"
                 end
-      $stdout << "Usage: #{command.name}#{options}#{args}\n"
+      $stdout << "USAGE: #{command.name}#{cmds}#{options}#{args}\n"
     end
 
     def print_summary(summary)
-      print_separator(summary)
+      write_lines(summary, '  ')
     end
 
     def print_description(desc)
-      $stdout << "Description:\n"
-      write_lines(desc, "    ")
+      print_separator("DESCRIPTION")
+      write_lines(desc, "  ")
     end
 
     def print_separator(sep)
-      $stdout << "#{sep}\n"
+      $stdout << "\n#{sep}\n"
     end
 
     def print_option(option)
-      $stdout << "    "
+      $stdout << "  "
       if option.short_flag
         $stdout << option.short_flag
         if option.long_flag
@@ -94,7 +99,7 @@ module Choosy::Printing
       end
 
       $stdout << "\n"
-      write_lines(option.description, "        ")
+      write_lines(option.description, "       ")
     end
 
     def print_command(command)
