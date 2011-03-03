@@ -25,6 +25,22 @@ module Choosy::DSL
         @builder.printer :standard, :color => false
         @command.printer.color.disabled?.should be(true)
       end
+
+      it "should know how to set the maximum width" do
+        @builder.printer :standard, :max_width => 70
+        @command.printer.columns.should eql(70)
+      end
+
+      it "should know how to set the header attributes" do
+        @builder.printer :standard, :headers => [:bold, :blue]
+        @command.printer.header_attrs.should eql([:bold, :blue])
+      end
+
+      it "should be able to set multiple properties of the printer" do
+        @builder.printer :standard, :headers => [:bold, :red], :color => false
+        @command.printer.color.should be_disabled
+        @command.printer.header_attrs.should eql([:bold, :red])
+      end
       
       class TestPrinter
         def print!(cmd)
@@ -70,24 +86,39 @@ module Choosy::DSL
       end
     end#summary
 
-    describe :desc do
-      it "should set the summary for this command" do
-        @builder.desc "This is a description"
-        @command.description.should match(/This is/)
+    describe :header do
+      it "should set a header for this command" do
+        @builder.header 'HEADER'
+        @command.listing[0].value.should eql('HEADER')
       end
-    end#desc
 
-    describe :separator do
-      it "should add a separator to the list of options for printing" do
-        @builder.separator 'Required arguments'
-        @command.listing[0].should eql('Required arguments')
+      it "should set the attributes of the header effectively" do
+        @builder.header 'HEADER', :bold, :blue
+        @command.listing[0].attrs.should eql([:bold, :blue])
+      end
+    end#header
+
+    describe :para do
+      it "should add a paragraph to the list of options for printing" do
+        @builder.para 'Required arguments'
+        @command.listing[0].value.should eql('Required arguments')
+      end
+
+      it "should leave the paragraph without attributes" do
+        @builder.para 'No attributes'
+        @command.listing[0].attrs.should eql([])
       end
 
       it "should add an empty string to the listing when called with no arguments" do
-        @builder.separator
-        @command.listing[0].should eql('')
+        @builder.para
+        @command.listing[0].value.should be(nil)
       end
-    end#separator
+
+      it "should add attributes to the paragraph" do
+        @builder.para 'Here', :bold, :red
+        @command.listing[0].attrs.should eql([:bold, :red])
+      end
+    end#para
 
     describe :option do
       describe "when using just a name" do
@@ -237,9 +268,9 @@ module Choosy::DSL
         o.short_flag.should eql('-c')
       end
 
-      it "should be able to set the parameter name" do
+      it "should be able to set the metaname name" do
         o = @builder.single :count, "Show the count"
-        o.flag_parameter.should eql('COUNT')
+        o.metaname.should eql('COUNT')
       end
     end#single
 
@@ -249,9 +280,9 @@ module Choosy::DSL
         o.short_flag.should eql('-f')
       end
 
-      it "should be able to set the parameter name" do
+      it "should be able to set the metaname name" do
         o = @builder.multiple :file_names, "The file names"
-        o.flag_parameter.should eql('FILE_NAMES+')
+        o.metaname.should eql('FILE_NAMES+')
       end
 
       it "should be able to yield a block" do
@@ -268,9 +299,9 @@ module Choosy::DSL
           o = @builder.send(method, method, "Desc of #{method}")
           o.cast_to.should eql(Choosy::Converter.for(method))
           if o.cast_to == :boolean
-            o.flag_parameter.should be(nil)
+            o.metaname.should be(nil)
           else
-            o.flag_parameter.should eql(method.to_s.upcase)
+            o.metaname.should eql(method.to_s.upcase)
           end
         end
 
@@ -286,7 +317,7 @@ module Choosy::DSL
           plural = "#{method}s".to_sym
           o = @builder.send(plural, plural, "Desc of #{plural}")
           o.cast_to.should eql(Choosy::Converter.for(method))
-          o.flag_parameter.should eql("#{plural.to_s.upcase}+")
+          o.metaname.should eql("#{plural.to_s.upcase}+")
         end
 
         it "#{method}s_" do

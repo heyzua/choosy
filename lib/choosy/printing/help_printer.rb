@@ -7,6 +7,7 @@ module Choosy::Printing
     DEFAULT_COLUMN_COUNT = 80
 
     attr_reader :color
+    attr_accessor :header_attrs
 
     def initialize
       @color = Color.new
@@ -34,8 +35,6 @@ module Choosy::Printing
 
     def print!(command)
       print_usage(command)
-      print_summary(command.summary) if command.summary
-      print_description(command.description) if command.description
       command.listing.each do |l|
         if l.is_a?(String)
           print_separator(l)
@@ -47,37 +46,8 @@ module Choosy::Printing
       end
     end
 
-    # FIXME: hideously ugly
     def print_usage(command)
-      args = if command.respond_to?(:argument_validation) && command.argument_validation
-               " [ARGS]"
-             else
-               ""
-             end
-      cmds = if command.respond_to?(:commands) 
-               " [COMMANDS]"
-             else
-               ""
-             end
-      options = if command.option_builders.length == 0
-                  ""
-                else
-                  " [OPTIONS]"
-                end
-      $stdout << "USAGE: #{command.name}#{cmds}#{options}#{args}\n"
-    end
-
-    def print_summary(summary)
-      write_lines(summary, '  ')
-    end
-
-    def print_description(desc)
-      print_separator("DESCRIPTION")
-      write_lines(desc, "  ")
-    end
-
-    def print_separator(sep)
-      $stdout << "\n#{sep}\n"
+      $stdout << "TODO: USAGE"
     end
 
     def print_option(option)
@@ -93,9 +63,9 @@ module Choosy::Printing
         $stdout << option.long_flag
       end
 
-      if option.flag_parameter
+      if option.metaname
         $stdout << " "
-        $stdout << option.flag_parameter
+        $stdout << option.metaname
       end
 
       $stdout << "\n"

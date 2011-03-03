@@ -21,18 +21,18 @@ module Choosy::DSL
       end
 
       describe "and the arity" do
-        it "should not be set without a parameter" do
+        it "should not be set without a metaname" do
           @builder.short '-s'
           @option.short_flag.should eql('-s')
           @option.arity.should be(nil)
         end
 
-        it "should be set on STD+ parameter" do
+        it "should be set on STD+ metaname" do
           @builder.short '-s', 'STD+'
           @option.arity.should eql(1..1000)
         end
 
-        it "should set single arity on STD parameter" do
+        it "should set single arity on STD metaname" do
           @builder.short '-s', 'STD'
           @option.arity.should eql(1..1)
         end
@@ -44,15 +44,15 @@ module Choosy::DSL
         end
       end
 
-      describe "and the flag parameter" do
-        it "on STD parameters" do
+      describe "and the flag metaname" do
+        it "on STD metanames" do
           @builder.short '-s', 'STD'
-          @option.flag_parameter.should eql('STD')
+          @option.metaname.should eql('STD')
         end
 
-        it "on STD+ parameters" do
+        it "on STD+ metanames" do
           @builder.short '-s', 'STD+'
-          @option.flag_parameter.should eql('STD+')
+          @option.metaname.should eql('STD+')
         end
       end
     end#short
@@ -80,15 +80,15 @@ module Choosy::DSL
         end
       end#arity
 
-      describe "and the flag parameter" do
-        it "on STD parameters" do
+      describe "and the flag metaname" do
+        it "on STD metanames" do
           @builder.long '-s', 'STD'
-          @option.flag_parameter.should eql('STD')
+          @option.metaname.should eql('STD')
         end
 
-        it "on STD+ parameters" do
+        it "on STD+ metanames" do
           @builder.long '-s', 'STD+'
-          @option.flag_parameter.should eql('STD+')
+          @option.metaname.should eql('STD+')
         end
       end
     end#long
@@ -106,7 +106,7 @@ module Choosy::DSL
 
       it "should leave the param nil when just the short flag is given" do
         @builder.flags '-s'
-        @option.flag_parameter.should be(nil)
+        @option.metaname.should be(nil)
       end
 
       it "should be able to set the short when the long flag is given" do
@@ -119,14 +119,14 @@ module Choosy::DSL
         @option.long_flag.should eql('--short')
       end
 
-      it "should leave the parameter empty when not given" do
+      it "should leave the metaname empty when not given" do
         @builder.flags '-s', '--short'
-        @option.flag_parameter.should be(nil)
+        @option.metaname.should be(nil)
       end
 
-      it "should set the parameter if given" do
+      it "should set the metaname if given" do
         @builder.flags '-s', '--short', 'SHORT'
-        @option.flag_parameter.should eql('SHORT')
+        @option.metaname.should eql('SHORT')
       end
     end#flags
 
@@ -161,22 +161,22 @@ module Choosy::DSL
       end
     end#required
 
-    describe :param do
-      it "should be able to set the name of the parameter" do
-        @builder.param 'PARAM'
-        @option.flag_parameter.should eql('PARAM')
+    describe :metaname do
+      it "should be able to set the name of the metaname" do
+        @builder.metaname 'PARAM'
+        @option.metaname.should eql('PARAM')
       end
 
       it "should set the arity on STD+ to 1+" do
-        @builder.param 'STD+'
+        @builder.metaname 'STD+'
         @option.arity.should eql(1..1000)
       end
 
       it "should set the arity on STD to 1" do
-        @builder.param 'STD'
+        @builder.metaname 'STD'
         @option.arity.should eql(1..1)
       end
-    end#param
+    end#metaname
 
     describe :count do
       describe "when welformed" do
@@ -208,6 +208,11 @@ module Choosy::DSL
         it "should set a number exactly" do
           @builder.count 3
           @option.arity.should eql(3..3)
+        end
+
+        it "should allow for a range" do
+          @builder.count 1..2
+          @option.arity.should eql(1..2)
         end
       end
 
@@ -336,17 +341,17 @@ module Choosy::DSL
       end
     end#finalize!
 
-    describe :dependencies do
+    describe :depends_on do
       it "should be able to process multiple arguments" do
-        @builder.dependencies :a, :b
+        @builder.depends_on :a, :b
         @option.dependent_options.should eql([:a, :b])
       end
 
       it "should be able to process Array arguments" do
-        @builder.dependencies [:a, :b]
+        @builder.depends_on [:a, :b]
         @option.dependent_options.should eql([:a, :b])
       end
-    end#dependencies
+    end#depends_on
 
     describe :from_hash do
       it "should fail on unrecognized methods" do

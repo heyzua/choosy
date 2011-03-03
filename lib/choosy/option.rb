@@ -1,7 +1,7 @@
 module Choosy
   class Option
     attr_accessor :name, :description
-    attr_accessor :short_flag, :long_flag, :flag_parameter
+    attr_accessor :short_flag, :long_flag, :metaname
     attr_accessor :cast_to,  :default_value
     attr_accessor :validation_step
     attr_accessor :arity

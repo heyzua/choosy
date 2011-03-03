@@ -8,17 +8,15 @@ module Choosy::Printing
       @h = HelpPrinter.new
       @c = Choosy::Command.new :foo do |foo|
         foo.summary "This is a summary of a command."
-        foo.desc <<EOF
+        foo.para <<EOF
 This is a description of this command that should span
 
 multiple lines and carry itself beyond the average line length when actually called out from the unit tests itself so that we can correctly guage the line wrapping.
 EOF
-        foo.separator
         foo.boolean :evaluate, "The evaluation"
         foo.integer :count, "The count"
-        foo.separator
 
-        foo.separator 'Indifferent options:'
+        foo.header 'Indifferent options:'
         foo.boolean :debug, "Debug output"
         foo.version "1.2"
         foo.help
@@ -54,36 +52,12 @@ EOF
       o.should eql("USAGE: foo [OPTIONS] [ARGS]\n")
     end
 
-    it "should print a newline on an empty separator" do
-      o = capture :stdout do
-        @h.print_separator("")
-      end
-
-      o.should eql("\n\n")
-    end
-
-    it "should print a line with separator text" do
-      o = capture :stdout do
-        @h.print_separator("this line")
-      end
-
-      o.should eql("\nthis line\n")
-    end
-
     it "should print out a command" do
       o = capture :stdout do
         @h.print_command(@c)
       end
 
       o.should eql("  foo\tThis is a summary of a command.\n")
-    end
-
-    it "should print the summary, if present" do
-      o = capture :stdout do
-        @h.print_summary(@c.summary)
-      end
-
-      o.should eql("  This is a summary of a command.\n")
     end
 
     it "should print out an option on 2 lines." do
@@ -96,22 +70,5 @@ EOF
     
     it "should print out any commands that are present"
 
-    it "should print out the description" do
-      @h.columns = 80
-      o = capture :stdout do
-        @h.print_description(@c.description)
-      end
-
-      o.should eql(<<EOF
-
-DESCRIPTION
-  This is a description of this command that should span
-
-  multiple lines and carry itself beyond the average line length when actually
-  called out from the unit tests itself so that we can correctly guage the line
-  wrapping.
-EOF
-                  )
-    end
   end
 end

@@ -2,7 +2,7 @@ require 'choosy/errors'
 
 module Choosy
   class BaseCommand
-    attr_accessor :name, :summary, :description, :printer
+    attr_accessor :name, :summary, :printer
     attr_reader :builder, :listing, :option_builders
     
     def initialize(name)

@@ -12,26 +12,26 @@ module Choosy::DSL
     MANY_ARITY     = (1 .. 1000)
     
     attr_reader :option
-    
+   
     def initialize(name)
       @option = Choosy::Option.new(name)
       @count_called = false
     end
 
-    def short(flag, param=nil)
+    def short(flag, meta=nil)
       option.short_flag = flag
-      param(param)
+      metaname(meta)
     end
 
-    def long(flag, param=nil)
+    def long(flag, meta=nil)
       option.long_flag = flag
-      param(param)
+      metaname(meta)
     end
 
-    def flags(shorter, longer=nil, parameter=nil)
+    def flags(shorter, longer=nil, meta=nil)
       short(shorter)
       long(longer) if longer
-      param(parameter) if parameter
+      metaname(meta) if meta
     end
 
     def desc(description)
@@ -50,12 +50,12 @@ module Choosy::DSL
                         end
     end
 
-    def param(param)
-      return if param.nil?
-      option.flag_parameter = param
+    def metaname(meta)
+      return if meta.nil?
+      option.metaname = meta
       return if @count_called
       
-      if param =~ /\+$/
+      if meta =~ /\+$/
         option.arity = MANY_ARITY 
       else
         option.arity = ONE_ARITY
@@ -75,6 +75,8 @@ module Choosy::DSL
         end
         
         option.arity = (lower_bound .. upper_bound)
+      elsif restriction.is_a?(Range)
+        option.arity = restriction
       elsif restriction == :zero || restriction == :none
         option.arity = ZERO_ARITY
       elsif restriction == :once
@@ -101,13 +103,13 @@ module Choosy::DSL
                    "#{option.short_flag}/#{option.long_flag}"
                  end
       flag_fmt ||= option.short_flag || option.long_flag
-      flag_param = if option.flag_parameter
-                     " #{option.flag_parameter}"
+      flag_meta = if option.metaname
+                     " #{option.metaname}"
                    end
-      raise Choosy::ValidationError.new("#{flag_fmt}#{flag_param}: #{msg}")
+      raise Choosy::ValidationError.new("#{flag_fmt}#{flag_meta}: #{msg}")
     end
 
-    def dependencies(*args)
+    def depends_on(*args)
       if args.count == 1 && args[0].is_a?(Array)
         option.dependent_options = args[0]
       else

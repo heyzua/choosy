@@ -1,6 +1,7 @@
 require 'choosy/errors'
 require 'choosy/dsl/option_builder'
 require 'choosy/printing/erb_printer'
+require 'choosy/printing/formatting_element'
 
 module Choosy::DSL
   class BaseCommandBuilder
@@ -9,6 +10,8 @@ module Choosy::DSL
     def initialize(command)
       @command = command
     end
+
+    # Generic setup
 
     def summary(msg)
       @command.summary = msg
@@ -37,17 +40,27 @@ module Choosy::DSL
       if p.respond_to?(:color) && options && options.has_key?(:color)
         p.color.disable! if !options[:color]
       end
+      if p.respond_to?(:columns=) && options && options.has_key?(:max_width)
+        p.columns = options[:max_width]
+      end
+      if p.respond_to?(:header_attrs=) && options && options.has_key?(:headers)
+        p.header_attrs = options[:headers]
+      end
 
       @command.printer = p
     end
 
-    def desc(msg)
-      @command.description = msg
+    # Formatting
+
+    def header(msg, *attrs)
+      @command.listing << Choosy::Printing::FormattingElement.new(:header, msg, attrs)
     end
 
-    def separator(msg=nil)
-      @command.listing << (msg.nil? ? "" : msg)
+    def para(msg=nil, *attrs)
+      @command.listing << Choosy::Printing::FormattingElement.new(:para, msg, attrs)
     end
+
+    # Options
 
     def option(arg)
       raise Choosy::ConfigurationError.new("The option name was nil") if arg.nil?
@@ -76,7 +89,6 @@ module Choosy::DSL
       finalize_option_builder builder
     end
 
-    # Option types
     def self.create_conversions
       Choosy::Converter::CONVERSIONS.keys.each do |method|
         next if method == :boolean || method == :bool
@@ -118,6 +130,8 @@ module Choosy::DSL
     alias :bool :boolean
     alias :bool_ :boolean_
 
+    # Additional helpers
+
     def version(msg)
       v = OptionBuilder.new(OptionBuilder::VERSION)
       v.long '--version'
@@ -147,13 +161,13 @@ module Choosy::DSL
     end
 
     private
-    def simple_option(sym, desc, allow_short, param, cast, config, &block)
+    def simple_option(sym, desc, allow_short, meta, cast, config, &block)
       name = sym.to_s
       builder = OptionBuilder.new sym
       builder.desc desc
       builder.short "-#{name[0]}" if allow_short
       builder.long "--#{name.downcase.gsub(/_/, '-')}"
-      builder.param format_param(name, param)
+      builder.metaname format_meta(name, meta)
       builder.cast cast
       builder.from_hash config if config
 
@@ -161,7 +175,7 @@ module Choosy::DSL
       finalize_option_builder builder
     end
 
-    def format_param(name, count)
+    def format_meta(name, count)
       case count
       when :zero then nil
       when :one then name.upcase
