@@ -1,37 +1,13 @@
 require 'choosy/errors'
-require 'choosy/printing/color'
+require 'choosy/printing/terminal'
+require 'choosy/printing/formatter'
 
 module Choosy::Printing
   class HelpPrinter
-    DEFAULT_LINE_COUNT = 25
-    DEFAULT_COLUMN_COUNT = 80
+    include Terminal
+    include Formatter
 
-    attr_reader :color
     attr_accessor :header_attrs
-
-    def initialize
-      @color = Color.new
-    end
-  
-    def lines
-      @lines ||= find_terminal_size('LINES', 'lines', 0) || DEFAULT_LINE_COUNT
-    end
-
-    def lines=(value)
-      @lines = value
-    end
-
-    def columns
-      @columns ||= find_terminal_size('COLUMNS', 'cols', 1) || DEFAULT_COLUMN_COUNT
-    end
-
-    def columns=(value)
-      @columns = value
-    end
-
-    def colored=(val)
-      @color.disable! unless val
-    end
 
     def print!(command)
       print_usage(command)
@@ -47,7 +23,17 @@ module Choosy::Printing
     end
 
     def print_usage(command)
-      $stdout << "TODO: USAGE"
+      print_header('usage: ')
+      $stdout << command.name
+      $stdout << ' '
+      return if command.options.empty?
+
+      width = starting_with = 8 + command.name.length # So far
+      command.listing.each do |option|
+        if option.is_a?(Choosy::Option)
+          formatted = usage(option)
+        end
+      end
     end
 
     def print_option(option)
@@ -74,6 +60,28 @@ module Choosy::Printing
 
     def print_command(command)
       write_lines("#{command.name}\t#{command.summary}", "  ")
+    end
+
+    def print_header(str, attrs=nil)
+      return if str.nil?
+
+      if color.disabled?
+        $stdout << str
+        return
+      end
+
+      attrs.each do |attr|
+       $stdout << color.send(attr)
+      end if attrs
+
+      header_attrs.each do |attr|
+        $stdout << color.send(attr)
+      end if header_attrs
+      
+      $stdout << str
+      if attrs || header_attrs
+        $stdout << color.reset
+      end
     end
 
     protected
@@ -115,30 +123,6 @@ module Choosy::Printing
       $stdout << prefix
       $stdout << line
       $stdout << "\n"
-    end
-
-    private
-    # https://github.com/cldwalker/hirb
-    # modified from hirb
-    def find_terminal_size(env_name, tput_name, stty_index)
-      begin 
-        if ENV[env_name] =~ /^\d$/
-          ENV[env_name].to_i
-        elsif (RUBY_PLATFORM =~ /java/ || (!STDIN.tty? && ENV['TERM'])) && command_exists?('tput')
-          `tput #{tput_name}`.to_i
-        elsif STDIN.tty? && command_exists?('stty')
-          `stty size`.scan(/\d+/).map { |s| s.to_i }[stty_index]
-        else
-          nil
-        end
-      rescue
-        nil
-      end
-    end
-
-    # directly from hirb
-    def command_exists?(command)
-      ENV['PATH'].split(File::PATH_SEPARATOR).any? {|d| File.exists? File.join(d, command) }
     end
   end
 end

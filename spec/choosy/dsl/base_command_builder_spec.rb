@@ -37,7 +37,7 @@ module Choosy::DSL
       end
 
       it "should be able to set multiple properties of the printer" do
-        @builder.printer :standard, :headers => [:bold, :red], :color => false
+        @builder.printer :standard, :max_width => 25, :headers => [:bold, :red], :color => false
         @command.printer.color.should be_disabled
         @command.printer.header_attrs.should eql([:bold, :red])
       end
@@ -157,7 +157,7 @@ module Choosy::DSL
             o = @builder.option :o => [:s] do |o|
               o.short '-o'
             end
-            o.dependent_options.should have(1).items
+            o.dependent_options.should have(1).item
             o.dependent_options[0].should eql(:s)
           end
         end

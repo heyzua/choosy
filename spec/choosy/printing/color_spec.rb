@@ -70,5 +70,15 @@ module Choosy::Printing
     it "should also handle effects" do
       @c.blink("this").should eql("e5[mthise0[m")
     end
+    
+    it "should fail when effects are handed too many parameters" do
+      attempting {
+        @c.blink("this", :noarg)
+      }.should raise_error(ArgumentError, /max 1/)
+    end
+
+    it "should not add an extra reset to the end if decorated more than once" do
+      @c.red(@c.blink("this")).should eql("e31[me5[mthise0[m")
+    end
   end
 end

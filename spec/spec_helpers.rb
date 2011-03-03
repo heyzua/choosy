@@ -21,10 +21,13 @@ def capture(kind=nil, &block)
     $stdout = original_stdout
     $stderr = original_stderr
   end
-  res = {:stdout => fake_out.string, :stderr => fake_err.string}
-  if kind
-    res[kind]
-  else
-    res
+
+  case kind
+  when nil
+    fake_out.string
+  when :stderr
+    fake_err.string
+  when :stdout
+    fake_out.string
   end
 end

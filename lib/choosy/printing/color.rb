@@ -18,10 +18,13 @@ module Choosy::Printing
     EFFECTS = {
       :reset     => 0,
       :bright    => 1,
+      :bold      => 1,
       :underline => 4,
       :blink     => 5,
       :exchange  => 7,
-      :hide      => 8
+      :hide      => 8,
+      :primary   => 10,
+      :normal    => 22
     }
 
     FOREGROUND = 30
@@ -58,34 +61,34 @@ module Choosy::Printing
     end
 
     # Dynamically handle colors and effects
-    def method_missing(method, *args, &block)
-      str, offset = unpack_args(method, args)
-      return str || "" if disabled?
+    def method_missing(method, *args, &block)  
+      if disabled?
+        return args[0] || "" 
+      end
 
       if color?(method)
-        bedazzle(COLORS[method] + offset, str)
+        raise ArgumentError.new("too many arguments to Color##{method} (max 2)") if args.length > 2
+        offset = find_state(method, args[1])
+        bedazzle(COLORS[method] + offset, args[0])
       elsif effect?(method)
-        bedazzle(EFFECTS[method], str)
+        raise ArgumentError.new("too many arguments to Color##{method} (max 1)") if args.length > 1
+        bedazzle(EFFECTS[method], args[0])
       else
         raise NoMethodError.new("undefined method '#{method}' for Color")
       end
     end
 
     private
-    def unpack_args(method, args)
-      case args.length
-      when 0
-        [nil, FOREGROUND]
-      when 1
-        [args[0], FOREGROUND]
-      when 2
-        case args[1]
-        when :foreground then [args[0], FOREGROUND]
-        when :background then [args[0], BACKGROUND]
-        else raise ArgumentError.new("unrecognized state for Color##{method}, :foreground or :background only")
-        end
+    def find_state(method, state)
+      case state
+      when nil
+        FOREGROUND
+      when :foreground
+        FOREGROUND
+      when :background
+        BACKGROUND
       else
-        raise ArgumentError.new("too many arguments to Color##{method} (max 2)")
+        raise ArgumentError.new("unrecognized state for Color##{method}, :foreground or :background only")
       end
     end
 
@@ -93,6 +96,8 @@ module Choosy::Printing
       prefix = "e#{number}[m"
       if str.nil?
         prefix
+      elsif str =~ /e0\[m$/
+        "#{prefix}#{str}"
       else
         "#{prefix}#{str}e0[m"
       end

@@ -26,7 +26,6 @@ module Choosy
       it "should print out the help info" do
         @c.alter do |c|
           c.summary "Summary"
-          c.desc "this is a description"
           c.help
         end
 

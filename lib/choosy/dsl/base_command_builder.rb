@@ -74,7 +74,7 @@ module Choosy::DSL
 
         to_process = arg[name]
         if to_process.is_a?(Array)
-          builder.dependencies to_process
+          builder.depends_on to_process
         elsif to_process.is_a?(Hash)
           builder.from_hash to_process
         else
