@@ -2,12 +2,12 @@ require 'choosy/errors'
 
 module Choosy::Printing
   class FormattingElement
-    attr_reader :value, :attrs, :kind
+    attr_reader :value, :styles, :kind
 
-    def initialize(kind, value, attrs)
+    def initialize(kind, value, styles)
       @value = value
       @kind = kind
-      @attrs = attrs
+      @styles = styles
     end
 
     def header?

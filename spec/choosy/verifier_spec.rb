@@ -29,12 +29,12 @@ module Choosy
       @res = ParseResult.new(@c)
     end
 
-    describe :verify_options! do
+    describe :verify! do
       it "should not try to validate arguments if not set" do
         b.boolean :debug, "Debug"
         @res.args << "a"
         attempting {
-          v.verify_options!(@res)
+          v.verify!(@res)
         }.should_not raise_error
       end
     end
@@ -141,7 +141,7 @@ module Choosy
         end
         attempting {
           v.required?(o, @res)
-        }.should raise_error(Choosy::ValidationError, /Required/)
+        }.should raise_error(Choosy::ValidationError, /required/)
       end
 
       it "should succeed when nothing is required" do

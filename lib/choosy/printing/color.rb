@@ -56,6 +56,19 @@ module Choosy::Printing
       EFFECTS.has_key?(effect.to_sym)
     end
 
+    def multiple(str, styles)
+      return str if styles.nil? || styles.empty? || disabled?
+
+      styles.each do |style|
+        if color?(style)
+          str = bedazzle(COLORS[style] + FOREGROUND, str)
+        elsif effect?(style)
+          str = bedazzle(EFFECTS[style], str)
+        end
+      end
+      str
+    end
+
     def respond_to?(method)
       color?(method) || effect?(method)
     end

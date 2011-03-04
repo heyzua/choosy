@@ -53,11 +53,11 @@ module Choosy
       command_name = hc.message
 
       if command_name.to_s == @name.to_s
-        printer.print!(self)
+        puts printer.print!(self)
       else
         builder = command_builders[command_name]
         if builder
-          printer.print!(builder.command)
+          puts printer.print!(builder.command)
         else
           $stdout << "#{@name}: #{format_help(command_name)}\n"
           exit 1

@@ -20,13 +20,17 @@ module Choosy
     end
 
     def handle_help(hc)
-      printer.print!(self)
+      puts printer.print!(self)
     end
 
     def parse(args)
       parser = Parser.new(self)
       result = parser.parse!(args)
-      result.verify!
+
+      verifier = Verifier.new
+      verifier.verify!(result)
+    
+      result
     end
   end
 end

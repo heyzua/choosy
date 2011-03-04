@@ -8,7 +8,6 @@ module Choosy
       @command = command
       @options = {}
       @unparsed = []
-      @verified = false
     end 
 
     def [](opt)
@@ -18,23 +17,6 @@ module Choosy
     def []=(opt, val)
       @options[opt] = val
     end
-
-    def verified?
-      @verified
-    end
-
-    def verify!
-      basic_verification
-    end
-
-    protected
-    def basic_verification(&block)
-      verifier = Verifier.new
-      verifier.verify_options!(self)
-      yield verifier if block_given?
-      @verified = true
-      self
-    end
   end
 
   class ParseResult < BaseParseResult
@@ -43,13 +25,6 @@ module Choosy
     def initialize(command)
       super(command)
       @args = []
-    end
-
-    def verify!
-      return self if verified?
-      basic_verification do |verifier|
-        verifier.verify_arguments!(self)
-      end
     end
   end
 

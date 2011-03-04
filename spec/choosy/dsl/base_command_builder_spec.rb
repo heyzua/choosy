@@ -21,9 +21,14 @@ module Choosy::DSL
         @command.printer.should be_a(Choosy::Printing::HelpPrinter)
       end
 
+      it "should turn on color by default" do
+        @builder.printer :standard
+        @command.printer.color.should_not be_disabled
+      end
+
       it "should know how to turn off color" do
         @builder.printer :standard, :color => false
-        @command.printer.color.disabled?.should be(true)
+        @command.printer.color.should be_disabled
       end
 
       it "should know how to set the maximum width" do
@@ -32,14 +37,15 @@ module Choosy::DSL
       end
 
       it "should know how to set the header attributes" do
-        @builder.printer :standard, :headers => [:bold, :blue]
-        @command.printer.header_attrs.should eql([:bold, :blue])
+        @builder.printer :standard, :header_styles => [:bold, :green]
+        @command.printer.header_styles.should eql([:bold, :green])
       end
 
       it "should be able to set multiple properties of the printer" do
-        @builder.printer :standard, :max_width => 25, :headers => [:bold, :red], :color => false
+        @builder.printer :standard, :max_width => 25, :header_styles => [:bold, :red], :color => false
         @command.printer.color.should be_disabled
-        @command.printer.header_attrs.should eql([:bold, :red])
+        @command.printer.header_styles.should eql([:bold, :red])
+        @command.printer.columns.should eql(25)
       end
       
       class TestPrinter
@@ -63,6 +69,7 @@ module Choosy::DSL
         it "should be able to handle a given template" do
           @builder.printer :erb, :template => __FILE__
           @command.printer.should be_a(Choosy::Printing::ERBPrinter)
+          @command.printer.template.should eql(__FILE__)
         end
 
         it "should fail when the tempate file doesn't exist" do
@@ -94,7 +101,7 @@ module Choosy::DSL
 
       it "should set the attributes of the header effectively" do
         @builder.header 'HEADER', :bold, :blue
-        @command.listing[0].attrs.should eql([:bold, :blue])
+        @command.listing[0].styles.should eql([:bold, :blue])
       end
     end#header
 
@@ -106,7 +113,7 @@ module Choosy::DSL
 
       it "should leave the paragraph without attributes" do
         @builder.para 'No attributes'
-        @command.listing[0].attrs.should eql([])
+        @command.listing[0].styles.should eql([])
       end
 
       it "should add an empty string to the listing when called with no arguments" do
@@ -116,7 +123,7 @@ module Choosy::DSL
 
       it "should add attributes to the paragraph" do
         @builder.para 'Here', :bold, :red
-        @command.listing[0].attrs.should eql([:bold, :red])
+        @command.listing[0].styles.should eql([:bold, :red])
       end
     end#para
 

@@ -29,7 +29,7 @@ module Choosy
           @c.parse!([])
         end
 
-        o.should match(/USAGE:/)
+        o.should match(/Usage:/)
       end
 
       it "should print out a subcommand help message" do

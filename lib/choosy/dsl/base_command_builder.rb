@@ -17,47 +17,26 @@ module Choosy::DSL
       @command.summary = msg
     end
 
-    def printer(kind, options=nil)
-      return if kind.nil?
-
-      p = nil
-      if kind == :standard
-        p = Choosy::Printing::HelpPrinter.new
-      elsif kind == :erb
-        p = Choosy::Printing::ERBPrinter.new
-        if options.nil? || options[:template].nil?
-          raise Choosy::ConfigurationError.new("no template file given to ERBPrinter")
-        elsif !File.exist?(options[:template])
-          raise Choosy::ConfigurationError.new("the template file doesn't exist: #{options[:template]}")
-        end
-        p.template = options[:template]
-      elsif kind.respond_to?(:print!)
-        p = kind
-      else
-        raise Choosy::ConfigurationError.new("Unknown printing method for help: #{kind}")
-      end
-
-      if p.respond_to?(:color) && options && options.has_key?(:color)
-        p.color.disable! if !options[:color]
-      end
-      if p.respond_to?(:columns=) && options && options.has_key?(:max_width)
-        p.columns = options[:max_width]
-      end
-      if p.respond_to?(:header_attrs=) && options && options.has_key?(:headers)
-        p.header_attrs = options[:headers]
-      end
-
-      @command.printer = p
+    def printer(kind, options={})
+      @command.printer =  if kind == :standard
+                            Choosy::Printing::HelpPrinter.new(options)
+                          elsif kind == :erb
+                            Choosy::Printing::ERBPrinter.new(options)
+                          elsif kind.respond_to?(:print!)
+                            kind
+                          else
+                            raise Choosy::ConfigurationError.new("Unknown printing method for help: #{kind}")
+                          end
     end
 
     # Formatting
 
-    def header(msg, *attrs)
-      @command.listing << Choosy::Printing::FormattingElement.new(:header, msg, attrs)
+    def header(msg, *styles)
+      @command.listing << Choosy::Printing::FormattingElement.new(:header, msg, styles)
     end
 
-    def para(msg=nil, *attrs)
-      @command.listing << Choosy::Printing::FormattingElement.new(:para, msg, attrs)
+    def para(msg=nil, *styles)
+      @command.listing << Choosy::Printing::FormattingElement.new(:para, msg, styles)
     end
 
     # Options

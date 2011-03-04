@@ -80,5 +80,9 @@ module Choosy::Printing
     it "should not add an extra reset to the end if decorated more than once" do
       @c.red(@c.blink("this")).should eql("\e[31m\e[5mthis\e[0m")
     end
+
+    it "should be able to format multiple items" do
+      @c.multiple("this", [:red, :blink]).should eql("\e[5m\e[31mthis\e[0m")
+    end
   end
 end

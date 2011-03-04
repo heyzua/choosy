@@ -1,14 +1,16 @@
 require 'choosy/errors'
 require 'choosy/parser'
 require 'choosy/parse_result'
+require 'choosy/verifier'
 
 module Choosy
   class SuperParser
-    attr_reader :terminals
+    attr_reader :terminals, :verifier
 
     def initialize(super_command, parsimonious=nil)
       @super_command = super_command
       @parsimonious = parsimonious || false
+      @verifier = Verifier.new
       generate_terminals
     end
 
@@ -22,10 +24,15 @@ module Choosy
 
       while unparsed.length > 0
         command_result = parse_command(unparsed, terminals)
-        command_result.options.merge!(result.options)
         result.subresults << command_result
         
         unparsed = command_result.unparsed
+      end
+
+      verifier.verify!(result)
+      result.subresults.each do |subresult|
+        subresult.options.merge!(result.options)
+        verifier.verify!(subresult)
       end
 
       result
@@ -45,7 +52,7 @@ module Choosy
       result = SuperParseResult.new(@super_command)
       parser = Parser.new(@super_command, true)
       parser.parse!(args, result)
-      result.verify!
+      verifier.verify_special!(result)
 
       # if we found a global action, we should have hit it by now...
       if result.unparsed.length == 0
@@ -74,7 +81,7 @@ module Choosy
       parser = Parser.new(command, false, terminals)
       command_result = parser.parse!(args)
 
-      command_result.verify!
+      command_result
     end
   end
 end

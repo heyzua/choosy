@@ -3,12 +3,22 @@ require 'choosy/dsl/option_builder'
 
 module Choosy
   class Verifier
-    def verify_options!(result)
+    def verify!(result)
       result.command.options.each do |option|
         required?(option, result)
         populate!(option, result)
         convert!(option, result)
         validate!(option, result)
+      end
+
+      verify_arguments!(result)
+    end
+
+    def verify_special!(result)
+      result.command.options.each do |option|
+        if special?(option)
+          validate!(option, result) 
+        end
       end
     end
 
@@ -20,12 +30,12 @@ module Choosy
 
     def required?(option, result)
       if option.required? && result[option.name].nil?
-        raise ValidationError.new("Required option '#{option.long_flag}' missing.")
+        raise ValidationError.new("required option missing: '#{option.long_flag}'")
       end
     end
     
     def populate!(option, result)
-      return if option.name == Choosy::DSL::OptionBuilder::HELP || option.name == Choosy::DSL::OptionBuilder::VERSION
+      return if special?(option)
 
       if !result.options.has_key?(option.name) # Not already set
         if !option.default_value.nil? # Has default?
@@ -57,6 +67,10 @@ module Choosy
     private
     def exists?(value)
       value && value != []
+    end
+
+    def special?(option)
+      option.name == Choosy::DSL::OptionBuilder::HELP || option.name == Choosy::DSL::OptionBuilder::VERSION
     end
   end
 end

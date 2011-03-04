@@ -18,5 +18,10 @@ module Choosy::Printing
     it "should know the lenght the screen, if possible, or set a default [COULD BREAK ON YOUR MACHINE]" do
       @t.lines.should satisfy {|l| l >= Terminal::DEFAULT_LINE_COUNT }
     end
+
+    it "should allow for setting the column width" do
+      @t.columns = 40
+      @t.columns.should eql(40)
+    end
   end
 end

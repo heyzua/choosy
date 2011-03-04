@@ -22,10 +22,6 @@ module Choosy::Printing
       @columns = value
     end
 
-    def colored=(val)
-      color.disable! unless val
-    end
-
     def color
       @color ||= Color.new
     end
