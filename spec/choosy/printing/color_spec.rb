@@ -52,23 +52,23 @@ module Choosy::Printing
     end
 
     it "should return a formatted string for just the color code when no args are given" do
-      @c.red.should eql("e31[m")
+      @c.red.should eql("\e[31m")
     end
 
     it "should return a formatted string with a reset if a full string is supplied" do
-      @c.red("this").should eql("e31[mthise0[m")
+      @c.red("this").should eql("\e[31mthis\e[0m")
     end
 
     it "should recognize when the foreground is being set" do
-      @c.red("this", :foreground).should eql("e31[mthise0[m")
+      @c.red("this", :foreground).should eql("\e[31mthis\e[0m")
     end
 
     it "should recognize when the background is being set" do
-      @c.red("this", :background).should eql("e41[mthise0[m")
+      @c.red("this", :background).should eql("\e[41mthis\e[0m")
     end
 
     it "should also handle effects" do
-      @c.blink("this").should eql("e5[mthise0[m")
+      @c.blink("this").should eql("\e[5mthis\e[0m")
     end
     
     it "should fail when effects are handed too many parameters" do
@@ -78,7 +78,7 @@ module Choosy::Printing
     end
 
     it "should not add an extra reset to the end if decorated more than once" do
-      @c.red(@c.blink("this")).should eql("e31[me5[mthise0[m")
+      @c.red(@c.blink("this")).should eql("\e[31m\e[5mthis\e[0m")
     end
   end
 end

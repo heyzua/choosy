@@ -93,13 +93,13 @@ module Choosy::Printing
     end
 
     def bedazzle(number, str)
-      prefix = "e#{number}[m"
+      prefix = "\e[#{number}m"
       if str.nil?
         prefix
-      elsif str =~ /e0\[m$/
+      elsif str =~ /\e\[0m$/
         "#{prefix}#{str}"
       else
-        "#{prefix}#{str}e0[m"
+        "#{prefix}#{str}\e[0m"
       end
     end
   end

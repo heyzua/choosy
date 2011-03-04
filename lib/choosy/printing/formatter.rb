@@ -2,7 +2,7 @@ require 'choosy/errors'
 
 module Choosy::Printing
   module Formatter
-    def usage(option)
+    def usage_option(option)
       value = "["
       if option.short_flag
         value << option.short_flag
@@ -23,6 +23,28 @@ module Choosy::Printing
         end
       end
       value << ']'
+    end
+
+    def regular_option(option)
+      value = ""
+      if option.short_flag
+        value << option.short_flag
+        if option.long_flag
+          value << ', '
+        end
+      else
+        value << '    '
+      end
+
+      if option.long_flag
+        value << option.long_flag
+      end
+
+      if option.metaname
+        value << ' '
+        value << option.metaname
+      end
+      value
     end
   end
 end
