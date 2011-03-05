@@ -60,7 +60,7 @@ module Choosy
     def validate!(option, result)
       value = result[option.name]
       if option.validation_step && exists?(value)
-        option.validation_step.call(value)
+        option.validation_step.call(value, result.options)
       end
     end
 

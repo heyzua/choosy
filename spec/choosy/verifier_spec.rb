@@ -132,6 +132,20 @@ module Choosy
         v.validate!(o, @res)
         @res[:line].should be(nil)
       end
+
+      it "should call the proc with the additional option param" do
+        o = b.string :line, "Line" do |l|
+          l.validate do |arg, options|
+            options[:populated] = arg
+            options[:line] = "this"
+          end
+        end
+        @res[:line] = 'blah' 
+        
+        v.validate!(o, @res)
+        @res[:populated].should eql('blah')
+        @res[:line].should eql("this")
+      end
     end#validate!
 
     describe :required? do
