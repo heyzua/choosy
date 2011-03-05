@@ -24,7 +24,7 @@ module Choosy::DSL
 
         help.arguments do |args|
           if args.nil? || args.length == 0
-            raise Choosy::HelpCalled.new
+            raise Choosy::HelpCalled.new(:SUPER_COMMAND)
           else
             raise Choosy::HelpCalled.new(args[0].to_sym)
           end

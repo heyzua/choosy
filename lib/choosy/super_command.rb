@@ -52,7 +52,7 @@ module Choosy
     def handle_help(hc)
       command_name = hc.message
 
-      if command_name.to_s == @name.to_s
+      if command_name == :SUPER_COMMAND
         puts printer.print!(self)
       else
         builder = command_builders[command_name]

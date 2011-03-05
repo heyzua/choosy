@@ -27,7 +27,7 @@ describe "SuperCommand A" do
 
       header 'Options:'
       integer :count, "The Count" do
-        required
+        #required
       end
       version "1.ohyeah"
     end
@@ -50,12 +50,7 @@ describe "SuperCommand A" do
   end
 
   it "should print the version with the given global flag" do
-    o = capture :stdout do
-      @cmd.parse! ['--version']
-    end
-
-    require 'pp'
-    #pp @cmd.parse! ['--version'], true
+    o = capture { @cmd.parse! ['--version'] }
     o.should eql("1.ohyeah\n")
   end
 
@@ -63,5 +58,10 @@ describe "SuperCommand A" do
     result = @cmd.parse! ['bar', '--favorite-pet', 'Blue', '--count', '5']
     result.subresults.should have(1).item
     result.subresults[0].options.should eql({:favorite_pet => 'Blue', :Fuzzy => false, :count => 5})
+  end
+
+  it "should correctly print out the results of the 'help' command" do
+    o = capture { @cmd.parse! ['help'] }
+    o.should match(/Usage:/)
   end
 end

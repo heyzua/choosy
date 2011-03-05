@@ -29,7 +29,14 @@ module Choosy
         unparsed = command_result.unparsed
       end
 
+      result.subresults.each do |subresult|
+        if subresult.command.name == :help
+          verifier.verify!(subresult)
+        end
+      end
+
       verifier.verify!(result)
+
       result.subresults.each do |subresult|
         subresult.options.merge!(result.options)
         verifier.verify!(subresult)
@@ -57,7 +64,7 @@ module Choosy
       # if we found a global action, we should have hit it by now...
       if result.unparsed.length == 0
         if @super_command.command_builders[:help]
-          raise Choosy::HelpCalled.new(@super_command.name)
+          raise Choosy::HelpCalled.new(:SUPER_COMMAND)
         else
           raise Choosy::SuperParseError.new("requires a command")
         end

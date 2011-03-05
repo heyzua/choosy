@@ -69,7 +69,7 @@ module Choosy
         @p.super.builder.help
         attempting {
           @p.parse!()
-        }.should raise_error(Choosy::HelpCalled, :super)
+        }.should raise_error(Choosy::HelpCalled, :SUPER_COMMAND)
       end
     end
 
