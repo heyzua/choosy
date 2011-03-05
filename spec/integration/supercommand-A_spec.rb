@@ -1,33 +1,35 @@
 require 'spec_helpers'
 require 'choosy'
 
+notes = {:this => 'here'}
+
 describe "SuperCommand A" do
   before :each do
-    @cmd = Choosy::SuperCommand.new :superfoo do |foo|
-      foo.para "This is a supercommand of a definite size"
-      foo.header 'Commands:'
+    @cmd = Choosy::SuperCommand.new :superfoo do
+      para "This is a supercommand of a definite size"
+      header 'Commands:'
       
-      foo.command :bar do |bar|
-        bar.summary "This command is a bar"
-        bar.para "This is a description of this subcommand"
-        bar.string :favorite_pet, "Your favorite pet."
-        bar.boolean :Fuzzy, "Is your pet fuzzy?"
+      command :bar do
+        summary notes[:this]
+        para "This is a description of this subcommand"
+        string :favorite_pet, "Your favorite pet."
+        boolean :Fuzzy, "Is your pet fuzzy?"
       end
 
-      foo.command :baz do |baz|
-        baz.summary "This is a baz command"
-        baz.para "This is a description of baz"
-        baz.boolean :accountant, "Your accountant who helps you cheat on your taxes"
-        baz.integer :amount, "How much money do you save?"
+      command :baz do
+        summary "This is a baz command"
+        para "This is a description of baz"
+        boolean_ :accountant, "Your accountant who helps you cheat on your taxes"
+        integer :amount, "How much money do you save?"
       end
 
-      foo.help
+      help
 
-      foo.header 'Options:'
-      foo.integer :count, "The Count" do |c|
-        c.required
+      header 'Options:'
+      integer :count, "The Count" do
+        required
       end
-      foo.version "1.ohyeah"
+      version "1.ohyeah"
     end
   end
 

@@ -28,15 +28,15 @@ module Choosy
 
     def boolean(sym, default=nil)
       default ||= false
-      @command.alter do |c|
-        c.boolean(sym, sym.to_s, :default => default)
+      @command.alter do
+        boolean(sym, sym.to_s, :default => default)
       end
       self
     end
 
     def single(sym)
-      @command.alter do |c|
-        c.single(sym, sym.to_s)
+      @command.alter do
+        single(sym, sym.to_s)
       end
       self
     end
@@ -44,9 +44,9 @@ module Choosy
     def multiple(sym, min=nil, max=nil)
       min ||= 1
       max ||= 1000
-      @command.alter do |c|
-        c.multiple(sym, sym.to_s) do |m|
-          m.count :at_least => min, :at_most => max
+      @command.alter do
+        multiple(sym, sym.to_s) do
+          count :at_least => min, :at_most => max
         end
       end
       self

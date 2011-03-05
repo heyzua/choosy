@@ -12,8 +12,8 @@ module Choosy
     end
 
     def command(name)
-      @super.alter do |a|
-        a.command name do |c|
+      @super.alter do
+        command name do |c|
           yield c if block_given?
         end
       end
@@ -21,8 +21,8 @@ module Choosy
     end
 
     def single(name)
-      @super.alter do |a|
-        a.single name, name.to_s
+      @super.alter do
+        single name, name.to_s
       end
       self
     end

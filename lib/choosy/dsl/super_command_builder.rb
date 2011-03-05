@@ -4,13 +4,16 @@ require 'choosy/command'
 
 module Choosy::DSL
   class SuperCommandBuilder < BaseCommandBuilder
-    def command(cmd)
+    def command(cmd, &block)
       subcommand = if cmd.is_a?(Choosy::Command)
                      cmd
                    else
                      Choosy::Command.new(cmd)
                    end
-      yield subcommand.builder if block_given?
+
+      if block_given?
+        subcommand.builder.instance_eval(&block)
+      end
       finalize_subcommand(subcommand)
     end
 
@@ -21,7 +24,7 @@ module Choosy::DSL
 
         help.arguments do |args|
           if args.nil? || args.length == 0
-            raise Choosy::HelpCalled.new(@command.name)
+            raise Choosy::HelpCalled.new
           else
             raise Choosy::HelpCalled.new(args[0].to_sym)
           end

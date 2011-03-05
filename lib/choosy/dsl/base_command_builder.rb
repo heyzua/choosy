@@ -41,7 +41,7 @@ module Choosy::DSL
 
     # Options
 
-    def option(arg)
+    def option(arg, &block)
       raise Choosy::ConfigurationError.new("The option name was nil") if arg.nil?
       
       builder = nil
@@ -64,7 +64,9 @@ module Choosy::DSL
         raise Choosy::ConfigurationError.new("No configuration block was given") if !block_given?
       end
 
-      yield builder if block_given?
+      if block_given?
+        builder.instance_eval(&block)
+      end
       finalize_option_builder builder
     end
 
@@ -111,7 +113,7 @@ module Choosy::DSL
 
     # Additional helpers
 
-    def version(msg)
+    def version(msg, &block)
       v = OptionBuilder.new(OptionBuilder::VERSION)
       v.long '--version'
       v.desc "The version number"
@@ -120,7 +122,9 @@ module Choosy::DSL
         raise Choosy::VersionCalled.new(msg)
       end
 
-      yield v if block_given?
+      if block_given?
+        v.instance_eval(&block)
+      end
       finalize_option_builder v
     end
 
@@ -150,7 +154,9 @@ module Choosy::DSL
       builder.cast cast
       builder.from_hash config if config
 
-      yield builder if block_given?
+      if block_given?
+        builder.instance_eval(&block)
+      end
       finalize_option_builder builder
     end
 

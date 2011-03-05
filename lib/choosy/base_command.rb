@@ -5,18 +5,22 @@ module Choosy
     attr_accessor :name, :summary, :printer
     attr_reader :builder, :listing, :option_builders
     
-    def initialize(name)
+    def initialize(name, &block)
       @name = name
       @listing = []
       @option_builders = {}
 
       @builder = create_builder
-      yield @builder if block_given?
+      if block_given?
+        @builder.instance_eval(&block)
+      end
       @builder.finalize!
     end
 
     def alter(&block)
-      yield @builder if block_given?
+      if block_given?
+        @builder.instance_eval(&block)
+      end
       @builder.finalize!
     end
 

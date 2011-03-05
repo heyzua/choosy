@@ -11,16 +11,16 @@ module Choosy::DSL
 
     describe :command do
       it "should add the command to the listing" do
-        @builder.command :foo do |foo|
-          foo.boolean :count, "The count"
+        @builder.command :foo do
+          boolean :count, "The count"
         end
 
         @command.listing.should have(1).item
       end
 
       it "should add the command builder to the command_builders" do
-        o = @builder.command :foo do |foo|
-          foo.integer :size, "The size"
+        o = @builder.command :foo do
+          integer :size, "The size"
         end
 
         @command.command_builders[:foo].should be(o.builder)
@@ -32,8 +32,8 @@ module Choosy::DSL
       end
 
       it "should be able to accept a new command as an argument" do
-        cmd = Choosy::Command.new :cmd do |c|
-          c.float :float, "Float"
+        cmd = Choosy::Command.new :cmd do
+          float :float, "Float"
         end
         @builder.command cmd
         @command.listing[0].should be(cmd)
@@ -68,7 +68,7 @@ module Choosy::DSL
           h = @builder.help
           attempting {
             h.argument_validation.call([])
-          }.should raise_error(Choosy::HelpCalled, :superfoo)
+          }.should raise_error(Choosy::HelpCalled, nil)
         end
 
         it "should return the name of the first argument when called, as a symbol" do

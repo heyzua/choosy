@@ -98,7 +98,7 @@ module Choosy::DSL
       option.validation_step = block
     end
     
-    def fail(msg)
+    def die(msg)
       flag_fmt = if option.short_flag && option.long_flag
                    "#{option.short_flag}/#{option.long_flag}"
                  end

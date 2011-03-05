@@ -97,9 +97,9 @@ module Choosy
 
     describe :validate! do
       it "should call the validate proc associated with each option" do
-        o = b.string :line, "Line" do |l|
-          l.validate do |arg|
-            l.fail "Validated!"
+        o = b.string :line, "Line" do
+          validate do |arg|
+            die "Validated!"
           end
         end
         @res[:line] = "line"
@@ -110,9 +110,9 @@ module Choosy
       end
 
       it "should not call the proc on empty arguments" do
-        o = b.strings :line, "Line" do |l|
-          l.validate do |arg|
-            l.fail "Validated!"
+        o = b.strings :line, "Line" do
+          validate do |arg|
+            die "Validated!"
           end
         end
         @res[:line] = []
@@ -124,7 +124,7 @@ module Choosy
       it "should not call the proc when the arguments are null" do
         o = b.string :line, "Line" do |l|
           l.validate do |arg|
-            l.fail "Validated!"
+            die "Validated!"
           end
         end
         @res[:line] = nil
@@ -134,8 +134,8 @@ module Choosy
       end
 
       it "should call the proc with the additional option param" do
-        o = b.string :line, "Line" do |l|
-          l.validate do |arg, options|
+        o = b.string :line, "Line" do
+          validate do |arg, options|
             options[:populated] = arg
             options[:line] = "this"
           end
@@ -150,8 +150,8 @@ module Choosy
 
     describe :required? do
       it "should fail when an option is required but not provided" do
-        o = b.string :str, "String" do |s|
-          s.required
+        o = b.string :str, "String" do
+          required
         end
         attempting {
           v.required?(o, @res)
@@ -181,8 +181,8 @@ module Choosy
       end
 
       it "should convert a custom type" do
-        o = b.single :an_int, "An int" do |i|
-          i.cast CustomConverter.new
+        o = b.single :an_int, "An int" do
+          cast CustomConverter.new
         end
         @res[:an_int] = "1"
 

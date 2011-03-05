@@ -130,17 +130,10 @@ module Choosy::DSL
     describe :option do
       describe "when using just a name" do
         it "should set the name of the option" do
-          o = @builder.option :opto do |o|
-            o.short '-o'
+          o = @builder.option :opto do
+            short '-o'
           end
           o.name.should eql(:opto)
-        end
-
-        it "should handle a CommandBuilder block" do
-          @builder.option :opto do |o|
-            o.short '-s'
-            o.should be_a(OptionBuilder)
-          end
         end
 
         it "should fail when no block is given" do
@@ -151,8 +144,8 @@ module Choosy::DSL
 
         it "should fail when the symbol is nil" do
           attempting {
-            @builder.option nil do |o|
-              o.short = '-o'
+            @builder.option nil do
+              short = '-o'
             end
           }.should raise_error(Choosy::ConfigurationError, /The option name was nil/)
         end
@@ -161,8 +154,8 @@ module Choosy::DSL
       describe "when using a hash" do
         describe "for dependencies" do
           it "should set the dependencies of that option" do
-            o = @builder.option :o => [:s] do |o|
-              o.short '-o'
+            o = @builder.option :o => [:s] do
+              short '-o'
             end
             o.dependent_options.should have(1).item
             o.dependent_options[0].should eql(:s)
@@ -181,8 +174,8 @@ module Choosy::DSL
           end
 
           it "should still accept the block" do
-            o = @builder.option :o => {:short => '-o'} do |s|
-              s.desc "short"
+            o = @builder.option :o => {:short => '-o'} do
+              desc "short"
             end
             o.description.should eql('short')
           end
@@ -210,8 +203,8 @@ module Choosy::DSL
 
         describe "after the option block has been processed" do
           it "should call the 'finalize!' method on the builder" do
-            o = @builder.option :o do |o|
-              o.short '-o'
+            o = @builder.option :o do
+              short '-o'
             end
             o.cast_to.should eql(:boolean)
           end
@@ -257,8 +250,8 @@ module Choosy::DSL
       end
 
       it "should be able to capture block level data" do
-        o = @builder.boolean :debug, "Show debug output" do |d|
-          d.short '-D'
+        o = @builder.boolean :debug, "Show debug output" do
+          short '-D'
         end
         o.short_flag.should eql("-D")
       end
@@ -293,8 +286,8 @@ module Choosy::DSL
       end
 
       it "should be able to yield a block" do
-        o = @builder.multiple :file_names, "The file names" do |f|
-          f.long '--files'
+        o = @builder.multiple :file_names, "The file names" do
+          long '--files'
         end
         o.long_flag.should eql('--files')
       end
@@ -344,8 +337,8 @@ module Choosy::DSL
       end
 
       it "should allow you to use a block to alter the help message" do
-        v = @builder.version 'blah' do |v|
-          v.desc "Version"
+        v = @builder.version 'blah' do
+          desc "Version"
         end
         v.description.should eql("Version")
       end

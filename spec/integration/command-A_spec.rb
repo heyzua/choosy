@@ -4,11 +4,11 @@ require 'choosy'
 describe "Command A" do
   
   before :each do
-    @cmd = Choosy::Command.new :A do |a|
-      a.integer :count, "The count"
-      a.boolean :bold, "Bold the output"
-      a.version "blah"
-      a.help
+    @cmd = Choosy::Command.new :A do
+      integer :count, "The count"
+      boolean :bold, "Bold the output"
+      version "blah"
+      help
     end
   end
 

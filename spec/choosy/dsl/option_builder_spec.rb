@@ -279,29 +279,29 @@ module Choosy::DSL
       end
     end#cast
 
-    describe :fail do
+    describe :die do
       it "should format the error message with both flags" do
         @builder.short '-k'
         @builder.long '--keep', 'KEEP'
         attempting {
-          @builder.fail "Didn't keep anything"
+          @builder.die "Didn't keep anything"
         }.should raise_error(Choosy::ValidationError, /-k\/--keep KEEP: Didn't keep anything/)
       end
 
       it "should set the format of the error with the short flag" do
         @builder.short '-k'
         attempting {
-          @builder.fail "Didn't keep anything"
+          @builder.die "Didn't keep anything"
         }.should raise_error(Choosy::ValidationError, /-k: Didn't keep anything/)
       end
 
       it "should set the format of the long flag alone" do
         @builder.long '--keep'
         attempting {
-          @builder.fail "Didn't keep anything"
+          @builder.die "Didn't keep anything"
         }.should raise_error(Choosy::ValidationError, /--keep: Didn't keep anything/)
       end
-    end#fail
+    end#die
 
     describe :validate do
       it "should save the context of the validation in a Proc to call later" do

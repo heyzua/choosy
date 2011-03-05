@@ -9,8 +9,8 @@ module Choosy
 
     describe :parse! do
       it "should be able to print out the version number" do
-        @c.alter do |c|
-          c.version "superblah"
+        @c.alter do
+          version "superblah"
         end
 
         o = capture :stdout do
@@ -21,8 +21,8 @@ module Choosy
       end
 
       it "should print out the supercommand help message" do
-        @c.alter do |c|
-          c.help
+        @c.alter do
+          help
         end
 
         o = capture :stdout do
@@ -33,10 +33,10 @@ module Choosy
       end
 
       it "should print out a subcommand help message" do
-        @c.alter do |c|
-          c.help
-          c.command :bar do |bar|
-            bar.boolean :count, "The count"
+        @c.alter do
+          help
+          command :bar do
+            boolean :count, "The count"
           end
         end
 
@@ -50,9 +50,9 @@ module Choosy
 
     describe :execute! do
       it "should fail when no executor is present" do
-        @c.alter do |c|
-          c.command :bar do |bar|
-            bar.boolean :count, "The count"
+        @c.alter do
+          command :bar do
+            boolean :count, "The count"
           end
         end
 
@@ -63,10 +63,10 @@ module Choosy
 
       it "should call the executors" do
         count = 0
-        @c.alter do |c|
-          c.command :bar do |bar|
-            bar.integer :count, "The count"
-            bar.executor do |opts, args|
+        @c.alter do
+          command :bar do
+            integer :count, "The count"
+            executor do |opts, args|
               count = opts[:count]
             end
           end

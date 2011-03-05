@@ -10,8 +10,8 @@ module Choosy
 
     describe :parse! do
       it "should print out the version number" do
-        @c.alter do |c|
-          c.version "blah"
+        @c.alter do
+          version "blah"
         end
 
         o = capture :stdout do
@@ -24,9 +24,9 @@ module Choosy
       end
 
       it "should print out the help info" do
-        @c.alter do |c|
-          c.summary "Summary"
-          c.help
+        @c.alter do
+          summary "Summary"
+          help
         end
 
         o = capture :stdout do
