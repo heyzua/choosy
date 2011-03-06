@@ -9,7 +9,6 @@ module Choosy
     
     def initialize
       @super = Choosy::SuperCommand.new :super
-      @parsimonious = false
     end
 
     def command(name)

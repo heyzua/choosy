@@ -51,10 +51,24 @@ module Choosy::DSL
       end
     end
 
+    describe :metaname do
+      it "should set the super command's metaname for the subcommands" do
+        @builder.metaname 'META'
+        @command.metaname.should eql('META')
+      end
+    end
+
     describe "standard options" do
       it "should also be able to set flags" do
         o = @builder.boolean :count, "The count"
         @command.option_builders[:count].option.name.should eql(:count)
+      end
+    end
+
+    describe :finalize! do
+      it "should set the metaname if not already set" do
+        @builder.finalize!
+        @command.metaname.should eql('COMMAND')
       end
     end
 

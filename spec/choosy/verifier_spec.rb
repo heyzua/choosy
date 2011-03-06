@@ -39,53 +39,23 @@ module Choosy
       end
     end
 
-    describe :verify_arguments! do
-      it "should validate arguments if asked" do
-        b.arguments do
-          validate do |args, option|
-            raise RuntimeError.new('Called!')
-          end
+    describe :required? do
+      it "should fail when an option is required but not provided" do
+        o = b.string :str, "String" do
+          required
         end
-
         attempting {
-          v.verify_arguments!(@res)
-        }.should raise_error(RuntimeError, 'Called!')
+          v.required?(o, @res)
+        }.should raise_error(Choosy::ValidationError, /required/)
       end
 
-      it "should validate that the argument count isn't too few" do
-        b.arguments do
-          count 2
-        end
-        @res.args << "a"
-        
+      it "should succeed when nothing is required" do
+        o = b.string :str, "String"
         attempting {
-          v.verify_arguments!(@res)
-        }.should raise_error(Choosy::ValidationError, /too few arguments/)
-      end
-
-      it "should validate that the argument count isn't too many" do
-        b.arguments do
-          count 1
-        end
-        @res.args << "a"
-        @res.args << "b"
-
-        attempting {
-          v.verify_arguments!(@res)
-        }.should raise_error(Choosy::ValidationError, /too many arguments/)
-      end
-
-      it "should succed when the argument count is in an acceptable range" do
-        b.arguments do
-          count 1..3
-        end
-        @res.args << "1"
-
-        attempting {
-          v.verify_arguments!(@res)
+          v.required?(o, @res)
         }.should_not raise_error
       end
-    end
+    end#required?
 
     describe :populate! do
       it "should fill in default boolean values to false if unset" do
@@ -129,7 +99,60 @@ module Choosy
         v.populate!(o, @res)
         @res.options.should be_empty
       end
-    end#populate_defaults!
+    end#populate!
+
+    describe :convert! do
+      it "should convert files" do
+        o = b.file :afile, "A File"
+        @res[:afile] = __FILE__
+        v.convert!(o, @res)
+        @res[:afile].path.should eql(__FILE__)
+      end
+
+      class CustomConverter
+        def convert(value)
+          value.to_i
+        end
+      end
+
+      it "should convert a custom type" do
+        o = b.single :an_int, "An int" do
+          cast CustomConverter.new
+        end
+        @res[:an_int] = "1"
+
+        v.convert!(o, @res)
+        @res[:an_int].should eql(1)
+      end
+    end#convert!
+
+    describe :restricted? do
+      it "should verify that arguments are restricted to a certain subset for a single valued option" do
+        o = b.option :value do
+          flags '-v', '--value', 'VALUE'
+          desc "Description"
+          cast :symbol
+          only :a, :b, :c
+        end
+
+        @res[:value] = :d
+        attempting {
+          v.restricted?(o, @res)
+        }.should raise_error(Choosy::ValidationError, "unrecognized value (only 'a', 'b', 'c' allowed): 'd'")
+      end
+
+      it "should verify that all arguments are restricted for a muli-valued option" do
+        o = b.option :value do
+          long '--value', 'VALUES+'
+          only :a, :b, :c
+        end
+
+        @res[:value] = [:a, :b, :c, :d]
+        attempting {
+          v.restricted?(o, @res)
+        }.should raise_error(Choosy::ValidationError, "unrecognized value (only 'a', 'b', 'c' allowed): 'd'")
+      end
+    end
 
     describe :validate! do
       it "should call the validate proc associated with each option" do
@@ -184,47 +207,53 @@ module Choosy
       end
     end#validate!
 
-    describe :required? do
-      it "should fail when an option is required but not provided" do
-        o = b.string :str, "String" do
-          required
+    describe :verify_arguments! do
+      it "should validate arguments if asked" do
+        b.arguments do
+          validate do |args, option|
+            raise RuntimeError.new('Called!')
+          end
         end
+
         attempting {
-          v.required?(o, @res)
-        }.should raise_error(Choosy::ValidationError, /required/)
+          v.verify_arguments!(@res)
+        }.should raise_error(RuntimeError, 'Called!')
       end
 
-      it "should succeed when nothing is required" do
-        o = b.string :str, "String"
+      it "should validate that the argument count isn't too few" do
+        b.arguments do
+          count 2
+        end
+        @res.args << "a"
+        
         attempting {
-          v.required?(o, @res)
+          v.verify_arguments!(@res)
+        }.should raise_error(Choosy::ValidationError, /too few arguments/)
+      end
+
+      it "should validate that the argument count isn't too many" do
+        b.arguments do
+          count 1
+        end
+        @res.args << "a"
+        @res.args << "b"
+
+        attempting {
+          v.verify_arguments!(@res)
+        }.should raise_error(Choosy::ValidationError, /too many arguments/)
+      end
+
+      it "should succed when the argument count is in an acceptable range" do
+        b.arguments do
+          count 1..3
+        end
+        @res.args << "1"
+
+        attempting {
+          v.verify_arguments!(@res)
         }.should_not raise_error
       end
     end
 
-    describe :convert! do
-      it "should convert files" do
-        o = b.file :afile, "A File"
-        @res[:afile] = __FILE__
-        v.convert!(o, @res)
-        @res[:afile].path.should eql(__FILE__)
-      end
-
-      class CustomConverter
-        def convert(value)
-          value.to_i
-        end
-      end
-
-      it "should convert a custom type" do
-        o = b.single :an_int, "An int" do
-          cast CustomConverter.new
-        end
-        @res[:an_int] = "1"
-
-        v.convert!(o, @res)
-        @res[:an_int].should eql(1)
-      end
-    end#convert!
   end
 end

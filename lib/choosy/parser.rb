@@ -52,6 +52,9 @@ module Choosy
     def verify_option(option)
       verify_flag(option, option.short_flag)
       verify_flag(option, option.long_flag)
+      if option.negated?
+        verify_flag(option, option.negated)
+      end
     end
 
     def verify_flag(option, flag)
@@ -76,19 +79,23 @@ module Choosy
         end
       end
 
-      if option.arity == Choosy::DSL::OptionBuilder::ZERO_ARITY
-        parse_boolean_option(result, option, index, arg, current)
-      elsif option.arity == Choosy::DSL::OptionBuilder::ONE_ARITY
+      if option.boolean?
+        parse_boolean_option(result, option, index, arg, current, flag)
+      elsif option.single?
         parse_single_option(result, option, index, argv, flag, arg)
       else # Vararg
         parse_multiple_option(result, option, index, argv, flag, arg)
       end
     end
 
-    def parse_boolean_option(result, option, index, arg, current)
-        raise Choosy::ParseError.new("Argument given to boolean flag: '#{current}'") if arg
+    def parse_boolean_option(result, option, index, arg, current, flag)
+      raise Choosy::ParseError.new("Argument given to boolean flag: '#{current}'") if arg
+      if option.negated? && flag == option.negated
+        result.options[option.name] = option.default_value
+      else
         result.options[option.name] = !option.default_value 
-        index + 1
+      end
+      index + 1
     end
 
     def parse_single_option(result, option, index, argv, flag, arg)

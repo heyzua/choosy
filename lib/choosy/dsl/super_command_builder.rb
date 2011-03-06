@@ -24,6 +24,10 @@ module Choosy::DSL
       @command.parsimonious = true
     end
 
+    def metaname(meta)
+      @command.metaname = meta
+    end
+
     def help(msg=nil)
       msg ||= "Show the info for a command, or this message"
       help = Choosy::Command.new HELP do |help|
@@ -41,6 +45,11 @@ module Choosy::DSL
         end
       end
       finalize_subcommand(help)
+    end
+
+    def finalize!
+      super
+      @command.metaname ||= 'COMMAND'
     end
 
     private

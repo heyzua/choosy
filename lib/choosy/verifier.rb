@@ -72,6 +72,19 @@ module Choosy
       end
     end
 
+    def restricted?(option, result)
+      return unless option.restricted?
+      
+      value = result[option.name]
+      if option.arity.max > 1
+        value.each do |val|
+          check(option.allowable_values, val)
+        end
+      else
+        check(option.allowable_values, value)
+      end
+    end
+
     def validate!(option, result)
       value = result[option.name]
       if option.validation_step && exists?(value)
@@ -86,6 +99,12 @@ module Choosy
 
     def special?(option)
       option.name == Choosy::DSL::OptionBuilder::HELP || option.name == Choosy::DSL::OptionBuilder::VERSION
+    end
+
+    def check(allowable, value)
+      if !allowable.include?(value)
+        raise ValidationError.new("unrecognized value (only #{allowable.map{|s| "'#{s}'"}.join(', ')} allowed): '#{value}'")
+      end
     end
   end
 end

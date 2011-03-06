@@ -65,6 +65,17 @@ module Choosy::Printing
         end
       end
 
+      case command
+      when Choosy::Command
+        if command.arguments
+          @buffer << ' '
+          @buffer << command.arguments.metaname
+        end
+      when Choosy::SuperCommand
+        @buffer << ' '
+        @buffer << command.metaname
+      end
+
       @buffer << "\n"
     end
 
@@ -110,6 +121,10 @@ module Choosy::Printing
       if option.long_flag
         value << option.long_flag
       end
+      if option.negated?
+        value << '|'
+        value << option.negated
+      end
       if option.metaname
         if option.arity.max > 1
           value << ' '
@@ -134,7 +149,14 @@ module Choosy::Printing
       end
 
       if option.long_flag
-        value << option.long_flag
+        if option.negated?
+          value << '--['
+          value << option.negation
+          value << '-]'
+          value << option.long_flag.gsub(/^--/, '')
+        else
+          value << option.long_flag
+        end
       end
 
       if option.metaname

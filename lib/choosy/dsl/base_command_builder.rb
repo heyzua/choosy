@@ -75,22 +75,22 @@ module Choosy::DSL
         next if method == :boolean || method == :bool
 
         define_method method do |sym, desc, config=nil, &block|
-          simple_option(sym, desc, true, :one, method, config, &block)
+          simple_option(sym, desc, true, :one, method, nil, config, &block)
         end
 
         plural = "#{method}s".to_sym
         define_method plural do |sym, desc, config=nil, &block|
-          simple_option(sym, desc, true, :many, method, config, &block)
+          simple_option(sym, desc, true, :many, method, nil, config, &block)
         end
 
         underscore = "#{method}_"
         define_method underscore do |sym, desc, config=nil, &block|
-          simple_option(sym, desc, false, :one, method, config, &block)
+          simple_option(sym, desc, false, :one, method, nil, config, &block)
         end
 
         plural_underscore = "#{plural}_".to_sym
         define_method plural_underscore do |sym, desc, config=nil, &block|
-          simple_option(sym, desc, false, :many, method, config, &block)
+          simple_option(sym, desc, false, :many, method, nil, config, &block)
         end
       end
     end
@@ -103,14 +103,21 @@ module Choosy::DSL
     alias :multiple_ :strings_
 
     def boolean(sym, desc, config=nil, &block)
-      simple_option(sym, desc, true, :zero, :boolean, config, &block)
+      simple_option(sym, desc, true, :zero, :boolean, nil, config, &block)
     end
     def boolean_(sym, desc, config=nil, &block)
-      simple_option(sym, desc, false, :zero, :boolean, config, &block)
+      simple_option(sym, desc, false, :zero, :boolean, nil, config, &block)
     end
     alias :bool :boolean
     alias :bool_ :boolean_
 
+    def enum(sym, allowed, desc, config=nil, &block)
+      simple_option(sym, desc, true, :one, :symbol, allowed, config, &block)
+    end
+
+    def enum_(sym, allowed, desc, config=nil, &block)
+      simple_option(sym, desc, false, :one, :symbol, allowed, config, &block)
+    end
     # Additional helpers
 
     def version(msg, &block)
@@ -144,7 +151,7 @@ module Choosy::DSL
     end
 
     private
-    def simple_option(sym, desc, allow_short, meta, cast, config, &block)
+    def simple_option(sym, desc, allow_short, meta, cast, allowed, config, &block)
       name = sym.to_s
       builder = OptionBuilder.new sym
       builder.desc desc
@@ -152,6 +159,9 @@ module Choosy::DSL
       builder.long "--#{name.downcase.gsub(/_/, '-')}"
       builder.metaname format_meta(name, meta)
       builder.cast cast
+      if allowed
+        builder.only *allowed
+      end
       builder.from_hash config if config
 
       if block_given?

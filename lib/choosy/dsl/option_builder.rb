@@ -51,6 +51,15 @@ module Choosy::DSL
       end
     end
 
+    def only(*args)
+      option.allowable_values = args
+    end
+
+    def negate(prefix=nil)
+      prefix ||= 'no'
+      option.negation = prefix
+    end
+
     def die(msg)
       flag_fmt = if option.short_flag && option.long_flag
                    "#{option.short_flag}/#{option.long_flag}"
@@ -82,10 +91,22 @@ module Choosy::DSL
       super
 
       if option.cast_to.nil?
-        if option.arity == ZERO_ARITY
+        if option.boolean?
           option.cast_to = :boolean
         else
           option.cast_to = :string
+        end
+      end
+
+      if option.boolean?
+        if option.restricted?
+          raise Choosy::ConfigurationError.new("Options cannot be both boolean and restricted to certain arguments: #{option.name}")
+        elsif option.negated? && option.long_flag.nil?
+          raise Choosy::ConfigurationError.new("The long flag is required for negation: #{option.name}")
+        end
+      else
+        if option.negated?
+          raise Choosy::ConfigurationError.new("Unable to negate a non-boolean option: #{option.name}")
         end
       end
     end

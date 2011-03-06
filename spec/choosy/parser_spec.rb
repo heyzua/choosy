@@ -26,10 +26,15 @@ module Choosy
       self
     end
 
-    def boolean(sym, default=nil)
+    def boolean(sym, default=nil, negated=nil)
       default ||= false
+      negated ||= false
       @command.alter do
-        boolean(sym, sym.to_s, :default => default)
+        boolean(sym, sym.to_s, :default => default) do
+          if negated
+            negate
+          end
+        end
       end
       self
     end
@@ -146,6 +151,21 @@ module Choosy
       it "should handle a single short boolean argument" do
         res = @pb.boolean(:o).parse!('-o')
         res.args.should be_empty
+        res.options.should eql({:o => true})
+      end
+
+      it "should handle negated boolean arguments" do
+        @pb.boolean(:o, false, true)
+        @pb.build.flags['--no-o'].should_not be_nil
+      end
+
+      it "should handle a negated boolean argument" do
+        res = @pb.boolean(:o, false, true).parse!('--no-o')
+        res.options.should eql({:o => false})
+      end
+
+      it "should handle a negated boolean argument whose default is true" do
+        res = @pb.boolean(:o, true, true).parse!('--no-o')
         res.options.should eql({:o => true})
       end
 

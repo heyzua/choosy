@@ -144,36 +144,6 @@ module Choosy::DSL
       end
     end#default
 
-    describe :cast do
-      it "should allow symbol casts" do
-        @builder.cast :int
-        @option.cast_to.should eql(:integer)
-      end
-  
-      class CustomConverter
-        def convert(value)
-        end
-      end
-
-      it "should allow for custom conversions" do
-        conv = CustomConverter.new
-        @builder.cast conv
-        @option.cast_to.should be(conv)
-      end
-
-      it "should fail if it doesn't know about a Type" do
-        attempting {
-          @builder.cast Choosy::Error
-        }.should raise_error(Choosy::ConfigurationError, /Unknown conversion/)
-      end
-
-      it "should fail if it doesn't know about a symbol" do
-        attempting {
-          @builder.cast :unknown_type
-        }.should raise_error(Choosy::ConfigurationError, /Unknown conversion/)
-      end
-    end#cast
-
     describe :die do
       it "should format the error message with both flags" do
         @builder.short '-k'
@@ -198,26 +168,6 @@ module Choosy::DSL
       end
     end#die
 
-    describe :finalize! do
-      it "should set the arity if not already set" do
-        @builder.short '-s'
-        @builder.finalize!
-        @option.arity.should eql(0..0)
-      end
-
-      it "should set the cast to :string on regular arguments" do
-        @builder.short '-s', 'SHORT'
-        @builder.finalize!
-        @option.cast_to.should eql(:string)
-      end
-
-      it "should set the cast to :boolean on single flags" do
-        @builder.short '-s'
-        @builder.finalize!
-        @option.cast_to.should eql(:boolean)
-      end
-    end#finalize!
-
     describe :depends_on do
       it "should be able to process multiple arguments" do
         @builder.depends_on :a, :b
@@ -229,6 +179,34 @@ module Choosy::DSL
         @option.dependent_options.should eql([:a, :b])
       end
     end#depends_on
+
+    describe :only do
+      it "should set the allowable_values for an option" do
+        @builder.only :this, :that, :other
+        @option.allowable_values.should eql([:this, :that, :other])
+      end
+    end#only
+
+    describe :negate do
+      it "should set the default negation to 'no'" do
+        @builder.negate
+        @option.negated?.should be_true
+        @option.negation.should eql('no')
+      end
+
+      it "should set the the negation to a specific value" do
+        @builder.negate 'non'
+        @option.negated?.should be_true
+        @option.negation.should eql('non')
+      end
+
+      it "should set the flag string for the negated value" do
+        @builder.flags '-s', '--short'
+        @builder.negate
+        @builder.finalize!
+        @option.negated.should eql("--no-short")
+      end
+    end#negate
 
     describe :from_hash do
       it "should fail on unrecognized methods" do
@@ -264,5 +242,49 @@ module Choosy::DSL
         }.should raise_error(Choosy::ConfigurationError, /Only hash arguments allowed/)
       end
     end#from_hash
+
+    describe :finalize! do
+      it "should set the arity if not already set" do
+        @builder.short '-s'
+        @builder.finalize!
+        @option.arity.should eql(0..0)
+      end
+
+      it "should set the cast to :string on regular arguments" do
+        @builder.short '-s', 'SHORT'
+        @builder.finalize!
+        @option.cast_to.should eql(:string)
+      end
+
+      it "should set the cast to :boolean on single flags" do
+        @builder.short '-s'
+        @builder.finalize!
+        @option.cast_to.should eql(:boolean)
+      end
+
+      it "should fail when both boolean and restricted" do
+        @builder.short '-s'
+        @builder.only :a, :b
+        attempting{
+          @builder.finalize!
+        }.should raise_error(Choosy::ConfigurationError, /boolean and restricted/)
+      end
+
+      it "should fail when the argument is negated and not boolean" do
+        @builder.short '-s', 'SHORT'
+        @builder.negate
+        attempting {
+          @builder.finalize!
+        }.should raise_error(Choosy::ConfigurationError, /negate a non-boolean option/)
+      end
+
+      it "should fail when there is no long boolean option name to negate" do
+        @builder.short '-s'
+        @builder.negate
+        attempting {
+          @builder.finalize!
+        }.should raise_error(Choosy::ConfigurationError, /long flag is required for negation/)
+      end
+    end#finalize!
   end
 end

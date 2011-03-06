@@ -262,6 +262,13 @@ module Choosy::DSL
       end
     end#boolean
 
+    describe :enum do
+      it "should set the allowable values" do
+        o = @builder.enum :this, [:a, :b, :c], "this"
+        o.allowable_values.should eql([:a, :b, :c])
+      end
+    end
+
     describe :single do
       it "should be able to set the short flag" do
         o = @builder.single :count, "Show the count"
