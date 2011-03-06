@@ -21,7 +21,7 @@ module Choosy
     end
 
     def parsimonious?
-      @parsimonous ||= false
+      @parsimonious ||= false
     end
 
     def execute!(args)
@@ -52,7 +52,7 @@ module Choosy
     def handle_help(hc)
       command_name = hc.message
 
-      if command_name == :SUPER_COMMAND
+      if command_name == Choosy::DSL::SuperCommandBuilder::SUPER
         puts printer.print!(self)
       else
         builder = command_builders[command_name]
@@ -66,7 +66,7 @@ module Choosy
     end
 
     def format_help(command)
-      help = if command_builders[:help]
+      help = if command_builders[Choosy::DSL::SuperCommandBuilder::HELP]
                "See '#{@name} help'."
              else
                ""

@@ -20,7 +20,7 @@ module Choosy
     
     def parse!(argv, result=nil)
       index = 0
-      result ||= ParseResult.new(@command)
+      result ||= ParseResult.new(@command, false)
 
       while index < argv.length
         case argv[index]

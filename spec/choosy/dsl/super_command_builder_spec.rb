@@ -39,6 +39,17 @@ module Choosy::DSL
         @command.listing[0].should be(cmd)
       end
     end
+    
+    describe :parsimonious do
+      it "should not be parsimonous by default" do
+        @command.parsimonious?.should be_false
+      end
+
+      it "should set parsimonious" do
+        @builder.parsimonious
+        @command.parsimonious?.should be_true
+      end
+    end
 
     describe "standard options" do
       it "should also be able to set flags" do
@@ -67,14 +78,14 @@ module Choosy::DSL
         it "should return the super command name when called without arguments" do
           h = @builder.help
           attempting {
-            h.argument_validation.call([])
+            h.arguments.validation_step.call([])
           }.should raise_error(Choosy::HelpCalled, nil)
         end
 
         it "should return the name of the first argument when called, as a symbol" do
           h = @builder.help
           attempting {
-            h.argument_validation.call(['foo'])
+            h.arguments.validation_step.call(['foo'])
           }.should raise_error(Choosy::HelpCalled, :foo)
         end
       end

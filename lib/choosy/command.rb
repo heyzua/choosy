@@ -6,7 +6,7 @@ require 'choosy/verifier'
 
 module Choosy
   class Command < BaseCommand
-    attr_accessor :executor, :argument_validation
+    attr_accessor :executor, :arguments
     
     def execute!(args)
       raise Choosy::ConfigurationError.new("No executor given for: #{name}") unless executor

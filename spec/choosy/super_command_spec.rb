@@ -41,7 +41,7 @@ module Choosy
         end
 
         o = capture :stdout do
-          @c.parse!(['help', 'bar'])
+          @c.parse! ['help', 'bar'] 
         end
 
         o.should match(/--count/)

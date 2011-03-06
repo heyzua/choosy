@@ -2,20 +2,16 @@ require 'choosy/errors'
 require 'choosy/parser'
 require 'choosy/parse_result'
 require 'choosy/verifier'
+require 'choosy/dsl/super_command_builder'
 
 module Choosy
   class SuperParser
     attr_reader :terminals, :verifier
 
-    def initialize(super_command, parsimonious=nil)
+    def initialize(super_command)
       @super_command = super_command
-      @parsimonious = parsimonious || false
       @verifier = Verifier.new
       generate_terminals
-    end
-
-    def parsimonious?
-      @parsimonious
     end
 
     def parse!(args)
@@ -30,7 +26,7 @@ module Choosy
       end
 
       result.subresults.each do |subresult|
-        if subresult.command.name == :help
+        if subresult.command.name == Choosy::DSL::SuperCommandBuilder::HELP
           verifier.verify!(subresult)
         end
       end
@@ -48,7 +44,7 @@ module Choosy
     private
     def generate_terminals
       @terminals = []
-      if parsimonious?
+      if @super_command.parsimonious?
         @super_command.commands.each do |c|
           @terminals << c.name.to_s
         end
@@ -57,14 +53,14 @@ module Choosy
 
     def parse_globals(args)
       result = SuperParseResult.new(@super_command)
-      parser = Parser.new(@super_command, true)
+      parser = Parser.new(@super_command, true, @terminals)
       parser.parse!(args, result)
       verifier.verify_special!(result)
 
       # if we found a global action, we should have hit it by now...
       if result.unparsed.length == 0
-        if @super_command.command_builders[:help]
-          raise Choosy::HelpCalled.new(:SUPER_COMMAND)
+        if @super_command.command_builders[Choosy::DSL::SuperCommandBuilder::HELP]
+          raise Choosy::HelpCalled.new(Choosy::DSL::SuperCommandBuilder::SUPER)
         else
           raise Choosy::SuperParseError.new("requires a command")
         end
@@ -86,7 +82,8 @@ module Choosy
 
       command = command_builder.command
       parser = Parser.new(command, false, terminals)
-      command_result = parser.parse!(args)
+      command_result = Choosy::ParseResult.new(command, true)
+      parser.parse!(args, command_result)
 
       command_result
     end

@@ -1,6 +1,7 @@
 require 'choosy/errors'
 require 'choosy/dsl/base_command_builder'
 require 'choosy/dsl/option_builder'
+require 'choosy/dsl/argument_builder'
 require 'choosy/printing/help_printer'
 
 module Choosy::DSL
@@ -35,9 +36,14 @@ module Choosy::DSL
     end
 
     def arguments(&block)
-      raise Choosy::ConfigurationError.new("No block to arguments call") if !block_given?
-
-      command.argument_validation = block
+      builder = ArgumentBuilder.new
+      if block_given?
+        builder.instance_eval(&block)
+      else
+        raise Choosy::ConfigurationError.new("No block to arguments call") if !block_given?
+      end
+      builder.finalize!
+      command.arguments = builder.argument
     end
   end
 end

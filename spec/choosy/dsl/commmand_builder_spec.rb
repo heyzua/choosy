@@ -69,11 +69,22 @@ module Choosy::DSL
         }.should raise_error(Choosy::ConfigurationError, /arguments/)
       end
 
-      it "should pass in the arguments to validate" do
-        @builder.arguments do |args|
-          args.should have(3).items
+      it "should pass in the block correctly" do
+        @builder.arguments do
+          metaname 'ARGS'
         end
-        @command.argument_validation.call([1, 2, 3])
+        @command.arguments.metaname.should eql('ARGS')
+      end
+
+      it "should pass in the arguments to validate" do
+        @builder.arguments do
+          validate do |args, options|
+            raise RuntimeError, "called"
+          end
+        end
+        attempting {
+          @command.arguments.validation_step.call([2, 2, 3], nil)
+        }.should raise_error(RuntimeError, "called")
       end
     end#arguments
   end

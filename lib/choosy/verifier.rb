@@ -23,8 +23,23 @@ module Choosy
     end
 
     def verify_arguments!(result)
-      if result.command.respond_to?(:argument_validation) && result.command.argument_validation
-        result.command.argument_validation.call(result.args)
+      if result.command.is_a?(Choosy::Command) && result.command.arguments
+        arguments = result.command.arguments
+        prefix = if result.subresult?
+                   "#{result.command.name}: "
+                 else
+                   ""
+                 end
+
+        if result.args.length < arguments.arity.min
+          raise Choosy::ValidationError.new("#{prefix}too few arguments (minimum is #{arguments.arity.min})")
+        elsif result.args.length > arguments.arity.max
+          raise Choosy::ValidationError.new("#{prefix}too many arguments (max is #{arguments.arity.max}): '#{result.args[arguments.arity.max]}'")
+        end 
+
+        if arguments.validation_step
+          arguments.validation_step.call(result.args, result.options)
+        end
       end
     end
 

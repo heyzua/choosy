@@ -144,111 +144,6 @@ module Choosy::DSL
       end
     end#default
 
-    describe :required do
-      it "should set the option" do
-        @builder.required
-        @option.required?.should be(true)
-      end
-
-      it "should set the option on non-nil/non-true" do
-        @builder.required 1
-        @option.required?.should be(false)
-      end
-
-      it "should set the option on false" do
-        @builder.required false
-        @option.required?.should be(false)
-      end
-    end#required
-
-    describe :metaname do
-      it "should be able to set the name of the metaname" do
-        @builder.metaname 'PARAM'
-        @option.metaname.should eql('PARAM')
-      end
-
-      it "should set the arity on STD+ to 1+" do
-        @builder.metaname 'STD+'
-        @option.arity.should eql(1..1000)
-      end
-
-      it "should set the arity on STD to 1" do
-        @builder.metaname 'STD'
-        @option.arity.should eql(1..1)
-      end
-    end#metaname
-
-    describe :count do
-      describe "when welformed" do
-        it "should set :at_least the right arity" do
-          @builder.count :at_least => 32
-          @option.arity.should eql(32..1000)
-        end
-
-        it "should set :at_most the right arity" do
-          @builder.count :at_most => 31
-          @option.arity.should eql(1..31)
-        end
-
-        it "should set :once to the right arity" do
-          @builder.count :once
-          @option.arity.should eql(1..1)
-        end
-
-        it "should set :zero to the right arity" do
-          @builder.count :zero
-          @option.arity.should eql(0..0)
-        end
-
-        it "should set :none to the right arity" do
-          @builder.count :none
-          @option.arity.should eql(0..0)
-        end
-
-        it "should set a number exactly" do
-          @builder.count 3
-          @option.arity.should eql(3..3)
-        end
-
-        it "should allow for a range" do
-          @builder.count 1..2
-          @option.arity.should eql(1..2)
-        end
-      end
-
-      describe "when malformed" do
-        it "should fail when the :exactly isn't a number" do
-          attempting {
-            @builder.count :exactly => 'p'
-          }.should raise_error(Choosy::ConfigurationError, /number/)
-        end
-
-        it "should fail when the :at_most isn't a number" do
-          attempting {
-            @builder.count :at_most => 'p'
-          }.should raise_error(Choosy::ConfigurationError, /number/)
-        end
-
-        it "should fail when the :at_least isn't a number" do
-          attempting {
-            @builder.count :at_least => 'p'
-          }.should raise_error(Choosy::ConfigurationError, /number/)
-        end
-
-        it "should fail when the :count isn't a number" do
-          attempting {
-            @builder.count 'p'
-          }.should raise_error(Choosy::ConfigurationError, /number/)
-        end
-
-        it "should fail when the :at_least is greater than :at_most" do
-          attempting {
-            @builder.count :at_least => 3, :at_most => 2
-          }.should raise_error(Choosy::ConfigurationError, /lower bound/)
-        end
-      end
-    end#count
-
     describe :cast do
       it "should allow symbol casts" do
         @builder.cast :int
@@ -302,24 +197,6 @@ module Choosy::DSL
         }.should raise_error(Choosy::ValidationError, /--keep: Didn't keep anything/)
       end
     end#die
-
-    describe :validate do
-      it "should save the context of the validation in a Proc to call later" do
-        @builder.validate do
-          puts "Hi!"
-        end
-        @option.validation_step.should be_a(Proc)
-      end
-      
-      it "should have access to the larger context when called" do
-        value = nil
-        @builder.validate do
-          value = 'here'
-        end
-        @option.validation_step.call
-        value.should eql('here')
-      end
-    end#validate
 
     describe :finalize! do
       it "should set the arity if not already set" do

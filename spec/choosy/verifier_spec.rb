@@ -26,7 +26,7 @@ module Choosy
 
     before :each do
       reset!
-      @res = ParseResult.new(@c)
+      @res = ParseResult.new(@c, false)
     end
 
     describe :verify! do
@@ -41,13 +41,49 @@ module Choosy
 
     describe :verify_arguments! do
       it "should validate arguments if asked" do
-        b.arguments do |args|
-          raise RuntimeError.new('Called!')
+        b.arguments do
+          validate do |args, option|
+            raise RuntimeError.new('Called!')
+          end
         end
 
         attempting {
           v.verify_arguments!(@res)
         }.should raise_error(RuntimeError, 'Called!')
+      end
+
+      it "should validate that the argument count isn't too few" do
+        b.arguments do
+          count 2
+        end
+        @res.args << "a"
+        
+        attempting {
+          v.verify_arguments!(@res)
+        }.should raise_error(Choosy::ValidationError, /too few arguments/)
+      end
+
+      it "should validate that the argument count isn't too many" do
+        b.arguments do
+          count 1
+        end
+        @res.args << "a"
+        @res.args << "b"
+
+        attempting {
+          v.verify_arguments!(@res)
+        }.should raise_error(Choosy::ValidationError, /too many arguments/)
+      end
+
+      it "should succed when the argument count is in an acceptable range" do
+        b.arguments do
+          count 1..3
+        end
+        @res.args << "1"
+
+        attempting {
+          v.verify_arguments!(@res)
+        }.should_not raise_error
       end
     end
 

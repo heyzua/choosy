@@ -1,6 +1,7 @@
 require 'spec_helpers'
 require 'choosy/super_parser'
 require 'choosy/super_command'
+require 'choosy/dsl/super_command_builder'
 
 module Choosy
   class SuperParserBuilder
@@ -33,11 +34,13 @@ module Choosy
     end
 
     def parsimonious!
-      @parsimonious = true
-    end 
+      @super.alter do
+        parsimonious
+      end
+    end
 
     def build
-      SuperParser.new(@super, @parsimonious)
+      SuperParser.new(@super)
     end
   end
 
@@ -69,7 +72,7 @@ module Choosy
         @p.super.builder.help
         attempting {
           @p.parse!()
-        }.should raise_error(Choosy::HelpCalled, :SUPER_COMMAND)
+        }.should raise_error(Choosy::HelpCalled, Choosy::DSL::SuperCommandBuilder::SUPER)
       end
     end
 

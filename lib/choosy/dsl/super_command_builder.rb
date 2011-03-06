@@ -4,6 +4,9 @@ require 'choosy/command'
 
 module Choosy::DSL
   class SuperCommandBuilder < BaseCommandBuilder
+    HELP = :help
+    SUPER = :__SUPER_COMMAND__
+
     def command(cmd, &block)
       subcommand = if cmd.is_a?(Choosy::Command)
                      cmd
@@ -17,16 +20,23 @@ module Choosy::DSL
       finalize_subcommand(subcommand)
     end
 
+    def parsimonious
+      @command.parsimonious = true
+    end
+
     def help(msg=nil)
       msg ||= "Show the info for a command, or this message"
-      help = Choosy::Command.new :help do |help|
+      help = Choosy::Command.new HELP do |help|
         help.summary msg
 
-        help.arguments do |args|
-          if args.nil? || args.length == 0
-            raise Choosy::HelpCalled.new(:SUPER_COMMAND)
-          else
-            raise Choosy::HelpCalled.new(args[0].to_sym)
+        help.arguments do
+          count 0..1
+          validate do |args|
+            if args.nil? || args.length == 0
+              raise Choosy::HelpCalled.new(SUPER)
+            else
+              raise Choosy::HelpCalled.new(args[0].to_sym)
+            end
           end
         end
       end
