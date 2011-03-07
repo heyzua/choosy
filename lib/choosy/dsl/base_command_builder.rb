@@ -160,7 +160,7 @@ module Choosy::DSL
       builder.metaname format_meta(name, meta)
       builder.cast cast
       if allowed
-        builder.only *allowed
+        builder.only(*allowed)
       end
       builder.from_hash config if config
 

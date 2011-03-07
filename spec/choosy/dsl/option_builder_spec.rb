@@ -285,6 +285,12 @@ module Choosy::DSL
           @builder.finalize!
         }.should raise_error(Choosy::ConfigurationError, /long flag is required for negation/)
       end
+
+      it "should set the default value for booleans if not already set" do
+        @builder.short '-s'
+        @builder.finalize!
+        @option.default_value.should be(false)
+      end
     end#finalize!
   end
 end

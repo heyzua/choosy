@@ -4,10 +4,6 @@ require 'choosy/converter'
 
 module Choosy::DSL
   class ArgumentBuilder
-    ZERO_ARITY     = (0 .. 0)
-    ONE_ARITY      = (1 .. 1)
-    MANY_ARITY     = (1 .. 1000)
-
     def initialize
       @count_called = false
     end
@@ -30,9 +26,9 @@ module Choosy::DSL
       return if @count_called
       
       if meta =~ /\+$/
-        argument.arity = MANY_ARITY 
+        argument.multiple!
       else
-        argument.arity = ONE_ARITY
+        argument.single!
       end
     end
 
@@ -52,9 +48,9 @@ module Choosy::DSL
       elsif restriction.is_a?(Range)
         argument.arity = restriction
       elsif restriction == :zero || restriction == :none
-        argument.arity = ZERO_ARITY
+        argument.boolean!
       elsif restriction == :once
-        argument.arity = ONE_ARITY
+        argument.single!
       else
         check_count(restriction)
         argument.arity = (restriction .. restriction)
@@ -78,7 +74,7 @@ module Choosy::DSL
 
     def finalize!
       if argument.arity.nil?
-        argument.arity = ZERO_ARITY
+        argument.boolean!
       end
     end
 

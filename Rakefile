@@ -14,9 +14,27 @@ desc "Default task"
 task :default => [ :spec ]
 
 desc "Build documentation"
-task :doc => [ :rdoc ]
+task :doc => [ :rdoc ] do
+  File.open 'docs/README.markdown', 'r'  do |template|
+    File.open 'README.markdown', 'w' do |output|
+      template.each do |line|
+        if line =~ /^>>> (.*)/
+          puts $1
+          File.open $1, 'r' do |inserted|
+            inserted.each do |ins|
+              output.puts "    #{ins}"
+            end
+          end
+        else
+          output.puts line
+        end
+      end
+    end
+  end
+end
 
-#task :rdoc => SOURCE_FILES
+desc "Create RDocs: TODO"
+task :rdoc
 
 desc "Run the RSpec tests"
 RSpec::Core::RakeTask.new :spec
@@ -47,7 +65,7 @@ task :clean do
 end
 
 desc "Deploys the gem to rubygems.org"
-task :gem => :release do
+task :gem => :doc, :release do
   system("gem build #{PACKAGE_NAME}.gemspec")
   system("gem push #{PACKAGE_NAME}-#{PACKAGE_VERSION}.gem")
 end

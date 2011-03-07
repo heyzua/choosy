@@ -1,8 +1,11 @@
 require 'choosy/errors'
-require 'choosy/dsl/argument_builder'
 
 module Choosy
   class Argument
+    ZERO_ARITY     = (0 .. 0)
+    ONE_ARITY      = (1 .. 1)
+    MANY_ARITY     = (1 .. 1000)
+
     attr_accessor :metaname, :validation_step, :arity, :cast_to, :allowable_values
 
     def initialize
@@ -22,11 +25,27 @@ module Choosy
     end
 
     def boolean?
-      arity == Choosy::DSL::ArgumentBuilder::ZERO_ARITY
+      @arity == ZERO_ARITY
     end
 
     def single?
-      arity == Choosy::DSL::ArgumentBuilder::ONE_ARITY
+      @arity == ONE_ARITY
+    end
+
+    def multiple?
+      @arity == MANY_ARITY
+    end
+
+    def boolean!
+      @arity = ZERO_ARITY
+    end
+
+    def single!
+      @arity = ONE_ARITY
+    end
+
+    def multiple!
+      @arity = MANY_ARITY
     end
   end
 end

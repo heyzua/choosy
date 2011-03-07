@@ -104,6 +104,7 @@ module Choosy::DSL
         elsif option.negated? && option.long_flag.nil?
           raise Choosy::ConfigurationError.new("The long flag is required for negation: #{option.name}")
         end
+        option.default_value ||= false
       else
         if option.negated?
           raise Choosy::ConfigurationError.new("Unable to negate a non-boolean option: #{option.name}")

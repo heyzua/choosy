@@ -90,7 +90,15 @@ module Choosy
         end
           
         it "should collect other names of commands as arguments" do
-          @p.command(:bar).command(:baz).parse!('bar', 'baz').subresults.should have(1).item
+          @p.command(:bar) do |c|
+            c.arguments
+          end.command(:baz).parse!('bar', 'baz').subresults.should have(1).item
+        end
+
+        it "should fail when the first command doesn't take arguments" do
+          attempting {
+            @p.command(:bar).command(:baz).parse!('bar', 'baz')
+          }.should raise_error(Choosy::ValidationError, /bar: no arguments allowed: baz/)
         end
       end
 

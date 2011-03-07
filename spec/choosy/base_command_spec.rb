@@ -3,9 +3,34 @@ require 'choosy/command'
 
 module Choosy
   describe BaseCommand do
+    before :each do
+      @cmd = Command.new :cmd
+    end
     it "should finalize the builder" do
-      cmd = Command.new :cmd
-      cmd.printer.should be_a(Choosy::Printing::HelpPrinter)
+      @cmd.printer.should be_a(Choosy::Printing::HelpPrinter)
     end 
+
+    it "should order the options in dependency order" do
+      @cmd.alter do
+        integer :count, "Count" do
+          depends_on :bold
+        end
+
+        boolean :bold, "Bold" do
+          depends_on :font, :config
+        end
+
+        symbol :font, "Font" do
+          depends_on :config
+        end
+
+        file :config, "The config"
+        file :access, "Access code" do
+          depends_on :config, :count
+        end
+      end
+
+      @cmd.options.map {|o| o.name}.should eql([:config, :font, :bold, :count, :access])
+    end
   end
 end

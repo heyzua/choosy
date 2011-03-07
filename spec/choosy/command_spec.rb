@@ -5,7 +5,9 @@ require 'choosy/printing/help_printer'
 module Choosy
   describe Command do
     before :each do
-      @c = Command.new :foo
+      @c = Command.new :foo do
+        arguments
+      end
     end
 
     describe :parse! do
@@ -30,9 +32,9 @@ module Choosy
         end
 
         o = capture :stdout do
-          attempting {
+          #attempting {
             @c.parse!(['--help'])
-          }.should raise_error(SystemExit)
+          #}.should raise_error(SystemExit)
         end
 
         o.should match(/-h, --help/)
@@ -44,6 +46,27 @@ module Choosy
         attempting {
          @c.execute!(['a', 'b'])
         }.should raise_error(Choosy::ConfigurationError, /No executor/)
+      end
+
+      it "should call an proc" do
+        p = nil
+        @c.executor = Proc.new {|args, options| p = args}
+        @c.execute!(['a', 'b'])
+        p.should eql(['a', 'b'])
+      end
+
+      class FakeExecutor
+        attr_reader :called
+        def execute!(args, options)
+          @called = args
+        end
+      end
+
+      it "should call an executor if given" do
+        exec = FakeExecutor.new
+        @c.executor = exec
+        @c.execute!(['a'])
+        exec.called.should eql(['a'])
       end
     end
   end

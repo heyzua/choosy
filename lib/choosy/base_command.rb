@@ -1,6 +1,17 @@
 require 'choosy/errors'
+require 'tsort'
 
 module Choosy
+  class OptionBuilderHash < Hash
+    include TSort
+    alias tsort_each_node each_key
+
+    def tsort_each_child(node, &block)
+      deps = fetch(node).option.dependent_options
+      deps.each(&block) unless deps.nil?
+    end
+  end
+
   class BaseCommand
     attr_accessor :name, :summary, :printer
     attr_reader :builder, :listing, :option_builders
@@ -8,7 +19,7 @@ module Choosy
     def initialize(name, &block)
       @name = name
       @listing = []
-      @option_builders = {}
+      @option_builders = OptionBuilderHash.new
 
       @builder = create_builder
       if block_given?
@@ -25,7 +36,7 @@ module Choosy
     end
 
     def options
-      @option_builders.values.map {|b| b.option}
+      @option_builders.tsort.map {|key| @option_builders[key].option }
     end
 
     def parse!(args, propagate=false)

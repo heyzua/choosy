@@ -23,22 +23,29 @@ module Choosy
     end
 
     def verify_arguments!(result)
-      if result.command.is_a?(Choosy::Command) && result.command.arguments
-        arguments = result.command.arguments
+      if result.command.is_a?(Choosy::Command)
         prefix = if result.subresult?
                    "#{result.command.name}: "
                  else
                    ""
                  end
 
-        if result.args.length < arguments.arity.min
-          raise Choosy::ValidationError.new("#{prefix}too few arguments (minimum is #{arguments.arity.min})")
-        elsif result.args.length > arguments.arity.max
-          raise Choosy::ValidationError.new("#{prefix}too many arguments (max is #{arguments.arity.max}): '#{result.args[arguments.arity.max]}'")
-        end 
+        if result.command.arguments
+          arguments = result.command.arguments
 
-        if arguments.validation_step
-          arguments.validation_step.call(result.args, result.options)
+          if result.args.length < arguments.arity.min
+            raise Choosy::ValidationError.new("#{prefix}too few arguments (minimum is #{arguments.arity.min})")
+          elsif result.args.length > arguments.arity.max
+            raise Choosy::ValidationError.new("#{prefix}too many arguments (max is #{arguments.arity.max}): '#{result.args[arguments.arity.max]}'")
+          end 
+
+          if arguments.validation_step
+            arguments.validation_step.call(result.args, result.options)
+          end
+        else
+          if result.args.length > 0
+            raise Choosy::ValidationError.new("#{prefix}no arguments allowed: #{result.args.join(' ')}")
+          end
         end
       end
     end

@@ -6,7 +6,6 @@ require 'choosy/dsl/super_command_builder'
 
 module Choosy
   class SuperCommand < BaseCommand
-    attr_reader :command_builders
     attr_accessor :metaname
 
     def command_builders

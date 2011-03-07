@@ -260,6 +260,11 @@ module Choosy::DSL
         o = @builder.boolean_ :debug, "Show debug output"
         o.short_flag.should be(nil)
       end
+
+      it "should set the default value if not set" do
+        o = @builder.boolean :debug, "Show debug"
+        o.default_value.should be(false)
+      end
     end#boolean
 
     describe :enum do

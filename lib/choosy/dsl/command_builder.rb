@@ -37,12 +37,18 @@ module Choosy::DSL
 
     def arguments(&block)
       builder = ArgumentBuilder.new
+      # Set multiple by default
+      builder.argument.multiple!
+
       if block_given?
         builder.instance_eval(&block)
-      else
-        raise Choosy::ConfigurationError.new("No block to arguments call") if !block_given?
       end
+      
       builder.finalize!
+      if builder.argument.metaname.nil?
+        builder.metaname 'ARGS+'
+      end
+
       command.arguments = builder.argument
     end
   end

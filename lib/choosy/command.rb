@@ -11,7 +11,11 @@ module Choosy
     def execute!(args)
       raise Choosy::ConfigurationError.new("No executor given for: #{name}") unless executor
       result = parse!(args)
-      executor.call(result.options, result.args)
+      if executor.is_a?(Proc)
+        executor.call(result.args, result.options)
+      else
+        executor.execute!(result.args, result.options)
+      end
     end
 
     protected

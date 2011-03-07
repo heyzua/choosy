@@ -32,6 +32,10 @@ module Choosy
     describe :verify! do
       it "should not try to validate arguments if not set" do
         b.boolean :debug, "Debug"
+        b.arguments do
+          count 0..10
+        end
+
         @res.args << "a"
         attempting {
           v.verify!(@res)
@@ -214,6 +218,7 @@ module Choosy
             raise RuntimeError.new('Called!')
           end
         end
+        @res.args << 'a'
 
         attempting {
           v.verify_arguments!(@res)
@@ -253,7 +258,13 @@ module Choosy
           v.verify_arguments!(@res)
         }.should_not raise_error
       end
-    end
 
+      it "should fail when no arguments are allowed" do
+        @res.args << 'a'
+        attempting {
+          v.verify_arguments!(@res)
+        }.should raise_error(Choosy::ValidationError, /no arguments allowed/)
+      end
+    end
   end
 end

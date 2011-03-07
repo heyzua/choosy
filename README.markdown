@@ -19,154 +19,163 @@ This library should never:
 
 # Examples
 
-    #!/usr/bin/env ruby
+    #!/usr/bin/env ruby -w
     # foo.rb
-
-    require 'rubygems'
+    
+    $LOAD_PATH.unshift File.join(File.dirname(File.dirname(__FILE__)), 'lib')
     require 'choosy'
-
-    FOO_VERSION = 1.0.1
-
+    
+    FOO_VERSION = '1.0.1'
+    
     class FooExecutor
-      def execute!(options, args)
+      def execute!(args, options)
         puts "BOLDED!!" if options[:bold]
         options[:count].times do
-          puts "#{options[:prefix]}#{options[:words].push('foo').join(',')#{options[:suffix}}"
+          puts "#{options[:prefix]}#{options[:words].push('foo').join(',')}#{options[:suffix]}"
         end
         puts "and #{args.join ' '}"
       end
     end
-
+    
     foo_cmd = Choosy::Command.new :foo do |foo|
       # Add a class to do the execution when you call foo_cmd.execute!
       # You can also use a proc that takes the options and the args, like:
-      #    foo.executor { |opts, args| puts 'Hi!' }
-      foo.executor FooExecutor.new
-
+      #    executor { |args, options| puts 'Hi!' }
+      executor FooExecutor.new
+    
+      # When used as a subcommand, you need a summary for the help screen
+      summary "This is a nice command named 'foo'"
+    
       # You can add your custom printer by giving the
       # full path to an ERB template file here.  
       # The default printer is :standard, but you can 
-      # also use the builtin printer :compact.  The 
+      # also use the builtin printer :erb, with the :tempates
+      # parameter to set the erb template you wish to use. The 
       # output can be colored or uncolored, though the
       # default is colored.
-      foo.printer :standard, :colored => true
-
-      foo.summary 'Prints out "foo" to the console"
-      foo.desc    <<HERE
-    This is a long description about what 'foo' is
-    and how it works.  Don't worry your pretty little head
-    about the details.
-    HERE
-
-      foo.separator 'Required Options:'
-
+      printer :standard, :color => true, :header_styles => [:bold, :green]
+    
+      para 'Prints out "foo" to the console'
+      para 'This is a long description of what foo is an how it works. This line will assuredly wrap the console at least once, since it it such a long line, but it will be wrapped automatically by the printer, above. If you want to, you can add write "printer :standard, :max_width => 80" to set the maximum column width that the printer will allow (not respected by ERB templates).'
+      
+      header 'Required Options:' # Formatted according to the header_styles for the printer
+    
       # A shorthand for a common option type.
       # It adds the '-p/--prefix PREFIX' infomation for you.
-      foo.single :prefix, "A prefix for 'foo'" do |p|
-        p.default '<'
-        p.required
+      single :prefix, "A prefix for 'foo'" do
+        default '<'
+        required
       end
-
+    
       # The long way to do the same thing as above, except with
       # explicitly named dependencies
-      foo.option :suffix => [:prefix] do |o|
-        o.short '-s'
-        o.long  '--suffix', 'SUFFIX'
-        o.desc  'A suffix for "foo"'
-        o.required
-
-        o.validate do |suffix|
-          if suffix == foo[:prefix]      
-            o.fail "You can't matching prefixes and suffixes, you heathen!"
+      option :suffix => [:prefix] do
+        short '-s'
+        long  '--suffix', 'SUFFIX'
+        desc  'A suffix for "foo"'
+        required
+    
+        validate do |suffix, options|
+          if suffix == options[:prefix]      
+            die "You can't matching prefixes and suffixes, you heathen!"
           end
         end
       end
-
+    
       # Just like the 'single' method above, except now it automatically
       # requires/casts the argument to this flag into an integer.  These commands
       # also take an optional hash as the last argument, which can be used instead
       # of a block.
-      foo.integer :count, 'The number of times to repeat "foo"', :required => true
-
-      foo.separator 
-      foo.separator 'Options:'
-
-      foo.option :words do |o|
-        o.short '-w'
-        o.long  '--words', 'WORDS+' # By default, the '+' at the end
+      integer :count, 'The number of times to repeat "foo"', :required => true
+    
+      header 'Options:', :bold, :blue # Format this header differently, overrides 'header_styles'
+    
+      option :words do
+        short '-w'
+        long  '--words', 'WORDS+' # By default, the '+' at the end
                                     # means that this takes multiple
                                     # arguments.  You put a '-' at
                                     # the end of the argument list
                                     # to stop parsing this option
                                     # and allow for regular args.
-        o.desc  "Other fun words to put in quotes"
-        o.default []                # The default anyway on multple arg options
+        desc  "Other fun words to put in quotes"
         
         # Sets the exact count of the number of arguments it accepts.
         # also allowable are the single selectors :zero and :one.
         # By default, the option 'WORDS+' sets the range to be
         # {:at_least => 1, :at_most => 1000 }
-        o.count {:at_least => 2, :at_most => 10 }
-
-        o.validate do |words|
+        count :at_least => 2, :at_most => 10
+    
+        validate do |words, options|
           words.each do |word|
             if word !~ /\w+/
-              o.fail "I can't print that: #{word}"
+              die "I can't print that: #{word}"
             end
           end
         end
       end
-
+    
       # Alternatively, we could have done the following:
-      foo.strings :words, "Other fun words to put in quotes" do |w|
-        w.count {:at_least => 2, :at_most => 10 }
-        w.validate do |words|
+      strings :words, "Other fun words to put in quotes" do
+        count 2..10
+        default []
+        validate do |words, options|
           words.each do |word|
             if word !~ /\w+/
-              w.fail "I can't print that: #{word}"
+              die "I can't print that: #{word}"
             end
           end
         end
       end
-
+    
       # Yet another shorthand notation for options, since they
-      # are boolean by default
-      foo.option :bold => {:long => '--bold', :default => false}
-
-      options.separator
+      # are boolean by default. Here, we add a negation to the
+      # long flag of the option, creating [-b|--bold|--un-bold] flags.
+      # By default, calling 'negate' in a block without an argument
+      # uses the '--no-' prefix instead.
+      boolean :bold, "Bold this option", :default => false, :negate => 'un'
+    
       # Tail options
-
+    
       # When any of the simpler notations are suffixed with a '_' 
       # character, the short option is always suppressed.
-      foo.boolean_ :debug, "Prints out extra debugging output."
-
+      boolean_ :debug, "Prints out extra debugging output."
+    
       # The '_' characters are replaced with '-' in flags, so the 
-      # following creates a '--no-color' flag.
-      foo.boolean_ :no_color, "Turns off coloring in the output" do |o|
-        o.validate do
-          foo.printer :standard, :colored => false
+      # following creates a '--[no-]color' flag.
+      boolean_ :color, "Turns on/off coloring in the output. Defalt is on." do
+        negate
+        default true
+        validate do
+          foo.command.alter do
+            printer :standard, :colored => false
+          end
         end
       end
-
+    
       # Adds the standard -h/--help option.
       # Should skip the '-h' flag if already set.
-      foo.help  
-
+      help  # Automatically adds the description if not passed an argument. You can supply your own
+    
       # Adds the --version option.
-      foo.version "Foo: #{FOO_VERSION}"
-
+      version "Foo: #{FOO_VERSION}"
+    
       # Now, add some validation for any addtional arguments
-      # that are left over after the parsing.
-      foo.arguments do |args|
-        if args.empty?
-          a.fail "You have to pass in empty arguments that do nothing!"
-        end
-        if args.count >= 3
-          a.fail "Whoa there!  You're going argument crazy!"
+      # that are left over after the parsing the options.
+      arguments do
+        metaname 'ARGS'
+        count 1..10
+        validate do |args, options|
+          if args.empty?
+            die "You have to pass in empty arguments that do nothing!"
+          end
+          if args.count == 10
+            die "Whoa there!  You're going argument crazy!"
+          end
         end
       end
     end
-
+    
     if __FILE__ == $0
       # Parses and validates the options.
       args =  ['--prefix', '{', 
@@ -175,7 +184,7 @@ This library should never:
                # The '-' stops parsing this option, so that:
                'handsom', 'devil',
                'http://not.posting.here', # will be regular arguments
-               '-c, '3', # Count
+               '-c', '3', # Count
                '--', # Stops parsing all arguments
                '-h', '--help', '-v', '--version' # Ignored
               ]
@@ -184,16 +193,17 @@ This library should never:
       require 'pp'
       pp result[:prefix]        # => '{'
       pp result[:suffix]        # => '}'
-      pp reuslt[:count]         # => 3
+      pp result[:count]         # => 3
       pp result[:bold]          # => false
-      pp reuslt[:words]         # => ['high', 'there', 'you']
-      pp reuslt.args            # => ['handsom', 'devil',
+      pp result[:words]         # => ['high', 'there', 'you']
+      pp result.args            # => ['handsom', 'devil',
                                 #     'http://not.posting.here',
                                 #     '-h', '--help', '-v', '--version']
       pp result.options         # => {:prefix => '{', :suffix => '}'
                                 #     :count => 3, :bold => false,
-                                #     :words => ['high', 'there', 'you']}
-  
+                                #     :words => ['high', 'there', 'you'],
+                                #     :debug => false, :color => true}
+      
       # Now, call the command that does the actual work.
       # This passes the foo_cmd.options and the foo_cmd.args
       # as arguments to the executors 'execute!' method.
@@ -205,7 +215,7 @@ This library should never:
                                 # {high,there,you,foo}
                                 # {high,there,you,foo}
                                 # and handsom devil http://not.posting.here -h --help -v --verbose
-  
+      
     end
 
 ### Super Commands
@@ -214,180 +224,178 @@ You can also combine multiple choices into an uber-choice, creating
 commands that look a lot like git or subversion.
 
 First, we create another command.
-    
-    #!/usr/bin/env ruby
+
+    #!/usr/bin/env ruby -w
     # bar.rb
-
-    require 'rubygems'
+    
+    $LOAD_PATH.unshift File.join(File.dirname(File.dirname(__FILE__)), 'lib')
     require 'choosy'
-
-    class BarExecutor
-      def execute!(options, args)
-        if options[:bold]
-          puts "BOLDED BAR"
-        else
-          puts "bar"
-        end
-      end
-    end
     
     # Create a new command
-    bar_cmd = Choosy::Command.new :bar do |bar|
-      bar.executor BarExecutor.new
-      bar.summary "Just prints 'bar'"
-      bar.desc "A truly unremarkable command"
-
-      bar.boolean :bold, "Bolds something" 
-
+    bar_cmd = Choosy::Command.new :bar do
+      executor do |args, options|
+        if options[:bold]
+          puts "BOLD!!!"
+        else
+          puts "plain"
+        end
+      end
+    
+      summary "Displays when this is a subcommand"
+      para "Just prints 'bar'"
+      para "A truly unremarkable command"
+    
+      header 'Option:'
+      boolean :bold, "Bolds something" do
+        negate 'un'
+      end
+    
       # Because there is no bar.arguments call,
       # it is now an error if there are extra
       # command line arguments to this command.
     end
     
+    if __FILE__ == $0
+      args = ['--un-bold']
+      
+      result = bar_cmd.parse!(args)
+      
+      require 'pp'
+      pp result.options[:bold]           # => false
+      pp result.args                     # => []
+      
+      bar_cmd.execute!(args)             # => 'plain'
+    
+      args << 'should-throw-error'
+      bar_cmd.execute!(args)
+    end
+    
 We can now create our super command.
 
-    #!/usr/bin/env ruby
+    #!/usr/bin/env ruby -w
     # superfoo.rb
-
-    require 'rubygems'
+    
+    $LOAD_PATH.unshift File.join(File.dirname(File.dirname(__FILE__)), 'lib')
+    $LOAD_PATH.unshift File.join(File.dirname(File.dirname(__FILE__)), 'examples')
     require 'choosy'
-    require 'foo.rb'
-    require 'bar.rb'
+    require "foo"
+    require "bar"
     
     SUPERFOO_VERSION = "1.0.1"
     
-    superfoo = Choosy::SuperCommand.new :superfoo do |superfoo|
-      superfoo.summary "This is a superfoo command."
-      superfoo.desc "Say something, dammit!"
-
+    superfoo = Choosy::SuperCommand.new :superfoo do
+      summary "This is a superfoo command"
+      para "Say something, dammit!"
+    
       # You can also add commands after instantiation.
       # Note that, when added, these commands have their
       # -h/--help/--version flags suppressed, so you'll
       # need to add those flags here.
-      superfoo.commands bar_cmd
-
-      # Creates a 'help' command
-      superfoo.help do |help|
-        help.summary "Prints this help message"
-      end
-
+      command bar_cmd
+      command foo_cmd
+    
+      # Creates a 'help' command, message optional
+      help "Prints this help message"
+    
       # Create some global options that are parsed
-      # defore subcommand options
+      # defore result options
     
-      superfoo.option :config do |o|
-        o.long '--config', 'FILE'
-        o.desc "Configure your superfoo with a configuration file."
-    
-        o.validate do |config|
-          if !File.exist? config
-            o.fail "Unable to find configuration file!"
-          end
-        end
+      # Here, check that a YAML file exists, and attempt
+      # to load it's parsed contents into this option.
+      # There is also a 'file' type that checks to see
+      # if the file exists. With both 'file' and 'yaml',
+      # if the file is missing, the option fails with an
+      # error.
+      yaml :Config, "Configure your superfoo with a YAML configuration file." do
+        default File.join(ENV['HOME'], '.superfoo.yml')
       end
     
       # Adds a global --version flag.
-      superfoo.version do
-        puts "#{SUPERFOO_VERSION}"
-      end
+      version "#{SUPERFOO_VERSION}"
     end
     
-    # Add a command after the fact.
-    superfoo.commands foo_cmd
-    
     if __FILE__ == $0
-      superfoo.parse! ['-c', '5',
-                       'foo',
-                       '--config', '~/.superfoo',
-                       '--prefix', '{',
-                       '--suffix', '}',
-                       'cruft',
-                       'bar',
-                       '--bold']
-                       
+      args = ['foo',
+              '-c', '5',
+              '--config', '~/.superfoo',
+              '--prefix', '{',
+              '--suffix', '}',
+              'cruft',
+              'bar',
+              '--bold']
+    
+      result = superfoo.parse!(args)
+    
       require 'pp'
-      pp superfoo[:config]                  # => '~/.superfoo'
-      pp superfoo.subcommand.name           # => :foo
-      pp superfoo.subcommand[:prefix]       # => '{'
-      pp superfoo.subcommand[:suffix]       # => '}'
-      pp superfoo.subcommand[:count]        # => 2
-      pp superfoo.subcommand[:bold]         # => true
-      pp superfoo.subcommand.options        # => {:prefix => '{', :suffix => '}'
-                                            #     :count => 2,
-                                            #     :bold => true, 
-                                            #     :words => [],
-                                            #     :config => '~/.superfoo' }
-      pp superfoo.subcommand.args           # => ['cruft', 'bar']
+      pp result[:config]        # => '~/.superfoo'
+      pp result.name            # => :foo
+      pp result[:prefix]        # => '{'
+      pp result[:suffix]        # => '}'
+      pp result[:count]         # => 2
+      pp result[:bold]          # => true
+      pp result.options         # => {:prefix => '{', :suffix => '}'
+                                #     :count => 2,
+                                #     :bold => true, 
+                                #     :words => [],
+                                #     :config => '~/.superfoo' }
+      pp result.args            # => ['cruft', 'bar']
       
-      pp superfoo.options                   # => {:prefix => '{', :suffix => '}'
-                                            #     :count => 2,
-                                            #     :bold => true, 
-                                            #     :words => [],
-                                            #     :config => '~/.superfoo' }
-      pp superfoo.args                      # => ['cruft', 'bar']
-  
-      # Now, we can call the subcommand
-      superfoo.execute!                     ## Calls superfoo.subcommand.execute!
-                                            ## Prints:
-                                            # BOLDED!!
-                                            # {foo}
-                                            # {foo}
-                                            # and cruft bar
-  
-      # We got what we wanted, so reset the parser.
-      superfoo.reset!
-  
+      # Now, we can call the result
+      superfoo.execute!(args)   ## Calls superfoo.result.execute!
+                                ## Prints:
+                                # BOLDED!!
+                                # {foo}
+                                # {foo}
+                                # and cruft bar
+      
       # Instead of parsing the 'bar' parameter as an argument to
       # the foo command, so that when the first argument that matches
       # another command name is encountered, it stops parsing the
       # current command and passes the rest of the arguments to the
       # next command.
       #
-      # You can also set this inside a SuperChoosy.new {|s| ... } 
+      # In this case, we call the 'alter' method to use the DSL
+      # syntax again to alter this command.
+      #
+      # You can also set this inside a SuperChoosy.new {...}
       # block.
-      superfoo.parsimonious
-  
-      superfoo.parse! ['-c', '5',
-                       'foo',
-                       '--config', '~/.superfoo',
-                       '--prefix', '{',
-                       '--suffix', '}',
-                       'cruft',
-                       'bar',
-                       '--bold']
-                       
-      pp superfoo[:config]                      # => '~/.superfoo'
-      pp superfoo.subcommand.name               # => :foo
-      pp superfoo.subcommands[0].name           # => :foo
-      pp superfoo.subcommands[0][:prefix]       # => '{'
-      pp superfoo.subcommands[0][:suffix]       # => '}'
-      pp superfoo.subcommands[0][:count]        # => 2
-      pp superfoo.subcommands[0][:bold]         # => true
-      pp superfoo.subcommands[0].options        # => {:prefix => '{', :suffix => '}'
-                                                #     :count => 2,
-                                                #     :bold => false, 
-                                                #     :words => [],
-                                                #     :config => '~/.superfoo' }
-      pp superfoo.subcommands[0].args           # => ['cruft']
-  
-      pp superfoo.subcommands[1].name           # => :bar
-      pp superfoo.subcommands[1][:bold]         # => true
-      pp superfoo.subcommands[1].options        # => {:bold => true,
-                                                #     :config => '~/.superfoo'}
-      pp superfoo.subcommands[1].args           # => []
+      superfoo.alter do
+        parsimonious
+      end
       
-      pp superfoo.options                       # => {:config => '~/.superfoo'}
-      pp superfoo.args                          # => []
-  
-      # Now, execute the subcommands in order
-      superfoo.execute!        ## Same as:
-                               #  superfoo.subcommands.each do |subcommand|
-                               #    command.execute!
-                               #  end
-                               ## Prints:
-                               # {foo}
-                               # {foo}
-                               # and cruft
-                               # BOLDED BAR
+      result = superfoo.parse!(args)
+                       
+      pp result.name                    # => :superfoo
+      pp result[:config]                # => '~/.superfoo'
+      pp result.subresults[0].name      # => :foo
+      pp result.subresults[0][:prefix]  # => '{'
+      pp result.subresults[0][:suffix]  # => '}'
+      pp result.subresults[0][:count]   # => 2
+      pp result.subresults[0][:bold]    # => true
+      pp result.subresults[0].options   # => {:prefix => '{', :suffix => '}'
+                                        #     :count => 2,
+                                        #     :bold => false, 
+                                        #     :words => [],
+                                        #     :config => '~/.superfoo' }
+      pp result.subresults[0].args      # => ['cruft']
+      
+      pp result.subresults[1].name      # => :bar
+      pp result.subresults[1][:bold]    # => true
+      pp result.subresults[1].options   # => {:bold => true,
+                                        #     :config => '~/.superfoo'}
+      pp result.subresults[1].args      # => []
+      
+      # Now, execute the results in order
+      superfoo.execute!(args)       ## Same as:
+                                    #  results.each do |subcommand|
+                                    #    command.execute!
+                                    #  end
+                                    ## Prints:
+                                    # {foo}
+                                    # {foo}
+                                    # and cruft
+                                    # BOLDED BAR
     end
+    
 
 ### TODO: Output Printing

@@ -66,7 +66,7 @@ module Choosy::DSL
       it "should fail if there is no block given" do
         attempting {
           @builder.arguments
-        }.should raise_error(Choosy::ConfigurationError, /arguments/)
+        }.should_not raise_error
       end
 
       it "should pass in the block correctly" do

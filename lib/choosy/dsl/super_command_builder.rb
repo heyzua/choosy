@@ -30,7 +30,7 @@ module Choosy::DSL
 
     def help(msg=nil)
       msg ||= "Show the info for a command, or this message"
-      help = Choosy::Command.new HELP do |help|
+      help_command = Choosy::Command.new HELP do |help|
         help.summary msg
 
         help.arguments do
@@ -44,7 +44,7 @@ module Choosy::DSL
           end
         end
       end
-      finalize_subcommand(help)
+      finalize_subcommand(help_command)
     end
 
     def finalize!
