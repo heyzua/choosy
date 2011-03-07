@@ -74,24 +74,23 @@ module Choosy::DSL
       Choosy::Converter::CONVERSIONS.keys.each do |method|
         next if method == :boolean || method == :bool
 
-        define_method method do |sym, desc, config=nil, &block|
-          simple_option(sym, desc, true, :one, method, nil, config, &block)
-        end
+        self.class_eval <<-EOF
+          def #{method}(sym, desc, config=nil, &block)
+            simple_option(sym, desc, true, :one, :#{method}, nil, config, &block)
+          end
 
-        plural = "#{method}s".to_sym
-        define_method plural do |sym, desc, config=nil, &block|
-          simple_option(sym, desc, true, :many, method, nil, config, &block)
-        end
+          def #{method}s(sym, desc, config=nil, &block)
+            simple_option(sym, desc, true, :many, :#{method}, nil, config, &block)
+          end
 
-        underscore = "#{method}_"
-        define_method underscore do |sym, desc, config=nil, &block|
-          simple_option(sym, desc, false, :one, method, nil, config, &block)
-        end
+          def #{method}_(sym, desc, config=nil, &block)
+            simple_option(sym, desc, false, :one, :#{method}, nil, config, &block)
+          end
 
-        plural_underscore = "#{plural}_".to_sym
-        define_method plural_underscore do |sym, desc, config=nil, &block|
-          simple_option(sym, desc, false, :many, method, nil, config, &block)
-        end
+          def #{method}s_(sym, desc, config=nil, &block)
+            simple_option(sym, desc, false, :many, :#{method}, nil, config, &block)
+          end
+        EOF
       end
     end
 
@@ -155,7 +154,14 @@ module Choosy::DSL
       name = sym.to_s
       builder = OptionBuilder.new sym
       builder.desc desc
-      builder.short "-#{name[0]}" if allow_short
+      short = case name[0]
+              when Fixnum
+                name[0].chr
+              else
+                name[0]
+              end
+
+      builder.short "-#{short}" if allow_short
       builder.long "--#{name.downcase.gsub(/_/, '-')}"
       builder.metaname format_meta(name, meta)
       builder.cast cast

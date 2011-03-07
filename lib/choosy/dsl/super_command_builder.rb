@@ -35,11 +35,16 @@ module Choosy::DSL
 
         help.arguments do
           count 0..1
-          validate do |args|
+          validate do |args, options|
             if args.nil? || args.length == 0
               raise Choosy::HelpCalled.new(SUPER)
             else
-              raise Choosy::HelpCalled.new(args[0].to_sym)
+              require 'pp'
+              pp '-------'
+              pp args.class
+              pp options.class
+              pp '-------'
+              raise Choosy::HelpCalled.new(args[0])
             end
           end
         end

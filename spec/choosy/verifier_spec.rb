@@ -161,7 +161,7 @@ module Choosy
     describe :validate! do
       it "should call the validate proc associated with each option" do
         o = b.string :line, "Line" do
-          validate do |arg|
+          validate do |arg, options|
             die "Validated!"
           end
         end

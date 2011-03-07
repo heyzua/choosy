@@ -65,7 +65,7 @@ task :clean do
 end
 
 desc "Deploys the gem to rubygems.org"
-task :gem => :doc, :release do
+task :gem => [:doc, :release] do
   system("gem build #{PACKAGE_NAME}.gemspec")
   system("gem push #{PACKAGE_NAME}-#{PACKAGE_VERSION}.gem")
 end

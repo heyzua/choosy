@@ -47,7 +47,7 @@ module Choosy::Printing
       @buffer << command.name.to_s
       return if command.options.empty?
 
-      width = starting_width = 8 + command.name.length # So far
+      width = starting_width = 8 + command.name.to_s.length # So far
       command.listing.each do |option|
         if option.is_a?(Choosy::Option)
           formatted = usage_option(option)
