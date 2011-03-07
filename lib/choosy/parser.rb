@@ -167,7 +167,7 @@ module Choosy
       return [nil, index] if index >= argv.length
 
       current = argv[index]
-      return [nil, index] if current[0] == '-'
+      return [nil, index] if current =~ /^-/
       if @terminals.include? current
         result.unparsed.push(*argv[index, argv.length])
         return [nil, argv.length]
@@ -177,15 +177,12 @@ module Choosy
 
     def parse_rest(argv, index, result)
       index += 1
-      while index < argv.length
-        if lazy?
-          result.unparsed << argv[index]
-        else
-          result.args << argv[index]
-        end
-        index += 1
+      if lazy?
+        result.unparsed.push(*argv[index, argv.length])
+      else
+        result.args.push(*argv[index, argv.length])
       end
-      index
+      argv.length
     end
   end
 end

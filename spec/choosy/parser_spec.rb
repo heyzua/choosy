@@ -5,6 +5,8 @@ require 'choosy/dsl/command_builder'
 
 module Choosy
   class ParserBuilder
+    attr_reader :command, :lazy
+
     def initialize
       @terminals = nil
       @lazy = false

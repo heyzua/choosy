@@ -241,7 +241,7 @@ module Choosy::Printing
       end
 
       char.downto(char - MAX_BACKTRACK) do |i| # Only go back a fixed line segment
-        if line[i] == ' '
+        if line[i, 1] == ' '
           @buffer << line[index, i - index]
           @buffer << "\n"
           return i + 1
