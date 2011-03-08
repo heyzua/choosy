@@ -204,6 +204,11 @@ module Choosy::Printing
     end
 
     def write_lines(str, prefix, indent_first)
+      if str.nil?
+        @buffer << "\n"
+        return
+      end
+
       str.split("\n").each do |line|
         if line.length == 0
           @buffer << "\n"
