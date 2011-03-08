@@ -34,8 +34,13 @@ module Choosy
       end
 
       super_result.subresults.each do |result|
-        cmd = result.command
-        cmd.executor.call(result.options, result.args)
+        executor = result.command.executor
+
+        if executor.is_a?(Proc)
+          executor.call(result.args, result.options)
+        else
+          executor.execute!(result.args, result.options)
+        end
       end
     end
 

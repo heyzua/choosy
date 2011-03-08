@@ -66,8 +66,8 @@ module Choosy
         @c.alter do
           command :bar do
             integer :count, "The count"
-            executor do |opts, args|
-              count = opts[:count]
+            executor do |args, options|
+              count = options[:count]
             end
           end
         end
