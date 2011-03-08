@@ -8,6 +8,7 @@ module Choosy
         required?(option, result)
         populate!(option, result)
         convert!(option, result)
+        restricted?(option, result)
         validate!(option, result)
       end
 

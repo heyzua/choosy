@@ -41,6 +41,14 @@ module Choosy
           v.verify!(@res)
         }.should_not raise_error
       end
+
+      it "should fail when an enum is not valid" do
+        b.enum :enum, [:a, :b], "An enum"
+        @res.options[:enum] = :c
+        attempting {
+          v.verify!(@res)
+        }.should raise_error(Choosy::ValidationError, /unrecognized value/)
+      end
     end
 
     describe :required? do
