@@ -32,6 +32,7 @@ module Choosy
       result = parser.parse!(args)
 
       verifier = Verifier.new
+      verifier.verify_special!(result)
       verifier.verify!(result)
     
       result

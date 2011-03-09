@@ -32,9 +32,24 @@ module Choosy
         end
 
         o = capture :stdout do
-          #attempting {
+          attempting {
             @c.parse!(['--help'])
-          #}.should raise_error(SystemExit)
+          }.should raise_error(SystemExit)
+        end
+
+        o.should match(/-h, --help/)
+      end
+
+      it "should make sure that help gets check before other required options" do
+        @c.alter do
+          help
+          string :str, "String", :required => true
+        end
+
+        o = capture do
+          attempting {
+            @c.parse! ['--help']
+          }.should raise_error(SystemExit)
         end
 
         o.should match(/-h, --help/)
