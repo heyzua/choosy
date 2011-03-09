@@ -44,7 +44,7 @@ module Choosy::DSL
     end
 
     def depends_on(*args)
-      if args.count == 1 && args[0].is_a?(Array)
+      if args.length == 1 && args[0].is_a?(Array)
         option.dependent_options = args[0]
       else
         option.dependent_options = args
