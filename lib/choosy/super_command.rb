@@ -63,11 +63,11 @@ module Choosy
       command_name = hc.message
 
       if command_name == Choosy::DSL::SuperCommandBuilder::SUPER
-        puts printer.print!(self)
+        printer.print!(self)
       else
         builder = command_builders[command_name]
         if builder
-          puts printer.print!(builder.entity)
+          printer.print!(builder.entity)
         else
           $stdout << "#{@name}: #{format_help(command_name)}\n"
           exit 1

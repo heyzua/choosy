@@ -17,12 +17,20 @@ module Choosy::Printing
       if options[:color] == false
         color.disable!
       end
-      if options[:max_width]
+      if options[:max_width] && self.columns > options[:max_width]
         self.columns = options[:max_width]
       end
+
+      @buffer_line_count = 0
     end
 
     def print!(command)
+      format!(command)
+      # TODO: Add paging
+      puts @buffer
+    end
+
+    def format!(command)
       print_usage(command)
 
       cmd_indent, option_indent, prefixes = retrieve_formatting_info(command)
@@ -53,7 +61,7 @@ module Choosy::Printing
           formatted = usage_option(option)
           width += formatted.length
           if width > columns
-            @buffer << "\n"
+            nl
             @buffer << ' ' * starting_width
             @buffer << formatted
             width = starting_width + formatted.length
@@ -76,7 +84,7 @@ module Choosy::Printing
         @buffer << command.metaname
       end
 
-      @buffer << "\n"
+      nl
     end
 
     def print_header(str, styles=nil)
@@ -90,11 +98,11 @@ module Choosy::Printing
 
     def print_element(element)
       if element.header?
-        @buffer << "\n"
+        nl
         print_header(element.value, element.styles)
-        @buffer << "\n"
+        nl
       else
-        @buffer << "\n"
+        nl
         write_lines(element.value, indent, true)
       end
     end
@@ -167,6 +175,11 @@ module Choosy::Printing
     end
 
     protected
+    def nl
+      @buffer_line_count += 1
+      @buffer << "\n"
+    end
+
     def retrieve_formatting_info(command)
       cmdlen = 0
       optionlen = 0
@@ -205,13 +218,13 @@ module Choosy::Printing
 
     def write_lines(str, prefix, indent_first)
       if str.nil?
-        @buffer << "\n"
+        nl
         return
       end
 
       str.split("\n").each do |line|
         if line.length == 0
-          @buffer << "\n"
+          nl
         else
           index = 0
 
@@ -248,7 +261,7 @@ module Choosy::Printing
       char.downto(char - MAX_BACKTRACK) do |i| # Only go back a fixed line segment
         if line[i, 1] == ' '
           @buffer << line[index, i - index]
-          @buffer << "\n"
+          nl
           return i + 1
         end
       end
@@ -259,7 +272,7 @@ module Choosy::Printing
 
     def write_rest(line, index)
       @buffer << line[index, line.length]
-      @buffer << "\n"
+      nl
       line.length
     end
   end

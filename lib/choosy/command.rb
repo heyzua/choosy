@@ -24,7 +24,7 @@ module Choosy
     end
 
     def handle_help(hc)
-      puts printer.print!(self)
+      printer.print!(self)
     end
 
     def parse(args)
