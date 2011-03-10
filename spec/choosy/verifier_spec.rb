@@ -12,7 +12,7 @@ module Choosy
     end
 
     def v
-      @c.builder.finalize!
+      @c.finalize!
       Verifier.new
     end
 

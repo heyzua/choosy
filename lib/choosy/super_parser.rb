@@ -80,7 +80,7 @@ module Choosy
         end
       end
 
-      command = command_builder.command
+      command = command_builder.entity
       parser = Parser.new(command, false, terminals)
       command_result = Choosy::ParseResult.new(command, true)
       parser.parse!(args, command_result)

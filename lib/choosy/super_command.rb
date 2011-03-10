@@ -13,7 +13,7 @@ module Choosy
     end
 
     def commands
-      @command_builders.values.map {|b| b.command }
+      @command_builders.values.map {|b| b.entity }
     end
 
     def parsimonious=(value)
@@ -44,6 +44,11 @@ module Choosy
       end
     end
 
+    def finalize!
+      super
+      @metaname ||= 'COMMAND'
+    end
+
     protected
     def create_builder
       Choosy::DSL::SuperCommandBuilder.new(self)
@@ -62,7 +67,7 @@ module Choosy
       else
         builder = command_builders[command_name]
         if builder
-          puts printer.print!(builder.command)
+          puts printer.print!(builder.entity)
         else
           $stdout << "#{@name}: #{format_help(command_name)}\n"
           exit 1

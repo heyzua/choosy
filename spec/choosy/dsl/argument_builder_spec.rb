@@ -5,7 +5,7 @@ module Choosy::DSL
   describe ArgumentBuilder do
     before :each do
       @builder = ArgumentBuilder.new
-      @argument = @builder.argument
+      @argument = @builder.entity
     end
 
     describe :required do
@@ -168,13 +168,6 @@ module Choosy::DSL
         value.should eql('here')
       end
     end#validate
-
-    describe :finalize! do
-      it "should set the arity if not already set" do
-        @builder.finalize!
-        @argument.arity.should eql(0..0)
-      end
-    end#finalize!
   end
 end
 

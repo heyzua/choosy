@@ -1,19 +1,22 @@
 require 'choosy/errors'
 require 'choosy/argument'
 require 'choosy/converter'
+require 'choosy/dsl/base_builder'
 
 module Choosy::DSL
   class ArgumentBuilder
+    include BaseBuilder
+
     def initialize
       @count_called = false
     end
 
-    def argument
-      @argument ||= Choosy::Argument.new
+    def entity
+      @entity ||= Choosy::Argument.new
     end
-    
+
     def required(value=nil)
-      argument.required = if value.nil? || value == true
+      entity.required = if value.nil? || value == true
                           true
                         else 
                           false
@@ -22,13 +25,13 @@ module Choosy::DSL
 
     def metaname(meta)
       return if meta.nil?
-      argument.metaname = meta
+      entity.metaname = meta
       return if @count_called
       
       if meta =~ /\+$/
-        argument.multiple!
+        entity.multiple!
       else
-        argument.single!
+        entity.single!
       end
     end
 
@@ -44,38 +47,32 @@ module Choosy::DSL
           raise Choosy::ConfigurationError.new("The upper bound (#{upper_bound}) is less than the lower bound (#{lower_bound}).")
         end
         
-        argument.arity = (lower_bound .. upper_bound)
+        entity.arity = (lower_bound .. upper_bound)
       elsif restriction.is_a?(Range)
-        argument.arity = restriction
+        entity.arity = restriction
       elsif restriction == :zero || restriction == :none
-        argument.boolean!
+        entity.boolean!
       elsif restriction == :once
-        argument.single!
+        entity.single!
       else
         check_count(restriction)
-        argument.arity = (restriction .. restriction)
+        entity.arity = (restriction .. restriction)
       end
     end
 
     def cast(ty)
-      argument.cast_to = Choosy::Converter.for(ty)
-      if argument.cast_to.nil?
+      entity.cast_to = Choosy::Converter.for(ty)
+      if entity.cast_to.nil?
         raise Choosy::ConfigurationError.new("Unknown conversion cast: #{ty}")
       end
     end
     
     def validate(&block)
-      argument.validation_step = block
+      entity.validation_step = block
     end
     
     def die(msg)
       raise Choosy::ValidationError.new("argument error: #{msg}")
-    end
-
-    def finalize!
-      if argument.arity.nil?
-        argument.boolean!
-      end
     end
 
     protected

@@ -1,24 +1,27 @@
 require 'choosy/errors'
 require 'choosy/dsl/option_builder'
+require 'choosy/dsl/base_builder'
 require 'choosy/printing/erb_printer'
 require 'choosy/printing/formatting_element'
 
 module Choosy::DSL
   class BaseCommandBuilder
-    attr_reader :command
+    include BaseBuilder
+
+    attr_reader :entity
 
     def initialize(command)
-      @command = command
+      @entity = command
     end
 
     # Generic setup
 
     def summary(msg)
-      @command.summary = msg
+      @entity.summary = msg
     end
 
     def printer(kind, options={})
-      @command.printer =  if kind == :standard
+      @entity.printer =  if kind == :standard
                             Choosy::Printing::HelpPrinter.new(options)
                           elsif kind == :erb
                             Choosy::Printing::ERBPrinter.new(options)
@@ -32,11 +35,11 @@ module Choosy::DSL
     # Formatting
 
     def header(msg, *styles)
-      @command.listing << Choosy::Printing::FormattingElement.new(:header, msg, styles)
+      @entity.listing << Choosy::Printing::FormattingElement.new(:header, msg, styles)
     end
 
     def para(msg=nil, *styles)
-      @command.listing << Choosy::Printing::FormattingElement.new(:para, msg, styles)
+      @entity.listing << Choosy::Printing::FormattingElement.new(:para, msg, styles)
     end
 
     # Options
@@ -64,10 +67,7 @@ module Choosy::DSL
         raise Choosy::ConfigurationError.new("No configuration block was given") if !block_given?
       end
 
-      if block_given?
-        builder.instance_eval(&block)
-      end
-      finalize_option_builder builder
+      evaluate_option_builder!(builder, &block)
     end
 
     def self.create_conversions
@@ -128,25 +128,15 @@ module Choosy::DSL
         raise Choosy::VersionCalled.new(msg)
       end
 
-      if block_given?
-        v.instance_eval(&block)
-      end
-      finalize_option_builder v
-    end
-
-    def finalize!
-      if @command.printer.nil?
-        printer :standard
-      end
+      evaluate_option_builder!(v, &block)
     end
 
     protected
-    def finalize_option_builder(option_builder)
-      option_builder.finalize!
-      @command.option_builders[option_builder.option.name] = option_builder
-      @command.listing << option_builder.option
-
-      option_builder.option
+    def evaluate_option_builder!(builder, &block)
+      builder.evaluate!(&block)
+      @entity.listing << builder.entity
+      @entity.option_builders[builder.entity.name] = builder
+      builder.entity
     end
 
     private
@@ -170,10 +160,7 @@ module Choosy::DSL
       end
       builder.from_hash config if config
 
-      if block_given?
-        builder.instance_eval(&block)
-      end
-      finalize_option_builder builder
+      evaluate_option_builder!(builder, &block)
     end
 
     def format_meta(name, count)

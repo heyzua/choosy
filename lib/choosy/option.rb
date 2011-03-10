@@ -1,3 +1,4 @@
+require 'choosy/errors'
 require 'choosy/argument'
 
 module Choosy
@@ -19,6 +20,31 @@ module Choosy
 
     def negated
       @negated ||= long_flag.gsub(/^--/, "--#{negation}-")
+    end
+
+    def finalize!
+      super
+
+      if @cast_to.nil?
+        if boolean?
+          @cast_to = :boolean
+        else
+          @cast_to = :string
+        end
+      end
+
+      if boolean?
+        if restricted?
+          raise Choosy::ConfigurationError.new("Options cannot be both boolean and restricted to certain arguments: #{@name}")
+        elsif negated? && @long_flag.nil?
+          raise Choosy::ConfigurationError.new("The long flag is required for negation: #{@name}")
+        end
+        @default_value ||= false
+      else
+        if negated?
+          raise Choosy::ConfigurationError.new("Unable to negate a non-boolean option: #{@name}")
+        end
+      end
     end
   end
 end

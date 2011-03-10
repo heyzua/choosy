@@ -47,5 +47,11 @@ module Choosy
     def multiple!
       @arity = MANY_ARITY
     end
+
+    def finalize!
+      if arity.nil?
+        boolean!
+      end
+    end
   end
 end

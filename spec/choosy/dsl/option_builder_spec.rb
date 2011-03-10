@@ -5,7 +5,7 @@ module Choosy::DSL
   describe OptionBuilder do
     before :each do
       @builder = OptionBuilder.new(:stub)
-      @option = @builder.option
+      @option = @builder.entity
     end
     
     describe :name do
@@ -199,13 +199,6 @@ module Choosy::DSL
         @option.negated?.should be_true
         @option.negation.should eql('non')
       end
-
-      it "should set the flag string for the negated value" do
-        @builder.flags '-s', '--short'
-        @builder.negate
-        @builder.finalize!
-        @option.negated.should eql("--no-short")
-      end
     end#negate
 
     describe :from_hash do
@@ -242,55 +235,5 @@ module Choosy::DSL
         }.should raise_error(Choosy::ConfigurationError, /Only hash arguments allowed/)
       end
     end#from_hash
-
-    describe :finalize! do
-      it "should set the arity if not already set" do
-        @builder.short '-s'
-        @builder.finalize!
-        @option.arity.should eql(0..0)
-      end
-
-      it "should set the cast to :string on regular arguments" do
-        @builder.short '-s', 'SHORT'
-        @builder.finalize!
-        @option.cast_to.should eql(:string)
-      end
-
-      it "should set the cast to :boolean on single flags" do
-        @builder.short '-s'
-        @builder.finalize!
-        @option.cast_to.should eql(:boolean)
-      end
-
-      it "should fail when both boolean and restricted" do
-        @builder.short '-s'
-        @builder.only :a, :b
-        attempting{
-          @builder.finalize!
-        }.should raise_error(Choosy::ConfigurationError, /boolean and restricted/)
-      end
-
-      it "should fail when the argument is negated and not boolean" do
-        @builder.short '-s', 'SHORT'
-        @builder.negate
-        attempting {
-          @builder.finalize!
-        }.should raise_error(Choosy::ConfigurationError, /negate a non-boolean option/)
-      end
-
-      it "should fail when there is no long boolean option name to negate" do
-        @builder.short '-s'
-        @builder.negate
-        attempting {
-          @builder.finalize!
-        }.should raise_error(Choosy::ConfigurationError, /long flag is required for negation/)
-      end
-
-      it "should set the default value for booleans if not already set" do
-        @builder.short '-s'
-        @builder.finalize!
-        @option.default_value.should be(false)
-      end
-    end#finalize!
   end
 end

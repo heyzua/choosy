@@ -61,14 +61,7 @@ module Choosy::DSL
     describe "standard options" do
       it "should also be able to set flags" do
         o = @builder.boolean :count, "The count"
-        @command.option_builders[:count].option.name.should eql(:count)
-      end
-    end
-
-    describe :finalize! do
-      it "should set the metaname if not already set" do
-        @builder.finalize!
-        @command.metaname.should eql('COMMAND')
+        @command.option_builders[:count].entity.name.should eql(:count)
       end
     end
 

@@ -6,9 +6,13 @@ module Choosy
     before :each do
       @cmd = Command.new :cmd
     end
-    it "should finalize the builder" do
-      @cmd.printer.should be_a(Choosy::Printing::HelpPrinter)
-    end 
+
+    describe :finalize! do
+      it "should set the printer if not already set" do
+        @cmd.finalize!
+        @cmd.printer.should be_a(Choosy::Printing::HelpPrinter)
+      end
+    end#finalize!
 
     it "should order the options in dependency order" do
       @cmd.alter do

@@ -211,13 +211,13 @@ module Choosy::DSL
 
           it "should add the builder with the given name to the command option_builders hash" do
             @builder.option :o => {:short => '-l'}
-            @builder.command.option_builders.should have(1).item
+            @builder.entity.option_builders.should have(1).item
           end
 
           it "adds the option to the listing" do
             @builder.option :o => {:short => '-l'}
-            @builder.command.listing.should have(1).item
-            @builder.command.listing[0].name.should eql(:o)
+            @builder.entity.listing.should have(1).item
+            @builder.entity.listing[0].name.should eql(:o)
           end
         end
       end
@@ -361,11 +361,5 @@ module Choosy::DSL
       end
     end#version
 
-    describe :finalize! do
-      it "should set the printer if not already set" do
-        @builder.finalize!
-        @command.printer.should be_a(Choosy::Printing::HelpPrinter)
-      end
-    end#finalize!
   end
 end

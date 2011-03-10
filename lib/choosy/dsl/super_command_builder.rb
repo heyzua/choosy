@@ -14,21 +14,18 @@ module Choosy::DSL
                      Choosy::Command.new(cmd)
                    end
 
-      if block_given?
-        subcommand.builder.instance_eval(&block)
-      end
-      finalize_subcommand(subcommand)
+      evaluate_command_builder!(subcommand.builder, &block)
     end
 
     def parsimonious
-      @command.parsimonious = true
+      @entity.parsimonious = true
     end
 
     def metaname(meta)
-      @command.metaname = meta
+      @entity.metaname = meta
     end
 
-    def help(msg=nil)
+    def help(msg=nil, &block)
       msg ||= "Show the info for a command, or this message"
       help_command = Choosy::Command.new HELP do |help|
         help.summary msg
@@ -50,20 +47,15 @@ module Choosy::DSL
           end
         end
       end
-      finalize_subcommand(help_command)
+      evaluate_command_builder!(help_command.builder, &block)
     end
 
-    def finalize!
-      super
-      @command.metaname ||= 'COMMAND'
-    end
-
-    private
-    def finalize_subcommand(subcommand)
-      subcommand.builder.finalize!
-      @command.command_builders[subcommand.name] = subcommand.builder
-      @command.listing << subcommand
-      subcommand
+    protected
+    def evaluate_command_builder!(builder, &block)
+      builder.evaluate!(&block)
+      @entity.listing << builder.entity
+      @entity.command_builders[builder.entity.name] = builder
+      builder.entity
     end
   end
 end

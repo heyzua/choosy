@@ -76,5 +76,12 @@ module Choosy
         count.should eql(5)
       end
     end#execute!
+
+    describe :finalize! do
+      it "should set the metaname if not already set" do
+        @c.finalize!
+        @c.metaname.should eql('COMMAND')
+      end
+    end#finalize!
   end
 end

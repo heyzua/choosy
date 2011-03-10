@@ -7,7 +7,7 @@ module Choosy
     alias tsort_each_node each_key
 
     def tsort_each_child(node, &block)
-      deps = fetch(node).option.dependent_options
+      deps = fetch(node).entity.dependent_options
       deps.each(&block) unless deps.nil?
     end
   end
@@ -22,21 +22,15 @@ module Choosy
       @option_builders = OptionBuilderHash.new
 
       @builder = create_builder
-      if block_given?
-        @builder.instance_eval(&block)
-      end
-      @builder.finalize!
+      @builder.evaluate!(&block)
     end
 
     def alter(&block)
-      if block_given?
-        @builder.instance_eval(&block)
-      end
-      @builder.finalize!
+      @builder.evaluate!(&block)
     end
 
     def options
-      @option_builders.tsort.map {|key| @option_builders[key].option }
+      @option_builders.tsort.map {|key| @option_builders[key].entity }
     end
 
     def parse!(args, propagate=false)
@@ -55,6 +49,12 @@ module Choosy
           $stdout <<  "#{e.message}\n"
           exit 0
         end
+      end
+    end
+
+    def finalize!
+      if @printer.nil?
+        builder.printer :standard
       end
     end
 

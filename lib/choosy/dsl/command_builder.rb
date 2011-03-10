@@ -9,7 +9,7 @@ module Choosy::DSL
     def executor(exec=nil, &block)
       if exec.nil? 
         if block_given?
-          @command.executor = block
+          @entity.executor = block
         else
           raise Choosy::ConfigurationError.new("The executor was nil")
         end
@@ -17,11 +17,11 @@ module Choosy::DSL
         if !exec.respond_to?(:execute!)
           raise Choosy::ConfigurationError.new("Execution class doesn't implement 'execute!'")
         end
-        @command.executor = exec
+        @entity.executor = exec
       end
     end
 
-    def help(msg=nil)
+    def help(msg=nil, &block)
       h = OptionBuilder.new(OptionBuilder::HELP)
       h.short '-h'
       h.long '--help'
@@ -32,24 +32,20 @@ module Choosy::DSL
         raise Choosy::HelpCalled.new(@name)
       end 
 
-      finalize_option_builder h
+      evaluate_option_builder!(h, &block)
     end
 
     def arguments(&block)
       builder = ArgumentBuilder.new
       # Set multiple by default
-      builder.argument.multiple!
-
-      if block_given?
-        builder.instance_eval(&block)
-      end
+      builder.entity.multiple!
+      builder.evaluate!(&block)
       
-      builder.finalize!
-      if builder.argument.metaname.nil?
+      if builder.entity.metaname.nil?
         builder.metaname 'ARGS+'
       end
 
-      command.arguments = builder.argument
+      entity.arguments = builder.entity
     end
   end
 end
