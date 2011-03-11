@@ -46,7 +46,7 @@ module Choosy::Printing
         @h.print_usage(@c)
 
         @h.buffer.should eql("Usage: foo [-e|--evaluate] [-c|--count=COUNT] [--debug]
-           [--version] [-h|--help] FOOS\n")
+           [--version] [-h|--help] FOOS\n\n")
       end
 
       it "should know how to format a super command" do
@@ -54,7 +54,7 @@ module Choosy::Printing
         @h.columns = 60
         @h.print_usage(@s)
 
-        @h.buffer.should eql("Usage: super [-b|--bold] CMDS\n")
+        @h.buffer.should eql("Usage: super [-b|--bold] CMDS\n\n")
       end
     end
 
@@ -65,20 +65,20 @@ module Choosy::Printing
 
     it "should print out a formatted header" do
       @h.print_element(@c.listing[0])
-      @h.buffer.should eql("\n\e[34m\e[1mDESCRIPTION\e[0m\n")
+      @h.buffer.should eql("\n\e[34m\e[1mDESCRIPTION\e[0m\n\n")
     end
 
     it "should print out a formatting element correctly" do
       @h.print_element(@c.listing[1])
-      @h.buffer.should eql("\n  This is a description of this command that should span\n")
+      @h.buffer.should eql("  This is a description of this command that should span\n\n")
     end
 
     it "should wrap lines in a paragraph correctly" do
       @h.columns = 70
       @h.print_element(@c.listing[2])
-      @h.buffer.should eql("\n  Multiple lines and carry itself beyond the average line length when
+      @h.buffer.should eql("  Multiple lines and carry itself beyond the average line length when
   actually called out from the unit tests itself so that we can
-  correctly guage the line wrapping.\n")
+  correctly guage the line wrapping.\n\n")
     end
 
     it "should print out an option on multiple lines" do

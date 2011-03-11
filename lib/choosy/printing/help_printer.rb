@@ -9,7 +9,7 @@ module Choosy::Printing
 
     def initialize(options)
       @indent = options[:indent] || '  '
-      @offset = options[:offset] || '  '
+      @offset = options[:offset] || '    '
       @header_styles = options[:header_styles] || [:bold, :blue]
       @buffer = options[:buffer] || ""
       @usage = options[:usage] || 'Usage:'
@@ -46,6 +46,7 @@ module Choosy::Printing
         end
       end
 
+      nl
       @buffer
     end
 
@@ -85,6 +86,7 @@ module Choosy::Printing
       end
 
       nl
+      nl
     end
 
     def print_header(str, styles=nil)
@@ -97,13 +99,16 @@ module Choosy::Printing
     end
 
     def print_element(element)
-      if element.header?
+      if element.value.nil?
         nl
+      elsif element.header?
+        nl if @buffer[-2,1] != "\n"
         print_header(element.value, element.styles)
         nl
-      else
         nl
+      else
         write_lines(element.value, indent, true)
+        nl
       end
     end
 
@@ -217,11 +222,6 @@ module Choosy::Printing
     end
 
     def write_lines(str, prefix, indent_first)
-      if str.nil?
-        nl
-        return
-      end
-
       str.split("\n").each do |line|
         if line.length == 0
           nl
