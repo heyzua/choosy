@@ -34,4 +34,26 @@ We can now create our super command.
 
 >>> examples/superfoo.rb
 
-### TODO: Output Printing
+# Output Printing
+
+Choosy allows you to customize the output printing of your documentation. It exposes the internal object model to any class that implements a <code>print!(command)</code> method.  
+
+The <code>:standard</code> printer that is the default for any command can also be customized to meet some of your needs:
+
+    Choosy::Command.new :foo do
+      printer :standard, max_width => 80, :color => true, :header_styles => [:bold, :green], :indent => '   ', :offset => '  '
+
+      help "Show this help command."
+    end
+
+This above example sets some useful properties for the printer. First, the <code>:max_width</code> limits the wrapping size on the console. By default, choosy tries to be smart and wrap to the currend column width, but you can introduce this hash parameter as a default max. Next, you can turn off and on color printing by setting <code>:color</code>. Color is on by default, so it's actually superfluous in this example -- just a demonstration of the syntax. The <code>:header_styles</code> is an array of styles that will be applied to the headers for this document. By default, headers are <code>[:bold, :blue]</code>. Most of the ANSI colors and codes are supported, but check <code>lib/choosy/printing/color.rb</code> for additional options. The last two options given are actually formatting spacers in the output that you can customize: <code>:indent</code> is the default indent for commands and options; <code>:offset</code> is the distance between the options and commands to their associated descriptive text.
+
+There is also the <code>:erb</code> template that can be customized by writing a template of your choice:
+
+    Choosy::Command.new :foo od
+      printer :erb, :color => true, :template => 'path/to/file.erb'
+    end
+
+The ERB printer also accepts the <code>:color</code> option. The color is exposed via a <code>color</code> property in the template; the command is exposed by the <code>command</code> property.
+
+By the way, if you implement a custom printer, you can also include the <code>choosy/printing/terminal</code> module to get access to the line and column information of the console, if available.
