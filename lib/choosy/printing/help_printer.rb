@@ -1,8 +1,10 @@
 require 'choosy/errors'
 require 'choosy/printing/terminal'
+require 'choosy/printing/base_printer'
 
 module Choosy::Printing
   class HelpPrinter
+    include BasePrinter
     include Terminal
 
     attr_reader :header_styles, :indent, :offset, :buffer, :usage
@@ -31,18 +33,18 @@ module Choosy::Printing
     end
 
     def format!(command)
-      print_usage(command)
+      format_usage(command)
 
       cmd_indent, option_indent, prefixes = retrieve_formatting_info(command)
 
       command.listing.each_with_index do |item, i|
         case item
         when Choosy::Option
-          print_option(item, prefixes[i], option_indent)
+          format_option(item, prefixes[i], option_indent)
         when Choosy::Command
-          print_command(item, prefixes[i], cmd_indent)
+          format_command(item, prefixes[i], cmd_indent)
         when Choosy::Printing::FormattingElement
-          print_element(item)
+          format_element(item)
         end
       end
 
@@ -50,8 +52,8 @@ module Choosy::Printing
       @buffer
     end
 
-    def print_usage(command)
-      print_header(@usage)
+    def format_usage(command)
+      format_header(@usage)
       @buffer << ' '
       @buffer << command.name.to_s
       return if command.options.empty?
@@ -89,7 +91,7 @@ module Choosy::Printing
       nl
     end
 
-    def print_header(str, styles=nil)
+    def format_header(str, styles=nil)
       return if str.nil?
       if styles && !styles.empty?
         @buffer << color.multiple(str, styles)
@@ -98,12 +100,12 @@ module Choosy::Printing
       end
     end
 
-    def print_element(element)
+    def format_element(element)
       if element.value.nil?
         nl
       elsif element.header?
         nl if @buffer[-2,1] != "\n"
-        print_header(element.value, element.styles)
+        format_header(element.value, element.styles)
         nl
         nl
       else
@@ -112,71 +114,14 @@ module Choosy::Printing
       end
     end
 
-    def print_option(option, formatted_prefix, opt_indent)
+    def format_option(option, formatted_prefix, opt_indent)
       write_prefix(formatted_prefix, opt_indent)
       write_lines(option.description, opt_indent, false)
     end
 
-    def print_command(command, formatted_prefix, cmd_indent)
+    def format_command(command, formatted_prefix, cmd_indent)
       write_prefix(formatted_prefix, cmd_indent)
       write_lines(command.summary, cmd_indent, false)
-    end
-
-    def usage_option(option, value=nil)
-      value ||= ""
-      value << "["
-      if option.short_flag
-        value << option.short_flag
-        if option.long_flag
-          value << "|"
-        end
-      end
-      if option.long_flag
-        value << option.long_flag
-      end
-      if option.negated?
-        value << '|'
-        value << option.negated
-      end
-      if option.metaname
-        if option.arity.max > 1
-          value << ' '
-          value << option.metaname
-        else
-          value << '='
-          value << option.metaname
-        end
-      end
-      value << ']'
-    end
-
-    def regular_option(option, value=nil)
-      value ||= ""
-      if option.short_flag
-        value << option.short_flag
-        if option.long_flag
-          value << ', '
-        end
-      else
-        value << '    '
-      end
-
-      if option.long_flag
-        if option.negated?
-          value << '--['
-          value << option.negation
-          value << '-]'
-          value << option.long_flag.gsub(/^--/, '')
-        else
-          value << option.long_flag
-        end
-      end
-
-      if option.metaname
-        value << ' '
-        value << option.metaname
-      end
-      value
     end
 
     protected
