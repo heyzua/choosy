@@ -49,9 +49,8 @@ module Choosy
     end
 
     def finalize!
-      if arity.nil?
-        boolean!
-      end
+      @arity ||= ZERO_ARITY
+      @cast_to ||= :string
     end
   end
 end

@@ -23,7 +23,7 @@ module Choosy
     end
 
     def finalize!
-      super
+      @arity ||= ZERO_ARITY
 
       if @cast_to.nil?
         if boolean?

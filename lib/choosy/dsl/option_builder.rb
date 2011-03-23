@@ -49,10 +49,6 @@ module Choosy::DSL
       end
     end
 
-    def only(*args)
-      entity.allowable_values = args
-    end
-
     def negate(prefix=nil)
       prefix ||= 'no'
       entity.negation = prefix

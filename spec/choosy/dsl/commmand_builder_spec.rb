@@ -63,7 +63,7 @@ module Choosy::DSL
     end#help
 
     describe :arguments do
-      it "should fail if there is no block given" do
+      it "should not fail if there is no block given" do
         attempting {
           @builder.arguments
         }.should_not raise_error
@@ -85,6 +85,14 @@ module Choosy::DSL
         attempting {
           @command.arguments.validation_step.call([2, 2, 3], nil)
         }.should raise_error(RuntimeError, "called")
+      end
+
+      it "should finalize the arguments" do
+        @builder.arguments do
+          metaname 'args'
+        end
+
+        @builder.entity.arguments.cast_to.should eql(:string)
       end
     end#arguments
   end

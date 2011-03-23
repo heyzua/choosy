@@ -36,6 +36,10 @@ module Choosy
     end
 
     def self.convert(ty, value)
+      if ty.nil?
+        raise ArgumentError.new("Can't convert nil to a type.")
+      end
+
       if CONVERSIONS.has_key?(ty)
         send(ty, value)
       else
