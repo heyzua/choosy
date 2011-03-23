@@ -25,6 +25,24 @@ module Choosy::DSL
       end
     end#required
 
+    describe :only do
+      it "should require at least one argument" do
+        attempting {
+          @builder.only
+        }.should raise_error(Choosy::ConfigurationError, /'only'/)
+      end
+
+      it "should set the allowable_values for an option" do
+        @builder.only :this, :that, :other
+        @argument.allowable_values.should eql([:this, :that, :other])
+      end
+
+      it "should cast to a symbol if not already set" do
+        @builder.only :this, :that, :other
+        @argument.cast_to.should eql(:symbol)
+      end
+    end#only
+
     describe :metaname do
       it "should be able to set the name of the metaname" do
         @builder.metaname 'PARAM'

@@ -23,6 +23,21 @@ module Choosy::DSL
                         end
     end
 
+    def only(*args)
+      if args.nil? || args.empty?
+        raise Choosy::ConfigurationError.new("'only' requires at least one argument")
+      end
+
+      entity.allowable_values = args
+      if args.length > 0 && entity.cast_to.nil?
+        if args[0].is_a?(Symbol) 
+          cast :symbol
+        else
+          cast :string
+        end
+      end
+    end
+
     def metaname(meta)
       return if meta.nil?
       entity.metaname = meta

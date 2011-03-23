@@ -233,6 +233,16 @@ module Choosy
         }.should raise_error(RuntimeError, 'Called!')
       end
 
+      it "should convert the arguments to the requested type" do
+        b.arguments do
+          cast :integer
+        end
+        @res.args.push("1", "2", "3")
+
+        v.verify_arguments!(@res)
+        @res.args.should eql([1, 2, 3])
+      end
+
       it "should validate that the argument count isn't too few" do
         b.arguments do
           count 2
@@ -272,6 +282,26 @@ module Choosy
         attempting {
           v.verify_arguments!(@res)
         }.should raise_error(Choosy::ValidationError, /no arguments allowed/)
+      end
+
+      it "should fail when the the arguments aren't in the list" do
+        b.arguments do
+          only :tomcat, :apache
+        end
+        @res.args << "this"
+        attempting {
+          v.verify_arguments!(@res)
+        }.should raise_error(Choosy::ValidationError, /unrecognized value/)
+      end
+
+      it "should allow multiple of the same command" do
+        b.arguments do
+          only :tomcat, :apache
+        end
+        @res.args.push(:apache, :tomcat, :apache)
+        attempting {
+          v.verify_arguments!(@res)
+        }.should_not raise_error
       end
     end
   end

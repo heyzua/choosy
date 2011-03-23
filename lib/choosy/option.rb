@@ -23,15 +23,8 @@ module Choosy
     end
 
     def finalize!
-      super
-
-      if @cast_to.nil?
-        if boolean?
-          @cast_to = :boolean
-        else
-          @cast_to = :string
-        end
-      end
+      @arity ||= ZERO_ARITY
+      @cast_to ||= boolean? ? :boolean : :string
 
       if boolean?
         if restricted?

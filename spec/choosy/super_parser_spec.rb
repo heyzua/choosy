@@ -73,6 +73,15 @@ module Choosy
           @p.parse!()
         }.should raise_error(Choosy::HelpCalled, Choosy::DSL::SuperCommandBuilder::SUPER)
       end
+
+      it "should push the default command on the stack to parse" do
+        @p.command :bar
+        @p.super.alter do 
+          default :bar
+        end
+
+        @p.parse!().subresults.should have(1).item
+      end
     end
 
     describe "with subcommands" do

@@ -34,11 +34,19 @@ module Choosy
         if result.command.arguments
           arguments = result.command.arguments
 
+          result.args.map! do |value|
+            Converter.convert(arguments.cast_to, value)
+          end
+
           if result.args.length < arguments.arity.min
             raise Choosy::ValidationError.new("#{prefix}too few arguments (minimum is #{arguments.arity.min})")
           elsif result.args.length > arguments.arity.max
             raise Choosy::ValidationError.new("#{prefix}too many arguments (max is #{arguments.arity.max}): '#{result.args[arguments.arity.max]}'")
           end 
+
+          result.args.each do |val|
+            check(arguments.allowable_values, val)
+          end if arguments.restricted?
 
           if arguments.validation_step
             arguments.validation_step.call(result.args, result.options)

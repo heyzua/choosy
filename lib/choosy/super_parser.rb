@@ -61,6 +61,8 @@ module Choosy
       if result.unparsed.length == 0
         if @super_command.command_builders[Choosy::DSL::SuperCommandBuilder::HELP]
           raise Choosy::HelpCalled.new(Choosy::DSL::SuperCommandBuilder::SUPER)
+        elsif @super_command.has_default?
+          result.unparsed << @super_command.default_command.to_s
         else
           raise Choosy::SuperParseError.new("requires a command")
         end
