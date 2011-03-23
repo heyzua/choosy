@@ -1,6 +1,7 @@
 require 'choosy/errors'
 require 'choosy/dsl/option_builder'
 require 'choosy/dsl/base_builder'
+require 'choosy/printing/manpage'
 require 'choosy/printing/erb_printer'
 require 'choosy/printing/formatting_element'
 
@@ -25,6 +26,8 @@ module Choosy::DSL
                             Choosy::Printing::HelpPrinter.new(options)
                           elsif kind == :erb
                             Choosy::Printing::ERBPrinter.new(options)
+                          elsif kind == :manpage
+                            Choosy::Printing::Manpage.new(options)
                           elsif kind.respond_to?(:print!)
                             kind
                           else
