@@ -25,6 +25,10 @@ module Choosy::DSL
       @entity.metaname = meta
     end
 
+    def default(cmd)
+      @entity.default_command = cmd
+    end
+
     def help(msg=nil, &block)
       msg ||= "Show the info for a command, or this message"
       help_command = Choosy::Command.new HELP do |help|

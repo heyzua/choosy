@@ -180,13 +180,6 @@ module Choosy::DSL
       end
     end#depends_on
 
-    describe :only do
-      it "should set the allowable_values for an option" do
-        @builder.only :this, :that, :other
-        @option.allowable_values.should eql([:this, :that, :other])
-      end
-    end#only
-
     describe :negate do
       it "should set the default negation to 'no'" do
         @builder.negate

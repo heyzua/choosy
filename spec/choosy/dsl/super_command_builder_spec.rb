@@ -58,6 +58,13 @@ module Choosy::DSL
       end
     end
 
+    describe :default do
+      it "should set the default command" do
+        @builder.default :foo
+        @command.default_command.should eql(:foo)
+      end
+    end
+
     describe "standard options" do
       it "should also be able to set flags" do
         o = @builder.boolean :count, "The count"

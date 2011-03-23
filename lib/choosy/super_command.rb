@@ -6,7 +6,7 @@ require 'choosy/dsl/super_command_builder'
 
 module Choosy
   class SuperCommand < BaseCommand
-    attr_accessor :metaname
+    attr_accessor :metaname, :default_command
 
     def command_builders
       @command_builders ||= {}
@@ -42,6 +42,10 @@ module Choosy
           executor.execute!(result.args, result.options)
         end
       end
+    end
+
+    def has_default?
+      !@default_command.nil?
     end
 
     def finalize!
