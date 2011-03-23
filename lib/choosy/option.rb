@@ -24,14 +24,7 @@ module Choosy
 
     def finalize!
       @arity ||= ZERO_ARITY
-
-      if @cast_to.nil?
-        if boolean?
-          @cast_to = :boolean
-        else
-          @cast_to = :string
-        end
-      end
+      @cast_to ||= boolean? ? :boolean : :string
 
       if boolean?
         if restricted?

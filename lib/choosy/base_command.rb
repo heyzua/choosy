@@ -20,6 +20,7 @@ module Choosy
       @name = name
       @listing = []
       @option_builders = OptionBuilderHash.new
+      @printer = nil
 
       @builder = create_builder
       @builder.evaluate!(&block)
