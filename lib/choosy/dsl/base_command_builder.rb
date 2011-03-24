@@ -126,6 +126,7 @@ module Choosy::DSL
       v = OptionBuilder.new(OptionBuilder::VERSION)
       v.long '--version'
       v.desc "The version number"
+      v.default msg
 
       v.validate do
         raise Choosy::VersionCalled.new(msg)

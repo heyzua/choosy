@@ -7,6 +7,18 @@ require 'choosy/verifier'
 module Choosy
   class Command < BaseCommand
     attr_accessor :executor, :arguments
+    attr_reader :parent
+
+    def initialize(name, parent=nil)
+      super(name)
+      if parent
+        if parent.is_a?(Choosy::SuperCommand)
+          raise Choosy::ConfigurationError.new("Parent must be a super command")
+        else
+          @parent = parent
+        end
+      end
+    end
     
     def execute!(args)
       raise Choosy::ConfigurationError.new("No executor given for: #{name}") unless executor
@@ -16,6 +28,10 @@ module Choosy
       else
         executor.execute!(result.args, result.options)
       end
+    end
+
+    def subcommand?
+      !@parent.nil?
     end
 
     protected

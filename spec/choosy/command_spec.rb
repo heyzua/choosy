@@ -16,7 +16,7 @@ module Choosy
           version "blah"
         end
 
-        o = capture :stdout do
+        o = capture :stout do
           attempting {
             @c.parse!(['--version'])
           }.should raise_error(SystemExit)
