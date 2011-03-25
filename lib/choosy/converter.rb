@@ -76,7 +76,7 @@ module Choosy
     end
 
     def self.file(value)
-      if File.exist?(value)
+      if File.file?(value)
         File.new(value)
       else
         raise Choosy::ValidationError.new("Unable to locate file: '#{value}'")

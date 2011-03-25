@@ -8,4 +8,5 @@ module Choosy
   ConversionError    = Class.new(Choosy::Error)
   ParseError         = Class.new(Choosy::Error)
   SuperParseError    = Class.new(Choosy::Error)
+  VersionError       = Class.new(Choosy::Error)
 end

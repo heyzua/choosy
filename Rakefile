@@ -8,10 +8,25 @@ require 'rspec/core/rake_task'
 require './lib/choosy/version'
 
 PACKAGE_NAME = "choosy"
-PACKAGE_VERSION = Choosy::Version
+PACKAGE_VERSION = Choosy::Version.new(File.join(File.dirname(__FILE__), 'lib', 'VERSION.yml'))
 
 desc "Default task"
 task :default => [ :spec ]
+
+namespace :version do
+  desc "Tiny bump"
+  task :tiny do
+    PACKAGE_VERSION.version!(:tiny)
+  end
+  desc "Minor bump"
+  task :minor do
+    PACKAGE_VERSION.version!(:minor)
+  end
+  desc "Major bump"
+  task :major do
+    PACKAGE_VERSION.version!(:major)
+  end
+end
 
 desc "Build documentation"
 task :doc => [ :rdoc ] do
@@ -50,7 +65,7 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name           = PACKAGE_NAME
-    gem.version        = PACKAGE_VERSION
+    gem.version        = PACKAGE_VERSION.to_s
     gem.summary        = 'Yet another option parsing library.'
     gem.description    = 'This is a DSL for creating more complicated command line tools.'
     gem.email          = ['madeonamac@gmail.com']

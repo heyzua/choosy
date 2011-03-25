@@ -10,7 +10,7 @@ module Choosy::Printing
       super(options)
       if options[:template].nil?
         raise Choosy::ConfigurationError.new("no template file given to ERBPrinter")
-      elsif !File.exist?(options[:template])
+      elsif !File.file?(options[:template])
         raise Choosy::ConfigurationError.new("the template file doesn't exist: #{options[:template]}")
       end
       @template = options[:template]
