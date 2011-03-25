@@ -9,7 +9,6 @@ This library should:
   - Allow you to add validation logic for your arguments within the parsing phase.
   - Allowing for dependencies between options, so that you can more easily validate related options (i.e. if the<code>--bold</code> flag requires the <code>--font Arial</code> flag, then you should be able to ask for the <code>--font</code> option to be validated first, and then the <code>--bold</code> option.
   - Allow you to customize its output using your own formatting system.
-  - Allow you to customize the output to your specifications.
 
 This library should never:
 
@@ -19,10 +18,8 @@ This library should never:
 
 # Examples
 
-    #!/usr/bin/env ruby -w
+    #!/usr/bin/env ruby
     # foo.rb
-    
-    $LOAD_PATH.unshift File.join(File.dirname(File.dirname(__FILE__)), 'lib')
     require 'choosy'
     
     FOO_VERSION = '1.0.1'
@@ -37,7 +34,7 @@ This library should never:
       end
     end
     
-    foo_cmd = Choosy::Command.new :foo do |foo|
+    $foo_cmd = Choosy::Command.new :foo do |foo|
       # Add a class to do the execution when you call foo_cmd.execute!
       # You can also use a proc that takes the options and the args, like:
       #    executor { |args, options| puts 'Hi!' }
@@ -147,7 +144,7 @@ This library should never:
         negate
         default true
         validate do
-          foo.command.alter do
+          foo.entity.alter do
             printer :standard, :colored => false
           end
         end
@@ -188,7 +185,7 @@ This library should never:
                '--', # Stops parsing all arguments
                '-h', '--help', '-v', '--version' # Ignored
               ]
-      result = foo_cmd.parse!(args)
+      result = $foo_cmd.parse!(args)
       
       require 'pp'
       pp result[:prefix]        # => '{'
@@ -211,7 +208,7 @@ This library should never:
       # This allows you to easily associate command classes with
       # commands, without resorting to a hash or combining
       # execution logic with command parsing logic.
-      foo_cmd.execute!(args)    # {high,there,you,foo}
+      $foo_cmd.execute!(args)    # {high,there,you,foo}
                                 # {high,there,you,foo}
                                 # {high,there,you,foo}
                                 # and handsom devil http://not.posting.here -h --help -v --verbose
@@ -220,19 +217,16 @@ This library should never:
 
 ### Super Commands
 
-You can also combine multiple choices into an uber-choice, creating
-commands that look a lot like git or subversion.
+You can also combine multiple choices into an uber-choice, creating commands that look a lot like git or subversion.
 
 First, we create another command.
 
-    #!/usr/bin/env ruby -w
+    #!/usr/bin/env ruby
     # bar.rb
-    
-    $LOAD_PATH.unshift File.join(File.dirname(File.dirname(__FILE__)), 'lib')
     require 'choosy'
     
     # Create a new command
-    bar_cmd = Choosy::Command.new :bar do
+    $bar_cmd = Choosy::Command.new :bar do
       executor do |args, options|
         if options[:bold]
           puts "BOLD!!!"
@@ -258,28 +252,26 @@ First, we create another command.
     if __FILE__ == $0
       args = ['--un-bold']
       
-      result = bar_cmd.parse!(args)
+      result = $bar_cmd.parse!(args)
       
       require 'pp'
       pp result.options[:bold]           # => false
       pp result.args                     # => []
       
-      bar_cmd.execute!(args)             # => 'plain'
+      $bar_cmd.execute!(args)             # => 'plain'
     
       args << 'should-throw-error'
-      bar_cmd.execute!(args)
+      $bar_cmd.execute!(args)
     end
     
 We can now create our super command.
 
-    #!/usr/bin/env ruby -w
-    # superfoo.rb
+    #!/usr/bin/env ruby
     
-    $LOAD_PATH.unshift File.join(File.dirname(File.dirname(__FILE__)), 'lib')
-    $LOAD_PATH.unshift File.join(File.dirname(File.dirname(__FILE__)), 'examples')
+    # superfoo.rb
     require 'choosy'
-    require "foo"
-    require "bar"
+    require 'foo'
+    require 'bar'
     
     SUPERFOO_VERSION = "1.0.1"
     
@@ -291,8 +283,8 @@ We can now create our super command.
       # Note that, when added, these commands have their
       # -h/--help/--version flags suppressed, so you'll
       # need to add those flags here.
-      command bar_cmd
-      command foo_cmd
+      command $bar_cmd
+      command $foo_cmd
     
       # Creates a 'help' command, message optional
       help "Prints this help message"
@@ -317,7 +309,7 @@ We can now create our super command.
     if __FILE__ == $0
       args = ['foo',
               '-c', '5',
-              '--config', '~/.superfoo',
+              '--config', 'superfoo.yaml',
               '--prefix', '{',
               '--suffix', '}',
               'cruft',
@@ -327,25 +319,31 @@ We can now create our super command.
       result = superfoo.parse!(args)
     
       require 'pp'
-      pp result[:config]        # => '~/.superfoo'
-      pp result.name            # => :foo
-      pp result[:prefix]        # => '{'
-      pp result[:suffix]        # => '}'
-      pp result[:count]         # => 2
-      pp result[:bold]          # => true
-      pp result.options         # => {:prefix => '{', :suffix => '}'
-                                #     :count => 2,
+      pp result[:Config]        # => {:here => 'text'} # Pulled the config!
+    
+      foores = result.subresults[0]
+      
+      pp foores[:Config]        # => {:here => 'text'} # Passed along!
+      pp foores[:prefix]        # => '{'
+      pp foores[:suffix]        # => '}'
+      pp foores[:count]         # => 5
+      pp foores[:bold]          # => true
+      pp foores.options         # => {:prefix => '{', :suffix => '}'
+                                #     :count => 5,
                                 #     :bold => true, 
                                 #     :words => [],
                                 #     :config => '~/.superfoo' }
-      pp result.args            # => ['cruft', 'bar']
+      pp foores.args            # => ['cruft', 'bar']
       
       # Now, we can call the result
       superfoo.execute!(args)   ## Calls superfoo.result.execute!
                                 ## Prints:
                                 # BOLDED!!
                                 # {foo}
-                                # {foo}
+                                # {foo,foo}
+                                # {foo,foo,foo}
+                                # {foo,foo,foo,foo}
+                                # {foo,foo,foo,foo,foo}
                                 # and cruft bar
       
       # Instead of parsing the 'bar' parameter as an argument to
@@ -364,26 +362,29 @@ We can now create our super command.
       end
       
       result = superfoo.parse!(args)
-                       
-      pp result.name                    # => :superfoo
-      pp result[:config]                # => '~/.superfoo'
-      pp result.subresults[0].name      # => :foo
-      pp result.subresults[0][:prefix]  # => '{'
-      pp result.subresults[0][:suffix]  # => '}'
-      pp result.subresults[0][:count]   # => 2
-      pp result.subresults[0][:bold]    # => true
-      pp result.subresults[0].options   # => {:prefix => '{', :suffix => '}'
-                                        #     :count => 2,
+    
+      foores = result.subresults[0]
+      pp foores[:Config]                # => {:here => 'text'} # Passed along!
+      pp foores.command.name            # => :foo
+      pp foores[:prefix]                # => '{'
+      pp foores[:suffix]                # => '}'
+      pp foores[:count]                 # => 5
+      pp foores[:bold]                  # => true
+      pp foores.options                 # => {:prefix => '{', :suffix => '}'
+                                        #     :count => 5,
                                         #     :bold => false, 
                                         #     :words => [],
-                                        #     :config => '~/.superfoo' }
-      pp result.subresults[0].args      # => ['cruft']
+                                        #     :config => {:here => 'text'}
+                                        #    }
+      pp foores.args                    # => ['cruft']
       
-      pp result.subresults[1].name      # => :bar
-      pp result.subresults[1][:bold]    # => true
-      pp result.subresults[1].options   # => {:bold => true,
-                                        #     :config => '~/.superfoo'}
-      pp result.subresults[1].args      # => []
+      barres = result.subresults[1]
+      pp barres.command.name            # => :bar
+      pp barres[:bold]                  # => true
+      pp barres.options                 # => {:bold => true,
+                                        #     :config => {:here => 'text'}
+                                        #    }
+      pp barres.args                    # => []
       
       # Now, execute the results in order
       superfoo.execute!(args)       ## Same as:
@@ -398,4 +399,51 @@ We can now create our super command.
     end
     
 
-### TODO: Output Printing
+# Output Printing
+
+Choosy allows you to customize the output printing of your documentation. It exposes the internal object model to any class that implements a <code>print!(command)</code> method.  
+
+The <code>:standard</code> printer that is the default for any command can also be customized to meet some of your needs:
+
+    Choosy::Command.new :foo do
+      printer :standard, 
+              :max_width => 80,
+              :color => true, 
+              :header_styles => [:bold, :green], 
+              :indent => '   ', 
+              :offset => '  '
+
+      help "Show this help command."
+    end
+
+This above example sets some useful properties for the printer. First, the <code>:max_width</code> limits the wrapping size on the console. By default, choosy tries to be smart and wrap to the currend column width, but you can introduce this hash parameter as a default max. Next, you can turn off and on color printing by setting <code>:color</code>. Color is on by default, so it's actually superfluous in this example -- just a demonstration of the syntax. The <code>:header_styles</code> is an array of styles that will be applied to the headers for this document. By default, headers are <code>[:bold, :blue]</code>. Most of the ANSI colors and codes are supported, but check <code>lib/choosy/printing/color.rb</code> for additional options. The last two options given are actually formatting spacers in the output that you can customize: <code>:indent</code> is the default indent for commands and options; <code>:offset</code> is the distance between the options and commands to their associated descriptive text.
+
+For those who want the nice, manpage experience, there's also the <code>:manpage</code> printer:
+
+    Choosy::Command.new :foo do
+      printer :manpage,
+              :max_width => 80,                  # Same as :standard
+              :color => true,                    # Same as :standard
+              :header_styles => [:bold, :green], # Same as :standard
+              :option_sytles => [:bold],         # Same as :standard
+              :indent => '   ',                  # Same as :standard
+              :offset => '  ',                   # Same as :standard
+              :version => FOO_VERSION, # Will use the version name you specify
+              :section => 1,           # Default is always '1'
+              :date => '03/24/2011',   # Date you want displayed
+              :manual => 'Foo Co.'     # The manual page group
+
+      version FOO_VERSION # If you don't supply a version above, this will be used
+    end
+
+Because the library is super-awesome, the manpage will even be in color when piped to less (!). If you don't like the format of my manpage, feel free to implement your own using the <code>choosy/printing/manpage</code> class, a useful utility class for formatting manpage output correctly.
+
+There is also the <code>:erb</code> template that can be customized by writing a template of your choice:
+
+    Choosy::Command.new :foo od
+      printer :erb, :color => true, :template => 'path/to/file.erb'
+    end
+
+The ERB printer also accepts the <code>:color</code> option. The color is exposed via a <code>color</code> property in the template; the command is exposed by the <code>command</code> property.
+
+By the way, if you implement a custom printer, you can also include the <code>choosy/printing/terminal</code> module to get access to the line and column information of the console, if available.

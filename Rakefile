@@ -20,9 +20,16 @@ task :doc => [ :rdoc ] do
       template.each do |line|
         if line =~ /^>>> (.*)/
           puts $1
-          File.open $1, 'r' do |inserted|
-            inserted.each do |ins|
-              output.puts "    #{ins}"
+          File.open $1, 'r' do |toinsert|
+            exclude = false
+            toinsert.each_line do |ins|
+              if ins =~ /^##-/
+                exclude = true
+              end
+              output.puts "    #{ins}" unless exclude
+              if ins =~ /^##\+/
+                exclude = false
+              end
             end
           end
         else

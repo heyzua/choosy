@@ -9,7 +9,6 @@ This library should:
   - Allow you to add validation logic for your arguments within the parsing phase.
   - Allowing for dependencies between options, so that you can more easily validate related options (i.e. if the<code>--bold</code> flag requires the <code>--font Arial</code> flag, then you should be able to ask for the <code>--font</code> option to be validated first, and then the <code>--bold</code> option.
   - Allow you to customize its output using your own formatting system.
-  - Allow you to customize the output to your specifications.
 
 This library should never:
 
@@ -23,8 +22,7 @@ This library should never:
 
 ### Super Commands
 
-You can also combine multiple choices into an uber-choice, creating
-commands that look a lot like git or subversion.
+You can also combine multiple choices into an uber-choice, creating commands that look a lot like git or subversion.
 
 First, we create another command.
 
@@ -41,12 +39,37 @@ Choosy allows you to customize the output printing of your documentation. It exp
 The <code>:standard</code> printer that is the default for any command can also be customized to meet some of your needs:
 
     Choosy::Command.new :foo do
-      printer :standard, max_width => 80, :color => true, :header_styles => [:bold, :green], :indent => '   ', :offset => '  '
+      printer :standard, 
+              :max_width => 80,
+              :color => true, 
+              :header_styles => [:bold, :green], 
+              :indent => '   ', 
+              :offset => '  '
 
       help "Show this help command."
     end
 
 This above example sets some useful properties for the printer. First, the <code>:max_width</code> limits the wrapping size on the console. By default, choosy tries to be smart and wrap to the currend column width, but you can introduce this hash parameter as a default max. Next, you can turn off and on color printing by setting <code>:color</code>. Color is on by default, so it's actually superfluous in this example -- just a demonstration of the syntax. The <code>:header_styles</code> is an array of styles that will be applied to the headers for this document. By default, headers are <code>[:bold, :blue]</code>. Most of the ANSI colors and codes are supported, but check <code>lib/choosy/printing/color.rb</code> for additional options. The last two options given are actually formatting spacers in the output that you can customize: <code>:indent</code> is the default indent for commands and options; <code>:offset</code> is the distance between the options and commands to their associated descriptive text.
+
+For those who want the nice, manpage experience, there's also the <code>:manpage</code> printer:
+
+    Choosy::Command.new :foo do
+      printer :manpage,
+              :max_width => 80,                  # Same as :standard
+              :color => true,                    # Same as :standard
+              :header_styles => [:bold, :green], # Same as :standard
+              :option_sytles => [:bold],         # Same as :standard
+              :indent => '   ',                  # Same as :standard
+              :offset => '  ',                   # Same as :standard
+              :version => FOO_VERSION, # Will use the version name you specify
+              :section => 1,           # Default is always '1'
+              :date => '03/24/2011',   # Date you want displayed
+              :manual => 'Foo Co.'     # The manual page group
+
+      version FOO_VERSION # If you don't supply a version above, this will be used
+    end
+
+Because the library is super-awesome, the manpage will even be in color when piped to less (!). If you don't like the format of my manpage, feel free to implement your own using the <code>choosy/printing/manpage</code> class, a useful utility class for formatting manpage output correctly.
 
 There is also the <code>:erb</code> template that can be customized by writing a template of your choice:
 

@@ -1,11 +1,13 @@
-#!/usr/bin/env ruby -w
+#!/usr/bin/env ruby
+##-
+BEGIN {$VERBOSE = true}
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
+##+
 # bar.rb
-
-$LOAD_PATH.unshift File.join(File.dirname(File.dirname(__FILE__)), 'lib')
 require 'choosy'
 
 # Create a new command
-bar_cmd = Choosy::Command.new :bar do
+$bar_cmd = Choosy::Command.new :bar do
   executor do |args, options|
     if options[:bold]
       puts "BOLD!!!"
@@ -31,14 +33,14 @@ end
 if __FILE__ == $0
   args = ['--un-bold']
   
-  result = bar_cmd.parse!(args)
+  result = $bar_cmd.parse!(args)
   
   require 'pp'
   pp result.options[:bold]           # => false
   pp result.args                     # => []
   
-  bar_cmd.execute!(args)             # => 'plain'
+  $bar_cmd.execute!(args)             # => 'plain'
 
   args << 'should-throw-error'
-  bar_cmd.execute!(args)
+  $bar_cmd.execute!(args)
 end

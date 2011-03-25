@@ -1,7 +1,9 @@
-#!/usr/bin/env ruby -w
+#!/usr/bin/env ruby
+##-
+BEGIN {$VERBOSE = true}
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
+##+
 # foo.rb
-
-$LOAD_PATH.unshift File.join(File.dirname(File.dirname(__FILE__)), 'lib')
 require 'choosy'
 
 FOO_VERSION = '1.0.1'
@@ -16,7 +18,7 @@ class FooExecutor
   end
 end
 
-foo_cmd = Choosy::Command.new :foo do |foo|
+$foo_cmd = Choosy::Command.new :foo do |foo|
   # Add a class to do the execution when you call foo_cmd.execute!
   # You can also use a proc that takes the options and the args, like:
   #    executor { |args, options| puts 'Hi!' }
@@ -126,7 +128,7 @@ foo_cmd = Choosy::Command.new :foo do |foo|
     negate
     default true
     validate do
-      foo.command.alter do
+      foo.entity.alter do
         printer :standard, :colored => false
       end
     end
@@ -167,7 +169,7 @@ if __FILE__ == $0
            '--', # Stops parsing all arguments
            '-h', '--help', '-v', '--version' # Ignored
           ]
-  result = foo_cmd.parse!(args)
+  result = $foo_cmd.parse!(args)
   
   require 'pp'
   pp result[:prefix]        # => '{'
@@ -190,7 +192,7 @@ if __FILE__ == $0
   # This allows you to easily associate command classes with
   # commands, without resorting to a hash or combining
   # execution logic with command parsing logic.
-  foo_cmd.execute!(args)    # {high,there,you,foo}
+  $foo_cmd.execute!(args)    # {high,there,you,foo}
                             # {high,there,you,foo}
                             # {high,there,you,foo}
                             # and handsom devil http://not.posting.here -h --help -v --verbose

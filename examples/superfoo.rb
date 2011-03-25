@@ -1,11 +1,14 @@
-#!/usr/bin/env ruby -w
-# superfoo.rb
+#!/usr/bin/env ruby
+##-
+BEGIN {$VERBOSE = true}
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
+$LOAD_PATH.unshift File.dirname(__FILE__)
+##+
 
-$LOAD_PATH.unshift File.join(File.dirname(File.dirname(__FILE__)), 'lib')
-$LOAD_PATH.unshift File.join(File.dirname(File.dirname(__FILE__)), 'examples')
+# superfoo.rb
 require 'choosy'
-require "foo"
-require "bar"
+require 'foo'
+require 'bar'
 
 SUPERFOO_VERSION = "1.0.1"
 
@@ -17,8 +20,8 @@ superfoo = Choosy::SuperCommand.new :superfoo do
   # Note that, when added, these commands have their
   # -h/--help/--version flags suppressed, so you'll
   # need to add those flags here.
-  command bar_cmd
-  command foo_cmd
+  command $bar_cmd
+  command $foo_cmd
 
   # Creates a 'help' command, message optional
   help "Prints this help message"
@@ -43,7 +46,7 @@ end
 if __FILE__ == $0
   args = ['foo',
           '-c', '5',
-          '--config', '~/.superfoo',
+          '--config', 'superfoo.yaml',
           '--prefix', '{',
           '--suffix', '}',
           'cruft',
@@ -53,25 +56,31 @@ if __FILE__ == $0
   result = superfoo.parse!(args)
 
   require 'pp'
-  pp result[:config]        # => '~/.superfoo'
-  pp result.name            # => :foo
-  pp result[:prefix]        # => '{'
-  pp result[:suffix]        # => '}'
-  pp result[:count]         # => 2
-  pp result[:bold]          # => true
-  pp result.options         # => {:prefix => '{', :suffix => '}'
-                            #     :count => 2,
+  pp result[:Config]        # => {:here => 'text'} # Pulled the config!
+
+  foores = result.subresults[0]
+  
+  pp foores[:Config]        # => {:here => 'text'} # Passed along!
+  pp foores[:prefix]        # => '{'
+  pp foores[:suffix]        # => '}'
+  pp foores[:count]         # => 5
+  pp foores[:bold]          # => true
+  pp foores.options         # => {:prefix => '{', :suffix => '}'
+                            #     :count => 5,
                             #     :bold => true, 
                             #     :words => [],
                             #     :config => '~/.superfoo' }
-  pp result.args            # => ['cruft', 'bar']
+  pp foores.args            # => ['cruft', 'bar']
   
   # Now, we can call the result
   superfoo.execute!(args)   ## Calls superfoo.result.execute!
                             ## Prints:
                             # BOLDED!!
                             # {foo}
-                            # {foo}
+                            # {foo,foo}
+                            # {foo,foo,foo}
+                            # {foo,foo,foo,foo}
+                            # {foo,foo,foo,foo,foo}
                             # and cruft bar
   
   # Instead of parsing the 'bar' parameter as an argument to
@@ -90,26 +99,29 @@ if __FILE__ == $0
   end
   
   result = superfoo.parse!(args)
-                   
-  pp result.name                    # => :superfoo
-  pp result[:config]                # => '~/.superfoo'
-  pp result.subresults[0].name      # => :foo
-  pp result.subresults[0][:prefix]  # => '{'
-  pp result.subresults[0][:suffix]  # => '}'
-  pp result.subresults[0][:count]   # => 2
-  pp result.subresults[0][:bold]    # => true
-  pp result.subresults[0].options   # => {:prefix => '{', :suffix => '}'
-                                    #     :count => 2,
+
+  foores = result.subresults[0]
+  pp foores[:Config]                # => {:here => 'text'} # Passed along!
+  pp foores.command.name            # => :foo
+  pp foores[:prefix]                # => '{'
+  pp foores[:suffix]                # => '}'
+  pp foores[:count]                 # => 5
+  pp foores[:bold]                  # => true
+  pp foores.options                 # => {:prefix => '{', :suffix => '}'
+                                    #     :count => 5,
                                     #     :bold => false, 
                                     #     :words => [],
-                                    #     :config => '~/.superfoo' }
-  pp result.subresults[0].args      # => ['cruft']
+                                    #     :config => {:here => 'text'}
+                                    #    }
+  pp foores.args                    # => ['cruft']
   
-  pp result.subresults[1].name      # => :bar
-  pp result.subresults[1][:bold]    # => true
-  pp result.subresults[1].options   # => {:bold => true,
-                                    #     :config => '~/.superfoo'}
-  pp result.subresults[1].args      # => []
+  barres = result.subresults[1]
+  pp barres.command.name            # => :bar
+  pp barres[:bold]                  # => true
+  pp barres.options                 # => {:bold => true,
+                                    #     :config => {:here => 'text'}
+                                    #    }
+  pp barres.args                    # => []
   
   # Now, execute the results in order
   superfoo.execute!(args)       ## Same as:
