@@ -8,15 +8,27 @@ module Choosy::Printing
     end
 
     it "should format bold" do
-      @format.bold("this").should eql('/fBthis/fP')
+      @format.bold("this").should eql('\\fBthis\\fP')
+    end
+
+    it "should format simple bold" do
+      @format.bold.should eql('\\fB')
     end
 
     it "should format italics" do
-      @format.italics('this').should eql('/fIthis/fP')
+      @format.italics('this').should eql('\\fIthis\\fP')
+    end
+
+    it "should format simple italics" do
+      @format.italics.should eql('\\fI')
     end
 
     it "should format roman" do
-      @format.roman('this').should eql('/fRthis/fP')
+      @format.roman('this').should eql('\\fRthis\\fP')
+    end
+
+    it "should format simple roman" do
+      @format.roman.should eql('\\fR')
     end
   end
 
@@ -146,6 +158,13 @@ module Choosy::Printing
       @man.nofill.should eql('.nf')
     end
 
+    it "should allow for blocks of no-fill" do
+      @man.nofill do |man|
+        man.text 'here'
+      end
+      @man.buffer.join("\n").should eql(".nf\nhere\n.fi")
+    end
+
     it "should allow for fill" do
       @man.fill.should eql('.fi')
     end
@@ -169,13 +188,13 @@ module Choosy::Printing
         @man.paragraph('this is a line of text')
 
         @man.to_s.should eql(<<EOF
+.TH "blah" "1" "today" " " " "
 .ie \\n(.g .ds Aq \\(aq
 .el       .ds Aq '
 .\\" disable hyphenation
 .nh
 .\\" disable justification (adjust text to left margin only)
 .ad l
-.TH "blah" "1" "today"
 .SH "DESCRIPTION"
 .P
 this is a line of text

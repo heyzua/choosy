@@ -359,7 +359,11 @@ module Choosy::DSL
         v = @builder.version "blah"
         v.description.should eql("The version number")
       end
-    end#version
 
+      it "should set the type of the version to boolean" do
+        v = @builder.version "1.0"
+        v.cast_to.should eql(:boolean)
+      end
+    end#version
   end
 end

@@ -2,27 +2,46 @@ require 'choosy/errors'
 
 module Choosy::Printing
   class ManpageFormatter
-    def bold(line)
-      "/fB#{line}/fP"
+    def bold(line=nil)
+      if line.nil?
+        '\\fB'
+      else
+        "\\fB#{line}\\fP"
+      end
     end
 
-    def italics(line)
-      "/fI#{line}/fP"
+    def italics(line=nil)
+      if line.nil?
+        '\\fI'
+      else
+        "\\fI#{line}\\fP"
+      end
     end
 
-    def roman(line)
-      "/fR#{line}/fP"
+    def roman(line=nil)
+      if line.nil?
+        '\\fR'
+      else
+        "\\fR#{line}\\fP"
+      end
+    end
+
+    def reset
+      '\\fP'
     end
   end
 
   class Manpage
     attr_accessor :name, :section, :date, :version, :manual
-    attr_reader :format
+    attr_reader :format, :buffer
 
     def initialize
       @buffer = []
       @section = 1
       @format = ManpageFormatter.new
+      @version = nil
+      @date = nil
+      @manual = nil
     end
 
     def frame_outline
@@ -134,8 +153,14 @@ module Choosy::Printing
       append('.br')
     end
 
-    def nofill
-      append('.nf')
+    def nofill(&block)
+      if block_given?
+        append('.nf')
+        yield self
+        append('.fi')
+      else
+        append('.nf')
+      end
     end
 
     def fill
@@ -143,13 +168,13 @@ module Choosy::Printing
     end
 
     def term_paragraph(term, para, width=5)
-      append(".TP " << width.to_s << NEWLINE << term << NEWLINE << para)
+      append(".TP " << width.to_s << NEWLINE << escape(term) << NEWLINE << escape(para))
     end
 
     def to_s(io=nil)
       io ||= ""
-      io << PREFACE
       io << frame_outline << NEWLINE
+      io << PREFACE
       @buffer.each do |line|
         io << line
         io << NEWLINE
@@ -174,6 +199,8 @@ EOF
     def quote(base, val)
       if val 
         base << SQUOTE << val.to_s << EQUOTE
+      else
+        base << SQUOTE << ' ' << EQUOTE
       end
     end
 

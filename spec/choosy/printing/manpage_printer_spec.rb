@@ -9,86 +9,87 @@ module Choosy::Printing
       @cmd = Choosy::Command.new(:manpage)
     end
 
-    it "should format a simple header" do
-      @cmd.alter do
-        header 'Option'
-      end
-
-      @man.format_header(@cmd.listing[0])
-      @man.buffer.should eql(".SH Option\n")
+    def output
+      @man.manpage.buffer.join("\n")
     end
 
-    it "should format the usage correctly"
-=begin
-      @cmd.alter do
-        boolean :bold, "Bold?"
-        version "1.0"
-        help
+    describe "for the name segment" do
+      it "should not print anything if no summary is present" do
+        @man.format_name(@cmd)
+        output.should eql('')
+      end
 
-        arguments do
-          metaname 'MANS'
+      it "should print out the summary" do
+        @cmd.alter do 
+          summary 'summary goes here'
         end
+        @man.format_name(@cmd)
+        output.should eql('.SH "NAME"
+manpage \\- summary goes here')
       end
-
-      @man.format_usage(@cmd)
-      @man.buffer.should eql(".SH SYNOPSIS
-.B manpage
-[\\-b|\\-\\-bold] [\\-\\-version] [\\-h|\\-\\-help] MANS\n")
-    end
-=end
-
-    it "should format format a paragraph correctly" do
-      @cmd.alter do
-        para "This is a paragraph"
-      end
-
-      @man.format_para(@cmd.listing[0])
-      @man.buffer.should eql("This is a paragraph\n")
     end
 
-    it "should format an option correctly" do
-      @cmd.alter do
-        integer :count, "The count goes here"
+    describe "for the synopsis" do
+      it "should add the synopsis correctly" do
+        @cmd.alter do
+          boolean :bold, "bold"
+          integer :long_option_goes_here, "long"
+          integer :shorter_option, "short"
+          arguments do
+            metaname '[ARGS+++]'
+          end
+        end
+        @man.columns = 60
+        @man.format_synopsis(@cmd)
+        output.should eql('.SH "SYNOPSIS"
+.nf
+manpage [\\-b|\\-\\-bold]
+        [\\-l|\\-\\-long\\-option\\-goes\\-here=LONG_OPTION_GOES_HERE]
+        [\\-s|\\-\\-shorter\\-option=SHORTER_OPTION] [ARGS+++]
+.fi')
       end
-
-      @man.format_option(@cmd.listing[0])
-      @man.buffer.should eql(".BI \\-c, \\-\\-count COUNT
-The count goes here\n")
-    end
-    it "should not add the .TP twice if already present" 
-=begin
-      @cmd.alter do
-        integer :height, "The height"
-        integer :width, "The width"
-      end
-
-      @man.format_listing(@cmd)
-      @man.buffer.should eql(".TP
-.BI \\-h, \\-\\-height HEIGHT
-The height
-.BI \\-w, \\-\\-width WIDTH
-The width\n")
-    end
-=end
-    it "should format the preamble header" do
-      @cmd.alter do
-        summary "This is a summary - brief"
-        integer :count, "the count"
-      end
-
-      @man.format_preamble(@cmd)
-      @man.buffer.should eql(".TH manpage(1)
-.SH NAME
-manpage \\- This is a summary \\- brief\n")
     end
 
-    it "should format a command correctly" do
-      @cmd.alter do
-        summary "This is a summary"
-      end
+    it "should format an option" do
+      o = @cmd.builder.integer :opt, 'option line here.'
+      @man.format_option(o, @man.regular_option(o), '        ')
+      output.should eql('.TP 8
+\\fI\\-o\\fP, \\fI\\-\\-opt\\fP OPT
+option line here&.')
+    end
 
-      @man.format_command(@cmd)
-      @man.buffer.should eql("\\fImanpage\\fP\tThis is a summary\n")
+    it "should format a command" do
+      @cmd.alter do
+        summary 'this is a summary'
+      end
+      @man.format_command(@cmd, 'cmd', '    ')
+      output.should eql('.TP 4
+cmd
+this is a summary')
+    end
+
+    it "should format a heading correctly" do
+      @cmd.alter do
+        header 'here'
+      end
+      @man.format_element(@cmd.listing[0])
+      output.should eql('.SH "HERE"')
+    end
+
+    it "should format a regular paragraph" do
+      @cmd.alter do
+        para 'paragraph'
+      end
+      @man.format_element(@cmd.listing[0])
+      output.should eql(".P\nparagraph")
+    end
+
+    it "should format an empty paragraph" do
+      @cmd.alter do
+        para
+      end
+      @man.format_element(@cmd.listing[0])
+      output.should eql('.P')
     end
   end
 end

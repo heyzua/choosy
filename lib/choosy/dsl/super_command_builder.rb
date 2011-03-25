@@ -9,9 +9,10 @@ module Choosy::DSL
 
     def command(cmd, &block)
       subcommand = if cmd.is_a?(Choosy::Command)
+                     cmd.parent = entity
                      cmd
                    else
-                     Choosy::Command.new(cmd)
+                     Choosy::Command.new(cmd, entity)
                    end
 
       evaluate_command_builder!(subcommand.builder, &block)

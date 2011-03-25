@@ -1,7 +1,7 @@
 require 'choosy/errors'
 require 'choosy/dsl/option_builder'
 require 'choosy/dsl/base_builder'
-require 'choosy/printing/manpage'
+require 'choosy/printing/manpage_printer'
 require 'choosy/printing/erb_printer'
 require 'choosy/printing/formatting_element'
 
@@ -27,7 +27,7 @@ module Choosy::DSL
                           elsif kind == :erb
                             Choosy::Printing::ERBPrinter.new(options)
                           elsif kind == :manpage
-                            Choosy::Printing::Manpage.new(options)
+                            Choosy::Printing::ManpagePrinter.new(options)
                           elsif kind.respond_to?(:print!)
                             kind
                           else
@@ -126,7 +126,9 @@ module Choosy::DSL
       v = OptionBuilder.new(OptionBuilder::VERSION)
       v.long '--version'
       v.desc "The version number"
-      v.default msg
+      # TODO: research how this should be refactored, used with manpage
+      # v.default msg
+      v.cast :boolean
 
       v.validate do
         raise Choosy::VersionCalled.new(msg)

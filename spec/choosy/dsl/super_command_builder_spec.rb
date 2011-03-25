@@ -38,6 +38,17 @@ module Choosy::DSL
         @builder.command cmd
         @command.listing[0].should be(cmd)
       end
+
+      it "should set the parent command on new commands" do
+        cmd = @builder.command :foo
+        cmd.parent.should be(@command)
+      end
+
+      it "should set the parent command on existing commands" do
+        cmd = Choosy::Command.new :foo
+        @builder.command cmd
+        cmd.parent.should be(@command)
+      end
     end
     
     describe :parsimonious do

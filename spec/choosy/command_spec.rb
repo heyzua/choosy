@@ -16,7 +16,7 @@ module Choosy
           version "blah"
         end
 
-        o = capture :stout do
+        o = capture :stdout do
           attempting {
             @c.parse!(['--version'])
           }.should raise_error(SystemExit)
@@ -37,7 +37,7 @@ module Choosy
           }.should raise_error(SystemExit)
         end
 
-        o.should match(/-h, --help/)
+        o.should match(/--help/)
       end
 
       it "should make sure that help gets check before other required options" do
@@ -52,7 +52,7 @@ module Choosy
           }.should raise_error(SystemExit)
         end
 
-        o.should match(/-h, --help/)
+        o.should match(/--help/)
       end
     end
 

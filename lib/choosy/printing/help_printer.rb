@@ -3,101 +3,41 @@ require 'choosy/printing/terminal'
 require 'choosy/printing/base_printer'
 
 module Choosy::Printing
-  class HelpPrinter
-    include BasePrinter
-    include Terminal
-
-    attr_reader :header_styles, :indent, :offset, :buffer, :usage
+  class HelpPrinter < BasePrinter
+    attr_reader :buffer, :usage, :line_count
 
     def initialize(options)
-      @indent = options[:indent] || '  '
-      @offset = options[:offset] || '    '
-      @header_styles = options[:header_styles] || [:bold, :blue]
+      super(options)
+
       @buffer = options[:buffer] || ""
       @usage = options[:usage] || 'Usage:'
 
-      if options[:color] == false
-        color.disable!
-      end
-      if options[:max_width] && self.columns > options[:max_width]
-        self.columns = options[:max_width]
-      end
-
-      @buffer_line_count = 0
+      @line_count = 0
     end
 
     def print!(command)
       format!(command)
-      # TODO: Add paging
-      puts @buffer
-    end
-
-    def format!(command)
-      format_usage(command)
-
-      cmd_indent, option_indent, prefixes = retrieve_formatting_info(command)
-
-      command.listing.each_with_index do |item, i|
-        case item
-        when Choosy::Option
-          format_option(item, prefixes[i], option_indent)
-        when Choosy::Command
-          format_command(item, prefixes[i], cmd_indent)
-        when Choosy::Printing::FormattingElement
-          format_element(item)
-        end
+      if @line_count > lines
+        page(@buffer)
+      else
+        puts @buffer
       end
-
-      nl
-      @buffer
     end
 
-    def format_usage(command)
+    def format_prologue(command)
       format_header(@usage)
       @buffer << ' '
-      @buffer << command.name.to_s
-      return if command.options.empty?
-
-      width = starting_width = 8 + command.name.to_s.length # So far
-      command.listing.each do |option|
-        if option.is_a?(Choosy::Option)
-          formatted = usage_option(option)
-          width += formatted.length
-          if width > columns
-            nl
-            @buffer << ' ' * starting_width
-            @buffer << formatted
-            width = starting_width + formatted.length
-          else
-            @buffer << ' '
-            @buffer << formatted
-            width += 1
-          end
-        end
+      indent = ' ' * (@usage.length + 1)
+      usage_wrapped(command, indent, columns).each do |line|
+        @buffer << line
+        nl
       end
-
-      case command
-      when Choosy::Command
-        if command.arguments
-          @buffer << ' '
-          @buffer << command.arguments.metaname
-        end
-      when Choosy::SuperCommand
-        @buffer << ' '
-        @buffer << command.metaname
-      end
-
-      nl
       nl
     end
 
-    def format_header(str, styles=nil)
-      return if str.nil?
-      if styles && !styles.empty?
-        @buffer << color.multiple(str, styles)
-      else
-        @buffer << color.multiple(str, header_styles)
-      end
+    def format_epilogue(command)
+      nl
+      @buffer
     end
 
     def format_element(element)
@@ -124,39 +64,27 @@ module Choosy::Printing
       write_lines(command.summary, cmd_indent, false)
     end
 
-    protected
-    def nl
-      @buffer_line_count += 1
-      @buffer << "\n"
+    def format_header(str, styles=nil)
+      return if str.nil?
+      if styles && !styles.empty?
+        @buffer << color.multiple(str, styles)
+      else
+        @buffer << color.multiple(str, header_styles)
+      end
     end
 
-    def retrieve_formatting_info(command)
-      cmdlen = 0
-      optionlen = 0
-      prefixes = []
+    protected
+    def option_begin
+      @option_begin ||= color.multiple(nil, option_styles)
+    end
 
-      command.listing.each do |item|
-        case item
-        when Choosy::Option
-          opt = regular_option(item)
-          if opt.length > optionlen
-            optionlen = opt.length
-          end
-          prefixes << opt
-        when Choosy::Command
-          name = item.name.to_s
-          if name.length > cmdlen
-            cmdlen = name.length
-          end
-          prefixes << name
-        else
-          prefixes << nil
-        end
-      end
+    def option_end
+      color.reset
+    end
 
-      option_indent = ' ' * (optionlen + indent.length + offset.length)
-      cmd_indent = ' ' * (cmdlen + indent.length + offset.length)
-      [cmd_indent, option_indent, prefixes]
+    def nl
+      @line_count += 1
+      @buffer << "\n"
     end
 
     def write_prefix(prefix, after_indent)

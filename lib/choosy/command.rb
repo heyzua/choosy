@@ -9,15 +9,15 @@ module Choosy
     attr_accessor :executor, :arguments
     attr_reader :parent
 
-    def initialize(name, parent=nil)
+    def initialize(name, supercommand=nil)
       super(name)
-      if parent
-        if parent.is_a?(Choosy::SuperCommand)
-          raise Choosy::ConfigurationError.new("Parent must be a super command")
-        else
-          @parent = parent
-        end
-      end
+      self.parent = supercommand
+    end
+
+    def parent=(value)
+      @parent = value
+      return if @parent.nil?
+      raise Choosy::ConfigurationError.new("Parent must be a super command") unless Choosy::SuperCommand
     end
     
     def execute!(args)

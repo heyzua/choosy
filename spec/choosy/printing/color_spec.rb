@@ -84,5 +84,9 @@ module Choosy::Printing
     it "should be able to format multiple items" do
       @c.multiple("this", [:red, :blink]).should eql("\e[5m\e[31mthis\e[0m")
     end
+
+    it "should keep multiple colors without a reset if the string is nil" do
+      @c.multiple(nil, [:red, :blink]).should eql("\e[5m\e[31m")
+    end
   end
 end

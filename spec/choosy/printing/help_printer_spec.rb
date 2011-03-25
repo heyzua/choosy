@@ -39,11 +39,11 @@ module Choosy::Printing
       @h = @s.printer
     end
 
-    describe :format_usage do
+    describe :format_prologue do
       it "should know how to format a regular command" do
         @h.color.disable!
         @h.columns = 60
-        @h.format_usage(@c)
+        @h.format_prologue(@c)
 
         @h.buffer.should eql("Usage: foo [-e|--evaluate] [-c|--count=COUNT] [--debug]
            [--version] [-h|--help] FOOS\n\n")
@@ -52,7 +52,7 @@ module Choosy::Printing
       it "should know how to format a super command" do
         @h.color.disable!
         @h.columns = 60
-        @h.format_usage(@s)
+        @h.format_prologue(@s)
 
         @h.buffer.should eql("Usage: super [-b|--bold] CMDS\n\n")
       end

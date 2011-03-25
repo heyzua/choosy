@@ -48,8 +48,8 @@ module Choosy::Printing
       @disabled = true
     end
 
-    def color?(color)
-      COLORS.has_key?(color.to_sym)
+    def color?(col)
+      COLORS.has_key?(col.to_sym)
     end
 
     def effect?(effect)
@@ -59,11 +59,12 @@ module Choosy::Printing
     def multiple(str, styles)
       return str if styles.nil? || styles.empty? || disabled?
 
+      originally_nil = str.nil?
       styles.each do |style|
         if color?(style)
-          str = bedazzle(COLORS[style] + FOREGROUND, str)
+          str = bedazzle(COLORS[style] + FOREGROUND, str, originally_nil)
         elsif effect?(style)
-          str = bedazzle(EFFECTS[style], str)
+          str = bedazzle(EFFECTS[style], str, originally_nil)
         end
       end
       str
@@ -105,11 +106,13 @@ module Choosy::Printing
       end
     end
 
-    def bedazzle(number, str)
+    def bedazzle(number, str, keep_open=nil)
       prefix = "\e[#{number}m"
       if str.nil?
         prefix
       elsif str =~ /\e\[0m$/
+        "#{prefix}#{str}"
+      elsif keep_open
         "#{prefix}#{str}"
       else
         "#{prefix}#{str}\e[0m"
