@@ -1,32 +1,23 @@
-# $LOAD_PATH.unshift File.expand_path("../lib", __FILE__)
-# $LOAD_PATH.unshift File.expand_path("../spec", __FILE__)
+begin
+  require 'choosy/versiontask'
+rescue LoadError => e
+  $LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'lib')
+  require 'choosy/versiontask'
+end
 
 require 'rubygems'
 require 'rake'
-#require 'rake/rdoctask'
 require 'rspec/core/rake_task'
-require './lib/choosy/version'
+require 'bundler'
+Bundler::GemHelper.install_tasks
 
 PACKAGE_NAME = "choosy"
-PACKAGE_VERSION = Choosy::Version.new(File.join(File.dirname(__FILE__), 'lib', 'VERSION.yml'))
 
 desc "Default task"
 task :default => [ :spec ]
 
-namespace :version do
-  desc "Tiny bump"
-  task :tiny do
-    PACKAGE_VERSION.version!(:tiny)
-  end
-  desc "Minor bump"
-  task :minor do
-    PACKAGE_VERSION.version!(:minor)
-  end
-  desc "Major bump"
-  task :major do
-    PACKAGE_VERSION.version!(:major)
-  end
-end
+desc "Run the RSpec tests"
+RSpec::Core::RakeTask.new :spec
 
 desc "Build documentation"
 task :doc => [ :rdoc ] do
@@ -58,27 +49,6 @@ end
 desc "Create RDocs: TODO"
 task :rdoc
 
-desc "Run the RSpec tests"
-RSpec::Core::RakeTask.new :spec
-
-begin
-  require 'jeweler'
-  Jeweler::Tasks.new do |gem|
-    gem.name           = PACKAGE_NAME
-    gem.version        = PACKAGE_VERSION.to_s
-    gem.summary        = 'Yet another option parsing library.'
-    gem.description    = 'This is a DSL for creating more complicated command line tools.'
-    gem.email          = ['madeonamac@gmail.com']
-    gem.authors        = ['Gabe McArthur']
-    gem.homepage       = 'http://github.com/gabemc/choosy'
-    gem.files          = FileList["[A-Z]*", "{bin,lib,spec}/**/*"]
-    
-    gem.add_development_dependency 'rspec', '~> 2.5'
-  end
-rescue LoadError
-  puts "Jeweler or dependencies are not available.  Install it with: gem install jeweler"
-end
-
 desc "Cleans the generated files."
 task :clean do
   rm Dir.glob('*.gemspec')
@@ -88,8 +58,10 @@ end
 
 desc "Deploys the gem to rubygems.org"
 task :gem => [:doc, :release] do
-  system("gem build #{PACKAGE_NAME}.gemspec")
-  system("gem push #{PACKAGE_NAME}-#{PACKAGE_VERSION}.gem")
+  sh "gem build #{PACKAGE_NAME}.gemspec"
+  sh "gem push #{PACKAGE_NAME}-#{$version.to_s}.gem"
+  sh "git tag -m 'Tagging release #{$version.to_s}' v#{$version.to_s}"
+  sh "git push origin :refs/tags/#{$version.to_s}"
 end
 
 desc "Does the full release cycle."

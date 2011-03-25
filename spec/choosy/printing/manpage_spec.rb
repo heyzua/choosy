@@ -147,7 +147,7 @@ module Choosy::Printing
     end
 
     it "should allow for comments" do
-      @man.comment("here").should eql('./" here')
+      @man.comment("here").should eql('.\\" here')
     end
 
     it "should allow for line breaks" do
@@ -188,6 +188,7 @@ module Choosy::Printing
         @man.paragraph('this is a line of text')
 
         @man.to_s.should eql(<<EOF
+'\\" t
 .TH "blah" "1" "today" " " " "
 .ie \\n(.g .ds Aq \\(aq
 .el       .ds Aq '

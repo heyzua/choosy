@@ -1,3 +1,8 @@
+PATH
+  remote: .
+  specs:
+    choosy ()
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -22,4 +27,5 @@ PLATFORMS
 DEPENDENCIES
   autotest
   autotest-notification
-  rspec
+  choosy!
+  rspec (~> 2.5)

@@ -22,9 +22,9 @@ module Choosy::Printing
     end
     
     def print!(command)
-      if pager?
+      if command_exists?('groff') && pager?
         fix_termcap
-        page format!(command), 'groff -Tutf8 -mandoc'
+        page format!(command), 'groff -t -e -W all -Tutf8 -mandoc'
       else
         # Fall back to a help printer if there is no pager
         help = HelpPrinter.new(formatting_options)

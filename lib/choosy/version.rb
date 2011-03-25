@@ -60,6 +60,28 @@ module Choosy
       "#{major}.#{minor}.#{tiny}"
     end
 
+    def self.load(options)
+      basepath = if options[:file] && options[:relpath]
+                   File.join(File.dirname(options[:file]), options[:relpath])
+                 elsif options[:dir]
+                   if options[:relpath]
+                     File.join(options[:dir], options[:relpath])
+                   else
+                     options[:dir]
+                   end
+                 else
+                   Choosy::ConfigurationError.new("No file given.")
+                 end
+
+      [File.join(basepath, 'VERSION.yml'), File.join(basepath, 'version.yml')].each do |path|
+        if File.exist?(path)
+          return Version.new(path)
+        end
+      end
+
+      raise Choosy::ConfigurationError.new("No version file given from: #{basepath}")
+    end
+
     private
     VERSION = 'version'
     TINY = 'tiny'

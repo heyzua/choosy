@@ -146,7 +146,7 @@ module Choosy::Printing
     end
 
     def comment(line)
-      append('./" ' << line)
+      append('.\\" ' << line)
     end
 
     def line_break
@@ -173,6 +173,7 @@ module Choosy::Printing
 
     def to_s(io=nil)
       io ||= ""
+      io << "'\\\" t\n"
       io << frame_outline << NEWLINE
       io << PREFACE
       @buffer.each do |line|
