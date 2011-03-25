@@ -57,11 +57,11 @@ task :clean do
 end
 
 desc "Deploys the gem to rubygems.org"
-task :gem => [:doc, :release] do
+task :gem => [:doc, :version] do
   sh "gem build #{PACKAGE_NAME}.gemspec"
-  sh "gem push #{PACKAGE_NAME}-#{$version.to_s}.gem"
-  sh "git tag -m 'Tagging release #{$version.to_s}' v#{$version.to_s}"
-  sh "git push origin :refs/tags/#{$version.to_s}"
+  sh "gem push #{PACKAGE_NAME}-#{$version}.gem"
+  sh "git tag -m 'Tagging release #{$version}' v#{$version}"
+  sh "git push origin :refs/tags/#{$version}"
 end
 
 desc "Does the full release cycle."
