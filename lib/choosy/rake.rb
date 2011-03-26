@@ -62,17 +62,17 @@ namespace :version do
   [:tiny, :minor, :major].each do |type|
     desc "Bumps the #{type} revision number."
     task type => :load do
+      old = $version.to_s
       $version.version!(type)
-      puts "New version: #{$version.to_s}"
+      puts "Bumped version: #{old} -> #{$version}"
     end
   end
 end
 
 #########################################################################
 # Release
-namespace :release do
-  
-end
+desc "Tags the current release in git, builds the gemspec, and pushes the gem"
+task :release => ['git:diff', 'gem:push', 'git:tag', 'git:push']
 
 #########################################################################
 # Git
