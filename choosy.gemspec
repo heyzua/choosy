@@ -1,10 +1,6 @@
 # -*- encoding: utf-8 -*-
-begin
-  require 'choosy/version'
-rescue LoadError => e
-  $LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'lib')
-  require 'choosy/version'
-end
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'lib')
+require 'choosy/version'
 require 'rake'
 
 Gem::Specification.new do |gem|
@@ -21,6 +17,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'rspec', '~> 2.5'
   gem.add_development_dependency 'autotest'
   gem.add_development_dependency 'autotest-notification'
+  gem.add_development_dependency 'ZenTest', '>= 4.5.0'
 
   gem.required_rubygems_version = ">= 1.3.6"
   gem.require_path = 'lib'

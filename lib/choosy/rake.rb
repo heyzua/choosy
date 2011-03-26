@@ -72,7 +72,7 @@ end
 #########################################################################
 # Release
 desc "Tags the current release in git, builds the gemspec, and pushes the gem"
-task :release => ['git:diff', 'gem:push', 'git:tag', 'git:push']
+task :release => ['gem:clean', 'git:diff', 'gem:push', 'git:tag', 'git:push']
 
 #########################################################################
 # Git
