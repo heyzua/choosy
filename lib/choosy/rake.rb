@@ -102,7 +102,7 @@ task :gem => ['gem:build']
 
 namespace :gem do
   desc "Builds the current gemspec."
-  task :build do
+  task :build => ['version:load'] do
     SH.files('gemspec') do |gemspec|
       puts "  Building gemspec: #{gemspec}"
       SH.attempt "gem build #{gemspec}"
@@ -111,7 +111,7 @@ namespace :gem do
   
   desc "Pushes the current gem."
   task :push => :build do
-    SH.files ("#{$version}.gem") do |gem|
+    SH.files("#{$version}.gem") do |gem|
       puts "  Pushing gems: #{gem}"
       SH.attempt "gem push #{gem}"
     end
@@ -119,7 +119,7 @@ namespace :gem do
 
   desc "Installs the current gem."
   task :install => :build do
-    SH.files ("#{$version}.gem") do |gem|
+    SH.files("#{$version}.gem") do |gem|
       puts "  Installing gem: #{gem}"
       SH.attempt "gem install --no-ri --no-rdoc #{gem}"
     end
