@@ -1,20 +1,16 @@
-begin
-  require 'choosy/versiontask'
-rescue LoadError => e
-  $LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'lib')
-  require 'choosy/versiontask'
-end
-
 require 'rubygems'
 require 'rake'
 require 'rspec/core/rake_task'
-require 'bundler'
-Bundler::GemHelper.install_tasks
 
-PACKAGE_NAME = "choosy"
+begin
+  require 'choosy/rake'
+rescue LoadError => e
+  $LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'lib')
+  require 'choosy/rake'
+end
 
 desc "Default task"
-task :default => [ :spec ]
+task :default => [:spec]
 
 desc "Run the RSpec tests"
 RSpec::Core::RakeTask.new :spec
@@ -50,20 +46,7 @@ desc "Create RDocs: TODO"
 task :rdoc
 
 desc "Cleans the generated files."
-task :clean do
-  rm Dir.glob('*.gemspec')
-  rm Dir.glob('*.gem')
-  rm_rf 'pkg'
-end
+task :clean => ['gem:clean']
 
-desc "Deploys the gem to rubygems.org"
-task :gem => [:doc, :version] do
-  sh "gem build #{PACKAGE_NAME}.gemspec"
-  sh "gem push #{PACKAGE_NAME}-#{$version}.gem"
-  sh "git tag -m 'Tagging release #{$version}' v#{$version}"
-  sh "git push origin :refs/tags/#{$version}"
-end
-
-desc "Does the full release cycle."
-task :deploy => [:gem, :clean] do
-end
+desc "Runs the full deploy"
+task :push => [:release, :clean]
