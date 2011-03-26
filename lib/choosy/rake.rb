@@ -82,7 +82,7 @@ namespace :git do
   end
 
   task :tag => [:diff, 'version:load'] do
-    sh "Tagging version #{$version}"
+    puts "Tagging version #{$version}"
     SH.attempt "git tag -a -m \"Tagging release #{$version}\" v#{$version}" do |code, contents|
       puts contents
       SH.attempt "git tag -d v#{$version}", :error => "git tag: unable to delete tag"
