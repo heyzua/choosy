@@ -1,5 +1,11 @@
 ## 0.4.0 (March 28, 2011)
 
+Fixes:
+
+  - Minor cleanup of the formatting.
+
+## 0.4.0 (March 28, 2011)
+
 Features:
 
   - Added a 'section' operation to allow for subsection grouping in commands, for greater clarity.
