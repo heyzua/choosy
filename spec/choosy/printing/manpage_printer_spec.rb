@@ -64,7 +64,7 @@ option line here.')
       end
       @man.format_command(@cmd, 'cmd', '    ')
       output.should eql('.TP 4
-cmd
+\fIcmd\fP
 this is a summary')
     end
 

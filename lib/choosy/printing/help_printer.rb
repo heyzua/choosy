@@ -74,11 +74,11 @@ module Choosy::Printing
     end
 
     protected
-    def option_begin
-      @option_begin ||= color.multiple(nil, option_styles)
+    def highlight_begin
+      @highlight_begin ||= color.multiple(nil, option_styles)
     end
 
-    def option_end
+    def highlight_end
       color.reset
     end
 
@@ -88,10 +88,10 @@ module Choosy::Printing
     end
 
     def write_prefix(prefix, after_indent)
-      len = after_indent.length - prefix.length - indent.length
+      len = after_indent.length - prefix.unformatted.length - indent.length
       @buffer << indent
       @buffer << prefix
-      @buffer << ' ' * len
+      @buffer << " " * len
     end
 
     def write_lines(str, prefix, indent_first)

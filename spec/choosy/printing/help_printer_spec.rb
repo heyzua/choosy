@@ -15,7 +15,7 @@ module Choosy::Printing
 
         heading 'OPTIONS'
         boolean :evaluate, "The evaluation of some boolean something or other that really should span at least 3 lines of continuous text for testing the output of the option command."
-        integer :count, "The count of something that should also really span multiple lines, if possible."
+        integer_ :count, "The count of something that should also really span multiple lines, if possible."
         boolean_ :debug, "Debug output"
         version "1.2"
         help
@@ -45,8 +45,8 @@ module Choosy::Printing
         @h.columns = 60
         @h.format_prologue(@c)
 
-        @h.buffer.should eql("Usage: foo [-e|--evaluate] [-c|--count=COUNT] [--debug]
-           [--version] [-h|--help] FOOS\n\n")
+        @h.buffer.should eql("Usage: foo [-e|--evaluate] [--count=COUNT] [--debug] [--version]
+           [-h|--help] FOOS\n\n")
       end
 
       it "should know how to format a super command" do
@@ -89,6 +89,14 @@ module Choosy::Printing
                     continuous text for testing the output of the
                     option command.
 ')
+    end
+
+    it "should print out an option correctly that only has a single line" do
+      @h.columns = 70
+      @h.format_option(@c.listing[5], "      \e[1m--count\e[0m COUNT", ' ' * 23)
+      @h.buffer.should eql("        \e[1m--count\e[0m COUNT  The count of something that should also really
+                       span multiple lines, if possible.
+")
     end
 
     it "should print out any commands that are present" do

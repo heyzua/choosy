@@ -1,6 +1,12 @@
 require 'choosy/errors'
 require 'choosy/printing/terminal'
 
+class String
+  def unformatted
+    gsub(/\e\[\d+m/, '').gsub(/\\f[IPB]/, '')
+  end
+end
+
 module Choosy::Printing
   class BasePrinter
     include Terminal
@@ -98,9 +104,9 @@ module Choosy::Printing
 
     def regular_option(option, value="")
       if option.short_flag
-        value << option_begin
+        value << highlight_begin
         value << option.short_flag
-        value << option_end
+        value << highlight_end
         if option.long_flag
           value << ', '
         end
@@ -109,7 +115,7 @@ module Choosy::Printing
       end
 
       if option.long_flag
-        value << option_begin
+        value << highlight_begin
         if option.negated?
           value << '--['
           value << option.negation
@@ -118,7 +124,7 @@ module Choosy::Printing
         else
           value << option.long_flag
         end
-        value << option_end
+        value << highlight_end
       end
 
       if option.metaname
@@ -138,6 +144,7 @@ module Choosy::Printing
 
     # doesn't indent the first line
     def usage_wrapped(command, indent='', columns=80)
+      columns = (columns > 70) ? 70 : columns
       lines = []
       line = command_name(command)
       starting_width = width = line.length + indent.length
@@ -190,11 +197,11 @@ module Choosy::Printing
       end
     end
 
-    def option_begin
+    def highlight_begin
       ''
     end
 
-    def option_end
+    def highlight_end
       ''
     end
 
@@ -208,8 +215,9 @@ module Choosy::Printing
         case item
         when Choosy::Option
           opt = regular_option(item)
-          if opt.length > optionlen
-            optionlen = opt.length
+          len = opt.unformatted.length
+          if len > optionlen
+            optionlen = len
           end
           prefixes << opt
         when Choosy::Command
@@ -224,6 +232,7 @@ module Choosy::Printing
       end
 
       option_indent = ' ' * (optionlen + indent.length + offset.length)
+      puts optionlen
       cmd_indent = ' ' * (cmdlen + indent.length + offset.length)
       [cmd_indent, option_indent, prefixes]
     end
