@@ -66,7 +66,7 @@ module Choosy
     def handle_help(hc)
       command_name = hc.message
 
-      if command_name == Choosy::DSL::SuperCommandBuilder::SUPER
+      if command_name == :help_option || command_name == Choosy::DSL::SuperCommandBuilder::SUPER
         printer.print!(self)
       else
         builder = command_builders[command_name]

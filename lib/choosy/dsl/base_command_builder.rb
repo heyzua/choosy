@@ -134,7 +134,7 @@ module Choosy::DSL
       h.desc msg
 
       h.validate do
-        raise Choosy::HelpCalled.new(@name)
+        raise Choosy::HelpCalled.new(:help_option)
       end 
 
       evaluate_option_builder!(h, &block)

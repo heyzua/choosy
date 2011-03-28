@@ -232,7 +232,6 @@ module Choosy::Printing
       end
 
       option_indent = ' ' * (optionlen + indent.length + offset.length)
-      puts optionlen
       cmd_indent = ' ' * (cmdlen + indent.length + offset.length)
       [cmd_indent, option_indent, prefixes]
     end
