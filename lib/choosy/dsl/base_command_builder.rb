@@ -37,9 +37,12 @@ module Choosy::DSL
 
     # Formatting
 
-    def header(msg, *styles)
+    def heading(msg, *styles, &block)
       @entity.listing << Choosy::Printing::FormattingElement.new(:header, msg, styles)
+      evaluate!(&block) if block_given?
     end
+
+    alias :section :heading
 
     def para(msg=nil, *styles)
       @entity.listing << Choosy::Printing::FormattingElement.new(:para, msg, styles)
@@ -120,7 +123,22 @@ module Choosy::DSL
     def enum_(sym, allowed, desc, config=nil, &block)
       simple_option(sym, desc, false, :one, :symbol, allowed, config, &block)
     end
+
     # Additional helpers
+    
+    def help(msg=nil, &block)
+      h = OptionBuilder.new(OptionBuilder::HELP)
+      h.short '-h'
+      h.long '--help'
+      msg ||= "Show this help message"
+      h.desc msg
+
+      h.validate do
+        raise Choosy::HelpCalled.new(@name)
+      end 
+
+      evaluate_option_builder!(h, &block)
+    end
 
     def version(msg, &block)
       v = OptionBuilder.new(OptionBuilder::VERSION)

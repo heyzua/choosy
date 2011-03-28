@@ -69,7 +69,7 @@ module Choosy::Printing
       if styles && !styles.empty?
         @buffer << color.multiple(str, styles)
       else
-        @buffer << color.multiple(str, header_styles)
+        @buffer << color.multiple(str, heading_styles)
       end
     end
 

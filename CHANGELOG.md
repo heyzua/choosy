@@ -1,3 +1,19 @@
+## 0.4.0 (March 28, 2011)
+
+Features:
+
+  - Added a 'section' operation to allow for subsection grouping in commands, for greater clarity.
+
+Fixes:
+
+  - 'parsimonious' operation failed to handle global options.
+  - Renamed 'header' to 'heading'.
+  - Fixed 'default' operation for SuperCommands.
+  - Made sure the usage width in manpages is reasonable.
+  - 'help' subcommand now exposed via the 'command' operation, so that the '--help' option can be attached to options.
+  - '&.' bug in the manpage output.
+  - Added a 'gem cleanup' to the rake integration.
+
 ## 0.3.5 (March 26, 2011)
 
 Features:

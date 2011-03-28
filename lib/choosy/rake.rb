@@ -123,6 +123,16 @@ namespace :gem do
     SH.files("#{$version}.gem") do |gem|
       puts "  Installing gem: #{gem}"
       SH.attempt "gem install --no-ri --no-rdoc #{gem}"
+      SH.attempt "gem cleanup #{gem}"
+    end
+  end
+
+  desc "Installs the current gem using sudo."
+  task :sudo => :build do
+    SH.files("#{$version}.gem") do |gem|
+      puts "  Installing gem: #{gem}"
+      SH.attempt "sudo gem install --no-ri --no-rdoc #{gem}"
+      SH.attempt "sudo gem cleanup #{gem}"
     end
   end
 

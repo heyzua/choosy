@@ -4,7 +4,7 @@ require 'spec_helpers'
 describe "SuperCommand B" do
   before :each do
     @s = Choosy::SuperCommand.new :super do
-      header 'Commands:'
+      heading 'Commands:'
       command :bar do
         arguments do
           count 0..1

@@ -85,30 +85,32 @@ module Choosy::DSL
 
     describe :help do
       it "should create a help command when asked" do
-        h = @builder.help
+        h = @builder.command :help
         @command.listing[0].should be(h)
       end
 
       it "should set the default summary of the help command" do
-        h = @builder.help
+        h = @builder.command :help
         h.summary.should match(/Show the info/)
       end
 
       it "should st the summary of the command when given" do
-        h = @builder.help "Show this help message"
+        h = @builder.command :help do
+          summary "Show this help message"
+        end
         h.summary.should match(/Show this/)
       end
 
       describe "when validated" do
         it "should return the super command name when called without arguments" do
-          h = @builder.help
+          h = @builder.command :help
           attempting {
             h.arguments.validation_step.call([])
           }.should raise_error(Choosy::HelpCalled, nil)
         end
 
         it "should return the name of the first argument when called, as a symbol" do
-          h = @builder.help
+          h = @builder.command :help
           attempting {
             h.arguments.validation_step.call(['foo'])
           }.should raise_error(Choosy::HelpCalled, :foo)

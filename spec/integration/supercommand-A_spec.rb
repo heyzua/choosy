@@ -7,7 +7,7 @@ describe "SuperCommand A" do
   before :each do
     @cmd = Choosy::SuperCommand.new :superfoo do
       para "This is a supercommand of a definite size"
-      header 'Commands:'
+      heading 'Commands:'
       
       command :bar do
         summary notes[:this]
@@ -23,9 +23,9 @@ describe "SuperCommand A" do
         integer :amount, "How much money do you save?"
       end
 
-      help
+      command :help
 
-      header 'Options:'
+      heading 'Options:'
       integer :count, "The Count" do
         #required
       end

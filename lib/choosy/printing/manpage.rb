@@ -222,7 +222,7 @@ EOF
 
     def escape(line)
       nline = line.gsub(/-/, "\\-")
-      nline.gsub!(/(\.+)/, '&\1')
+      #nline.gsub!(/(\.+)/, '&\1')
       nline
     end
 

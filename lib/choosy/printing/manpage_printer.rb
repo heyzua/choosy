@@ -24,7 +24,7 @@ module Choosy::Printing
     def print!(command)
       if command_exists?('groff') && pager?
         fix_termcap
-        page format!(command), 'groff -t -e -W all -Tutf8 -mandoc'
+        page format!(command)#, 'groff -t -e -W all -Tutf8 -mandoc'
       else
         # Fall back to a help printer if there is no pager
         help = HelpPrinter.new(formatting_options)
@@ -56,8 +56,9 @@ module Choosy::Printing
 
     def format_synopsis(command)
       @manpage.section_heading(@synopsis)
+      cols = (columns > 70) ? 70 : columns
       @manpage.nofill do |man|
-        usage_wrapped(command, '', columns).each do |line|
+        usage_wrapped(command, '', cols).each do |line|
           man.text line
         end
       end

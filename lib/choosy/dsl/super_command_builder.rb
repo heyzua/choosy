@@ -8,7 +8,9 @@ module Choosy::DSL
     SUPER = :__SUPER_COMMAND__
 
     def command(cmd, &block)
-      subcommand = if cmd.is_a?(Choosy::Command)
+      subcommand = if cmd == :help
+                     help_command
+                   elsif cmd.is_a?(Choosy::Command)
                      cmd.parent = entity
                      cmd
                    else
@@ -30,10 +32,17 @@ module Choosy::DSL
       @entity.default_command = cmd
     end
 
-    def help(msg=nil, &block)
-      msg ||= "Show the info for a command, or this message"
-      help_command = Choosy::Command.new HELP do |help|
-        help.summary msg
+    protected
+    def evaluate_command_builder!(builder, &block)
+      builder.evaluate!(&block)
+      @entity.listing << builder.entity
+      @entity.command_builders[builder.entity.name] = builder
+      builder.entity
+    end
+
+    def help_command
+      Choosy::Command.new HELP, @entity do |help|
+        help.summary "Show the info for a command, or this message"
 
         help.arguments do
           count 0..1
@@ -52,15 +61,6 @@ module Choosy::DSL
           end
         end
       end
-      evaluate_command_builder!(help_command.builder, &block)
-    end
-
-    protected
-    def evaluate_command_builder!(builder, &block)
-      builder.evaluate!(&block)
-      @entity.listing << builder.entity
-      @entity.command_builders[builder.entity.name] = builder
-      builder.entity
     end
   end
 end

@@ -43,25 +43,6 @@ module Choosy::DSL
       end
     end#executor
 
-    describe :help do
-      it "should allow for a no arg" do
-        h = @builder.help
-        h.description.should eql("Show this help message")
-      end
-
-      it "should allow you to set the message" do
-        h = @builder.help 'Help message'
-        h.description.should eql('Help message')
-      end
-
-      it "should throw a HelpCalled upon validation" do
-        h = @builder.help
-        attempting {
-          h.validation_step.call
-        }.should raise_error(Choosy::HelpCalled)
-      end
-    end#help
-
     describe :arguments do
       it "should not fail if there is no block given" do
         attempting {

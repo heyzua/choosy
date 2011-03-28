@@ -22,7 +22,7 @@ module Choosy
 
       it "should print out the supercommand help message" do
         @c.alter do
-          help
+          command :help
         end
 
         o = capture :stdout do
@@ -34,7 +34,7 @@ module Choosy
 
       it "should print out a subcommand help message" do
         @c.alter do
-          help
+          command :help
           command :bar do
             boolean :count, "The count"
           end

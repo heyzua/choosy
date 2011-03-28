@@ -5,12 +5,12 @@ module Choosy::Printing
   class BasePrinter
     include Terminal
 
-    attr_accessor :indent, :offset, :formatting_options, :header_styles, :option_styles
+    attr_accessor :indent, :offset, :formatting_options, :heading_styles, :option_styles
 
     def initialize(options)
       @formatting_options = options
 
-      @header_styles = options[:header_styles] || [:bold, :blue]
+      @heading_styles = options[:heading_styles] || [:bold, :blue]
       @option_styles = options[:option_styles] || [:bold]
       @indent = options[:indent] || '  '
       @offset = options[:offset] || '    '
@@ -177,7 +177,7 @@ module Choosy::Printing
     protected
     def fix_termcap
       if pager.include?('less')
-        headers = color.multiple(nil, @header_styles)
+        headers = color.multiple(nil, @heading_styles)
         options = color.multiple(nil, @option_styles)
 
         ENV['LESS_TERMCAP_mb'] ||= "\e[31m"       # Begin blinking

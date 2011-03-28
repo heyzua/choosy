@@ -55,16 +55,16 @@ module Choosy
       count = args.count
 
       result = SuperParseResult.new(@super_command)
-      parser = Parser.new(@super_command, true, @terminals)
+      parser = Parser.new(@super_command, true, [])
       parser.parse!(args, result)
       verifier.verify_special!(result)
 
       # if we found a global action, we should have hit it by now...
       if result.unparsed.length == 0
-        if @super_command.command_builders[Choosy::DSL::SuperCommandBuilder::HELP]
-          raise Choosy::HelpCalled.new(Choosy::DSL::SuperCommandBuilder::SUPER)
-        elsif count == 0 && @super_command.has_default?
+        if count == 0 && @super_command.has_default?
           result.unparsed << @super_command.default_command.to_s
+        elsif @super_command.command_builders[Choosy::DSL::SuperCommandBuilder::HELP]
+          raise Choosy::HelpCalled.new(Choosy::DSL::SuperCommandBuilder::SUPER)
         else
           raise Choosy::SuperParseError.new("requires a command")
         end

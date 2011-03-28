@@ -21,20 +21,6 @@ module Choosy::DSL
       end
     end
 
-    def help(msg=nil, &block)
-      h = OptionBuilder.new(OptionBuilder::HELP)
-      h.short '-h'
-      h.long '--help'
-      msg ||= "Show this help message"
-      h.desc msg
-
-      h.validate do
-        raise Choosy::HelpCalled.new(@name)
-      end 
-
-      evaluate_option_builder!(h, &block)
-    end
-
     def arguments(&block)
       builder = ArgumentBuilder.new
       # Set multiple by default

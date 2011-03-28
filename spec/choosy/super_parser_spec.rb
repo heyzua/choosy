@@ -68,7 +68,7 @@ module Choosy
       end
 
       it "should raise a HelpCalled error when a help command is defined" do
-        @p.super.builder.help
+        @p.super.builder.command :help
         attempting {
           @p.parse!()
         }.should raise_error(Choosy::HelpCalled, Choosy::DSL::SuperCommandBuilder::SUPER)
@@ -118,6 +118,15 @@ module Choosy
 
         it "should parse separate commands" do
           @p.command(:bar).command(:baz).parse!('bar', 'baz').subresults.should have(2).items
+        end
+
+        it "should be able to read global options" do
+          @p.super.alter do
+            version 'this'
+          end
+          attempting {
+            @p.command(:bar).parse!('bar', '--version')
+          }.should raise_error(Choosy::VersionCalled)
         end
       end
     end

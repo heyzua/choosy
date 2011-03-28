@@ -55,7 +55,7 @@ manpage [\\-b|\\-\\-bold]
       @man.format_option(o, @man.regular_option(o), '        ')
       output.should eql('.TP 8
 \\fI\\-o\\fP, \\fI\\-\\-opt\\fP OPT
-option line here&.')
+option line here.')
     end
 
     it "should format a command" do
@@ -70,7 +70,7 @@ this is a summary')
 
     it "should format a heading correctly" do
       @cmd.alter do
-        header 'here'
+        heading 'here'
       end
       @man.format_element(@cmd.listing[0])
       output.should eql('.SH "HERE"')

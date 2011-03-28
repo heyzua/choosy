@@ -1,6 +1,7 @@
 require 'spec_helpers'
 require 'choosy/dsl/base_command_builder'
 require 'choosy/command'
+require 'choosy/super_command'
 
 module Choosy::DSL
   describe BaseCommandBuilder do
@@ -37,14 +38,14 @@ module Choosy::DSL
       end
 
       it "should know how to set the header attributes" do
-        @builder.printer :standard, :header_styles => [:bold, :green]
-        @command.printer.header_styles.should eql([:bold, :green])
+        @builder.printer :standard, :heading_styles => [:bold, :green]
+        @command.printer.heading_styles.should eql([:bold, :green])
       end
 
       it "should be able to set multiple properties of the printer" do
-        @builder.printer :standard, :max_width => 25, :header_styles => [:bold, :red], :color => false
+        @builder.printer :standard, :max_width => 25, :heading_styles => [:bold, :red], :color => false
         @command.printer.color.should be_disabled
-        @command.printer.header_styles.should eql([:bold, :red])
+        @command.printer.heading_styles.should eql([:bold, :red])
         @command.printer.columns.should eql(25)
       end
       
@@ -93,17 +94,29 @@ module Choosy::DSL
       end
     end#summary
 
-    describe :header do
+    describe :heading do
       it "should set a header for this command" do
-        @builder.header 'HEADER'
+        @builder.heading 'HEADER'
         @command.listing[0].value.should eql('HEADER')
       end
 
       it "should set the attributes of the header effectively" do
-        @builder.header 'HEADER', :bold, :blue
+        @builder.heading 'HEADER', :bold, :blue
         @command.listing[0].styles.should eql([:bold, :blue])
       end
-    end#header
+
+      it "should accept an inner block" do
+        @builder.heading 'Header' do
+          para 'this'
+        end
+        @command.listing[1].value.should eql('this')
+      end
+
+      it "should allow for the 'section' alias" do
+        @builder.section 'here'
+        @command.listing[0].value.should eql('here')
+      end 
+    end#heading
 
     describe :para do
       it "should add a paragraph to the list of options for printing" do
@@ -126,6 +139,33 @@ module Choosy::DSL
         @command.listing[0].styles.should eql([:bold, :red])
       end
     end#para
+
+    describe :help do
+      it "should allow for a no arg" do
+        h = @builder.help
+        h.description.should eql("Show this help message")
+      end
+
+      it "should allow you to set the message" do
+        h = @builder.help 'Help message'
+        h.description.should eql('Help message')
+      end
+
+      it "should throw a HelpCalled upon validation" do
+        h = @builder.help
+        attempting {
+          h.validation_step.call
+        }.should raise_error(Choosy::HelpCalled)
+      end
+
+      it "should allow for help on super commands" do
+        s = Choosy::SuperCommand.new :super
+        h = s.builder.help
+        attempting {
+          h.validation_step.call
+        }.should raise_error(Choosy::HelpCalled)
+      end
+    end#help
 
     describe :option do
       describe "when using just a name" do
