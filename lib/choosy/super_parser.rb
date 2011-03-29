@@ -75,7 +75,8 @@ module Choosy
 
     def parse_command(args, terminals)
       command_name = args.shift
-      command_builder = @super_command.command_builders[command_name.to_sym]
+      command_sym = command_name.to_sym
+      command_builder = @super_command.command_builders[command_sym]
       if command_builder.nil?
         if command_name =~ /^-/
           raise Choosy::SuperParseError.new("unrecognized option: '#{command_name}'")
@@ -85,7 +86,11 @@ module Choosy
       end
 
       command = command_builder.entity
-      parser = Parser.new(command, false, terminals)
+      parser = if command_sym == :help
+                 Parser.new(command, false, [])
+               else
+                 Parser.new(command, false, terminals)
+               end
       command_result = Choosy::ParseResult.new(command, true)
       parser.parse!(args, command_result)
 

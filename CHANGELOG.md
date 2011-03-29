@@ -1,3 +1,9 @@
+## 0.4.3 (March 29, 2011)
+
+Fixes:
+
+  - The 'parsimonious' operation on SuperCommands now allows 'help' to take an argument.
+
 ## 0.4.0 (March 28, 2011)
 
 Fixes:

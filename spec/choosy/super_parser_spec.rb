@@ -128,6 +128,16 @@ module Choosy
             @p.command(:bar).parse!('bar', '--version')
           }.should raise_error(Choosy::VersionCalled)
         end
+
+        it "should call 'help' with the appropriate args when defined" do
+          @p.super.alter do
+            command :help
+          end
+
+          attempting {
+            @p.command(:bar).parse!('help', 'bar')
+          }.should raise_error(Choosy::HelpCalled, :bar)
+        end
       end
     end
   end
