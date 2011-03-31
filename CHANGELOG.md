@@ -1,3 +1,9 @@
+## 0.4.6 (March 31, 2011)
+
+Features:
+
+  - Refactored the terminal class to be more accessible and functional for dependent clients.
+  
 ## 0.4.3 (March 29, 2011)
 
 Fixes:

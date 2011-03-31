@@ -107,7 +107,7 @@ module Choosy
     end
 
     def die(message)
-      raise Choosy::ConfigurationError.new(message)
+      raise Choosy::ValidationError.new(message)
     end
 
     private
