@@ -20,16 +20,6 @@ module Choosy
       raise Choosy::ConfigurationError.new("Parent must be a super command") unless Choosy::SuperCommand
     end
     
-    def execute!(args)
-      raise Choosy::ConfigurationError.new("No executor given for: #{name}") unless executor
-      result = parse!(args)
-      if executor.is_a?(Proc)
-        executor.call(result.args, result.options)
-      else
-        executor.execute!(result.args, result.options)
-      end
-    end
-
     def subcommand?
       !@parent.nil?
     end
@@ -52,6 +42,16 @@ module Choosy
       verifier.verify!(result)
     
       result
+    end
+
+    def execute(args)
+      raise Choosy::ConfigurationError.new("No executor given for: #{name}") unless executor
+      result = parse!(args)
+      if executor.is_a?(Proc)
+        executor.call(result.args, result.options)
+      else
+        executor.execute!(result.args, result.options)
+      end
     end
   end
 end

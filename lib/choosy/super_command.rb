@@ -24,26 +24,6 @@ module Choosy
       @parsimonious ||= false
     end
 
-    def execute!(args)
-      super_result = parse!(args)
-      super_result.subresults.each do |result|
-        cmd = result.command
-        if cmd.executor.nil?
-          raise Choosy::ConfigurationError.new("No executor given for: #{cmd.name}")
-        end
-      end
-
-      super_result.subresults.each do |result|
-        executor = result.command.executor
-
-        if executor.is_a?(Proc)
-          executor.call(result.args, result.options)
-        else
-          executor.execute!(result.args, result.options)
-        end
-      end
-    end
-
     def has_default?
       !@default_command.nil?
     end
@@ -61,6 +41,26 @@ module Choosy
     def parse(args)
       parser = SuperParser.new(self)
       parser.parse!(args)
+    end
+
+    def execute(args)
+      super_result = parse!(args)
+      super_result.subresults.each do |result|
+        cmd = result.command
+        if cmd.executor.nil?
+          raise Choosy::ConfigurationError.new("No executor given for: #{cmd.name}")
+        end
+      end
+
+      super_result.subresults.each do |result|
+        executor = result.command.executor
+
+        if executor.is_a?(Proc)
+          executor.call(result.args, result.options)
+        else
+          executor.execute!(result.args, result.options)
+        end
+      end
     end
 
     def handle_help(hc)

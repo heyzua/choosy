@@ -53,6 +53,15 @@ module Choosy
       end
     end
 
+    def execute!(args)
+      begin
+        execute(args)
+      rescue Choosy::ClientExecutionError => e
+        $stderr << "#{@name}: #{e.message}\n"
+        exit 1
+      end
+    end
+
     def finalize!
       if @printer.nil?
         builder.printer :standard
@@ -65,6 +74,10 @@ module Choosy
     end
 
     def parse(args)
+      # Override in subclasses
+    end
+
+    def execute(args)
       # Override in subclasses
     end
 

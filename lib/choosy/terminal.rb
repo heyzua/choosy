@@ -107,7 +107,11 @@ module Choosy
     end
 
     def die(message)
-      raise Choosy::ValidationError.new(message)
+      raise Choosy::ClientExecutionError.new(message)
+    end
+
+    def self.die(message)
+      raise Choosy::ClientExecutionError.new(message)
     end
 
     private

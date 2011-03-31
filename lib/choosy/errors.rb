@@ -9,4 +9,5 @@ module Choosy
   ParseError         = Class.new(Choosy::Error)
   SuperParseError    = Class.new(Choosy::Error)
   VersionError       = Class.new(Choosy::Error)
+  ClientExecutionError = Class.new(Choosy::Error)
 end
