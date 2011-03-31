@@ -55,7 +55,7 @@ namespace :version do
     if ENV['VERSION_FILE']
       $version = Choosy::Version.new(ENV['VERSION_FILE'])
     else
-      $version = Choosy::Version.load(:dir => Dir.pwd, :relpath => 'lib')
+      $version = Choosy::Version.load_from_lib Dir.pwd
     end
   end
 

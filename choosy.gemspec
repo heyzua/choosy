@@ -5,7 +5,7 @@ require 'rake'
 
 Gem::Specification.new do |gem|
   gem.name           = 'choosy'
-  gem.version        = Choosy::Version.load(:file => __FILE__, :relpath => 'lib').to_s
+  gem.version        = Choosy::Version.load_from_lib.to_s
   gem.platform       = Gem::Platform::RUBY
   gem.summary        = 'Yet another option parsing library.'
   gem.description    = 'This is a DSL for creating more complicated command line tools.'
@@ -14,10 +14,10 @@ Gem::Specification.new do |gem|
   gem.homepage       = 'http://github.com/gabemc/choosy'
   gem.files          = FileList["[A-Z]*", "{bin,lib,spec}/**/*"]
     
-  gem.add_development_dependency 'rspec', '~> 2.5'
+  gem.add_development_dependency 'rspec'
   gem.add_development_dependency 'autotest'
   gem.add_development_dependency 'autotest-notification'
-  gem.add_development_dependency 'ZenTest', '>= 4.5.0'
+  gem.add_development_dependency 'ZenTest'
 
   gem.required_rubygems_version = ">= 1.3.6"
   gem.require_path = 'lib'

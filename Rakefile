@@ -2,12 +2,8 @@ require 'rubygems'
 require 'rake'
 require 'rspec/core/rake_task'
 
-begin
-  require 'choosy/rake'
-rescue LoadError => e
-  $LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'lib')
-  require 'choosy/rake'
-end
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'lib')
+require 'choosy/rake'
 
 desc "Default task"
 task :default => [:spec]

@@ -60,26 +60,48 @@ module Choosy
       "#{major}.#{minor}.#{tiny}"
     end
 
-    def self.load(options)
-      basepath = if options[:file] && options[:relpath]
-                   File.join(File.dirname(options[:file]), options[:relpath])
-                 elsif options[:dir]
-                   if options[:relpath]
-                     File.join(options[:dir], options[:relpath])
-                   else
-                     options[:dir]
-                   end
-                 else
-                   Choosy::ConfigurationError.new("No file given.")
-                 end
+    def ==(other)
+      major == other.major && minor == other.minor && tiny == other.tiny
+    end
 
-      [File.join(basepath, 'VERSION.yml'), File.join(basepath, 'version.yml')].each do |path|
-        if File.exist?(path)
-          return Version.new(path)
-        end
+    def eql?(other)
+      self == other
+    end
+
+    def <=>(other)
+      if major >= other.major || minor >= other.minor || tiny >= other.tiny
+        1
+      elsif major <= other.major || minor <= other.minor || tiny <= other.tiny
+        -1
+      else
+        0
       end
+    end
 
-      raise Choosy::ConfigurationError.new("No version file given from: #{basepath}")
+    def self.method_missing(method, *args, &block)
+      if method.to_s =~ /^load_from_(.*)$/
+        parts = $1.split(/_/)
+        parts.map! do |part|
+          case part
+          when 'here'   then '.'
+          when 'parent' then '..'
+          else part
+          end
+        end
+
+        basedir = if args.length == 0
+                    # Find the path to the calling file
+                    # How awesome is this !?
+                    File.dirname(caller(1)[0].split(/:/)[0])
+                  else
+                    args.join(File::Separator)
+                  end
+
+        path = File.join(basedir, *parts)
+        load_from(path)
+      else
+        super
+      end
     end
 
     private
@@ -89,5 +111,15 @@ module Choosy
     MAJOR = 'major'
     VERSIONS = [TINY, MINOR, MAJOR]
     DATE = 'date'
+
+    def self.load_from(basepath)
+      [File.join(basepath, 'VERSION.yml'), File.join(basepath, 'version.yml')].each do |path|
+        if File.exist?(path)
+          return Version.new(path)
+        end
+      end
+
+      raise Choosy::ConfigurationError.new("No version file given from: #{basepath}")
+    end
   end
 end

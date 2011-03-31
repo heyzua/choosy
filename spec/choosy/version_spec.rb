@@ -27,6 +27,23 @@ module Choosy
       end
     end
 
+    describe "attempting to load a file" do
+      it "should allow you to specify a search path via a method" do
+        version = Version.load_from_parent_parent_spec_choosy
+        @version.should eql(version)
+      end
+
+      it "should allow you to specify the current directory" do
+        version = Version.load_from_here
+        @version.should eql(version)
+      end
+
+      it "should allow you to load from a specific directory" do
+        version = Version.load_from_spec_choosy Dir.pwd
+        @version.should eql(version)
+      end
+    end
+
     describe "while altering the config file" do
       before :each do
         @tmp = Tempfile.new('version.yml')
