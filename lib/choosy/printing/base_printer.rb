@@ -1,15 +1,9 @@
 require 'choosy/errors'
-require 'choosy/printing/terminal'
-
-class String
-  def unformatted
-    gsub(/\e\[\d+m/, '').gsub(/\\f[IPB]/, '')
-  end
-end
+require 'choosy/terminal'
 
 module Choosy::Printing
   class BasePrinter
-    include Terminal
+    include Choosy::Terminal
 
     attr_accessor :indent, :offset, :formatting_options, :heading_styles, :option_styles
 
@@ -215,7 +209,7 @@ module Choosy::Printing
         case item
         when Choosy::Option
           opt = regular_option(item)
-          len = opt.unformatted.length
+          len = unformatted(opt).length
           if len > optionlen
             optionlen = len
           end

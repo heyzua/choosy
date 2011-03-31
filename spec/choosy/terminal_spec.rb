@@ -1,7 +1,7 @@
 require 'spec_helpers'
-require 'choosy/printing/terminal'
+require 'choosy/terminal'
 
-module Choosy::Printing
+module Choosy
   class TerminalTest
     include Terminal
   end

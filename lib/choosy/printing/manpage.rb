@@ -206,7 +206,7 @@ EOF
     end
 
     def prefixed(tag, quot, line=nil)
-      puts tag if quot.nil?
+      return if quot.nil?
       tag << SQUOTE << quot << EQUOTE
       if line.nil?
         append(tag)

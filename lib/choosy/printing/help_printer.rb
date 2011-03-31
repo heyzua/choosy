@@ -1,5 +1,4 @@
 require 'choosy/errors'
-require 'choosy/printing/terminal'
 require 'choosy/printing/base_printer'
 
 module Choosy::Printing
@@ -88,7 +87,7 @@ module Choosy::Printing
     end
 
     def write_prefix(prefix, after_indent)
-      len = after_indent.length - prefix.unformatted.length - indent.length
+      len = after_indent.length - unformatted(prefix).length - indent.length
       @buffer << indent
       @buffer << prefix
       @buffer << " " * len

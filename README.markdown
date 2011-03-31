@@ -436,7 +436,7 @@ For those who want the nice, manpage experience, there's also the <code>:manpage
       version FOO_VERSION # If you don't supply a version above, this will be used
     end
 
-Because the library is super-awesome, the manpage will even be in color when piped to <code>less -R<code> (the default)! If you don't like the format of my manpage, feel free to implement your own using the <code>choosy/printing/manpage</code> class, a useful utility class for formatting manpage output correctly.
+Because the library is super-awesome, the manpage will even be in color when piped to <code>less -R</code> (the default)! If you don't like the format of my manpage, feel free to implement your own using the <code>choosy/printing/manpage</code> class, a useful utility class for formatting manpage output correctly.
 
 If you already have some templates that you'd like to use, there is also the <code>:erb</code> template that can be customized by writing a template of your choice:
 
@@ -448,7 +448,7 @@ If you already have some templates that you'd like to use, there is also the <co
 
 The ERB printer also accepts the <code>:color</code> option. The color is exposed via a <code>color</code> property in the template; the command is exposed by the <code>command</code> property.
 
-Finally, because I don't want to tell you how to print your help, I also give you the option of supplying your own printer. Just create a class with a <code>print!(command)</code> method on that class, and it will be passed in the command that it should print the help for. I have supplied some code you may find useful in <code>choosy/printing/terminal</code> that will help with things like finding commands and determining the column width of the terminal.
+Finally, because I don't want to tell you how to print your help, I also give you the option of supplying your own printer. Just create a class with a <code>print!(command)</code> method on that class, and it will be passed in the command that it should print the help for. I have supplied some code you may find useful in <code>choosy/terminal</code> that will help with things like finding commands and determining the column width of the terminal.
 
     class CustomPrinter
       def print!(command)
