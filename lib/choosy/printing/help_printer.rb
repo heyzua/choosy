@@ -74,11 +74,19 @@ module Choosy::Printing
 
     protected
     def highlight_begin
-      @highlight_begin ||= color.multiple(nil, option_styles)
+      @highlight_begin ||= if color.disabled?
+                             ''
+                           else
+                             color.multiple(nil, option_styles)
+                           end
     end
 
     def highlight_end
-      color.reset
+      if color.disabled?
+        ''
+      else
+        color.reset 
+      end
     end
 
     def nl

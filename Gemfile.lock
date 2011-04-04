@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    choosy (0.4.3)
+    choosy (0.4.8)
 
 GEM
   remote: http://rubygems.org/
@@ -25,8 +25,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  ZenTest (>= 4.5.0)
+  ZenTest
   autotest
   autotest-notification
   choosy!
-  rspec (~> 2.5)
+  rspec

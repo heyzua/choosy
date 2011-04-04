@@ -106,5 +106,14 @@ module Choosy::Printing
          whole screen at least once, so that I can test whether it's
          properly formatted\n")
     end
+
+    it "should format a regular option with color, when not disabled" do
+      @h.regular_option(@c.listing[5]).should eql("    \e[1m--count\e[0m COUNT")
+    end
+
+    it "should format a regular option without color when color is disabled" do
+      @h.color.disable!
+      @h.regular_option(@c.listing[5]).should eql("    --count COUNT")
+    end
   end
 end
