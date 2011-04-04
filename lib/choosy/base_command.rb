@@ -1,4 +1,5 @@
 require 'choosy/errors'
+require 'choosy/completions/bash_completer'
 require 'tsort'
 
 module Choosy
@@ -55,7 +56,12 @@ module Choosy
 
     def execute!(args)
       begin
-        execute(args)
+        if completion = Completions::BashCompleter.build
+          vals = completion.complete_for(self)
+          puts vals unless vals.nil?
+        else
+          execute(args)
+        end
       rescue Choosy::ClientExecutionError => e
         $stderr << "#{@name}: #{e.message}\n"
         exit 1
