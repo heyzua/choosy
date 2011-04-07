@@ -52,8 +52,6 @@ module Choosy
     end
 
     def parse_globals(args)
-      count = args.count
-
       result = SuperParseResult.new(@super_command)
       parser = Parser.new(@super_command, true, [])
       parser.parse!(args, result)
@@ -61,7 +59,7 @@ module Choosy
 
       # if we found a global action, we should have hit it by now...
       if result.unparsed.length == 0
-        if count == 0 && @super_command.has_default?
+        if @super_command.has_default?
           result.unparsed << @super_command.default_command.to_s
         elsif @super_command.command_builders[Choosy::DSL::SuperCommandBuilder::HELP]
           raise Choosy::HelpCalled.new(Choosy::DSL::SuperCommandBuilder::SUPER)
