@@ -42,7 +42,7 @@ module Choosy::Printing
     it "should fail on too many arguments" do
       attempting {
         @c.red("string", :foreground, "extra")
-      }.should raise_error(ArgumentError, /Color#red/)
+      }.should raise_error(ArgumentError, /max 2/)
     end
 
     it "should fail when setting a style not foreground or background" do

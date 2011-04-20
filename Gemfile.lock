@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    choosy (0.4.8)
+    choosy (0.4.9)
 
 GEM
   remote: http://rubygems.org/

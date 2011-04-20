@@ -27,8 +27,10 @@ module Choosy::Printing
       :normal    => 22
     }
 
-    FOREGROUND = 30
-    BACKGROUND = 40
+    KINDS = {
+      :foreground => 30,
+      :background => 40
+    }
 
     def initialize
       begin
@@ -62,7 +64,7 @@ module Choosy::Printing
       originally_nil = str.nil?
       styles.each do |style|
         if color?(style)
-          str = bedazzle(COLORS[style] + FOREGROUND, str, originally_nil)
+          str = bedazzle(COLORS[style] + KINDS[:foreground], str, originally_nil)
         elsif effect?(style)
           str = bedazzle(EFFECTS[style], str, originally_nil)
         end
@@ -70,42 +72,29 @@ module Choosy::Printing
       str
     end
 
-    def respond_to?(method)
-      color?(method) || effect?(method)
+    COLORS.each do |color, number|
+      define_method color do |*args|
+        raise ArgumentError, "Too many arguments, (max 2)" if args.length > 2
+
+        return args[0] || "" if disabled?
+        if args[1] && !KINDS.has_key?(args[1])
+          raise ArgumentError, "Unrecognized format, only :foreground or :background supported"
+        end
+
+        bedazzle(number + KINDS[(args[1] || :foreground)], args[0])
+      end
     end
 
-    # Dynamically handle colors and effects
-    def method_missing(method, *args, &block)  
-      if disabled?
-        return args[0] || "" 
-      end
+    EFFECTS.each do |color, number|
+      define_method color do |*args|
+        raise ArgumentError, "Too many arguments, (max 1)" if args.length > 1
 
-      if color?(method)
-        raise ArgumentError.new("too many arguments to Color##{method} (max 2)") if args.length > 2
-        offset = find_state(method, args[1])
-        bedazzle(COLORS[method] + offset, args[0])
-      elsif effect?(method)
-        raise ArgumentError.new("too many arguments to Color##{method} (max 1)") if args.length > 1
-        bedazzle(EFFECTS[method], args[0])
-      else
-        raise NoMethodError.new("undefined method '#{method}' for Color")
+        return args[0] || "" if disabled?
+        bedazzle(number, args[0])
       end
     end
 
     private
-    def find_state(method, state)
-      case state
-      when nil
-        FOREGROUND
-      when :foreground
-        FOREGROUND
-      when :background
-        BACKGROUND
-      else
-        raise ArgumentError.new("unrecognized state for Color##{method}, :foreground or :background only")
-      end
-    end
-
     def bedazzle(number, str, keep_open=nil)
       prefix = "\e[#{number}m"
       if str.nil?
