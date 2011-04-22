@@ -33,6 +33,7 @@ module Choosy::Printing
     end
 
     def format_prologue(command)
+      @manpage.column_width = columns
       @manpage.name = command_name(command)
       version_option = command.option_builders[Choosy::DSL::OptionBuilder::VERSION]
       if version_option && @manpage.version.nil?

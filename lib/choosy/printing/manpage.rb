@@ -34,6 +34,7 @@ module Choosy::Printing
   class Manpage
     attr_accessor :name, :section, :date, :version, :manual
     attr_reader :format, :buffer
+    attr_accessor :column_width
 
     def initialize
       @buffer = []
@@ -176,6 +177,10 @@ module Choosy::Printing
       io << "'\\\" t\n"
       io << frame_outline << NEWLINE
       io << PREFACE
+      if column_width
+        io << ".ll " << column_width.to_s << NEWLINE
+      end
+
       @buffer.each do |line|
         io << line
         io << NEWLINE

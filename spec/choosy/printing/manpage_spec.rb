@@ -184,6 +184,7 @@ module Choosy::Printing
         @man.name = "blah"
         @man.date = 'today'
 
+        @man.column_width = 100
         @man.section_heading('description')
         @man.paragraph('this is a line of text')
 
@@ -196,6 +197,7 @@ module Choosy::Printing
 .nh
 .\\" disable justification (adjust text to left margin only)
 .ad l
+.ll 100
 .SH "DESCRIPTION"
 .P
 this is a line of text
