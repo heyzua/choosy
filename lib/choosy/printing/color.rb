@@ -77,11 +77,12 @@ module Choosy::Printing
         raise ArgumentError, "Too many arguments, (max 2)" if args.length > 2
 
         return args[0] || "" if disabled?
-        if args[1] && !KINDS.has_key?(args[1])
+        kind = args[1]
+        if kind && !KINDS.has_key?(kind)
           raise ArgumentError, "Unrecognized format, only :foreground or :background supported"
         end
 
-        bedazzle(number + KINDS[(args[1] || :foreground)], args[0])
+        bedazzle(number + KINDS[(kind || :foreground)], args[0])
       end
     end
 

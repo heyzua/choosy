@@ -8,9 +8,12 @@ module Choosy::DSL
     HELP = :__help__
     VERSION = :__version__
 
-    def initialize(name)
+    def initialize(name, &block)
       super()
       @name = name
+      if block_given?
+        self.instance_eval(&block)
+      end
     end
 
     def entity

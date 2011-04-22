@@ -1,16 +1,7 @@
-# $:.unshift File.dirname(__FILE__)
 
-require 'choosy/command'
-require 'choosy/super_command'
-require 'choosy/converter'
-require 'choosy/errors'
-require 'choosy/option'
-require 'choosy/version'
-require 'choosy/parser'
-require 'choosy/verifier'
-require 'choosy/dsl/command_builder'
-require 'choosy/dsl/super_command_builder'
-require 'choosy/dsl/option_builder'
-require 'choosy/printing/color'
-require 'choosy/printing/erb_printer'
-require 'choosy/printing/help_printer'
+module Choosy
+  autoload :Command, 'choosy/command'
+  autoload :SuperCommand, 'choosy/super_command'
+  autoload :Version, 'choosy/version'
+end
+

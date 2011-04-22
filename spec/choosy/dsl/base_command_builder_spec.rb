@@ -404,6 +404,24 @@ module Choosy::DSL
         v = @builder.version "1.0"
         v.cast_to.should eql(:boolean)
       end
+
+      it "should create a singleton method for the actual version" do
+        v = @builder.version "1.0"
+        v.version.should eql("1.0")
+      end
     end#version
+
+    describe :no_color do
+      it "should allow for a custom message" do
+        n = @builder.no_color "msg"
+        n.description.should eql("msg")
+      end
+
+      it "should turn off the printing" do
+        n = @builder.no_color "msg"
+        n.validation_step.call
+        @builder.entity.printer.color.should be_disabled
+      end
+    end
   end
 end

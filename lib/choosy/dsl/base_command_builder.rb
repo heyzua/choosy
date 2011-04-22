@@ -76,31 +76,28 @@ module Choosy::DSL
       evaluate_option_builder!(builder, &block)
     end
 
-    def self.create_conversions
-      Choosy::Converter::CONVERSIONS.keys.each do |method|
-        next if method == :boolean || method == :bool
+    Choosy::Converter::CONVERSIONS.keys.each do |method|
+      next if method == :boolean || method == :bool
 
-        self.class_eval <<-EOF
-          def #{method}(sym, desc, config=nil, &block)
-            simple_option(sym, desc, true, :one, :#{method}, nil, config, &block)
-          end
+      self.class_eval <<-EOF, __FILE__, __LINE__
+        def #{method}(sym, desc, config=nil, &block)
+          simple_option(sym, desc, true, :one, :#{method}, nil, config, &block)
+        end
 
-          def #{method}s(sym, desc, config=nil, &block)
-            simple_option(sym, desc, true, :many, :#{method}, nil, config, &block)
-          end
+        def #{method}s(sym, desc, config=nil, &block)
+          simple_option(sym, desc, true, :many, :#{method}, nil, config, &block)
+        end
 
-          def #{method}_(sym, desc, config=nil, &block)
-            simple_option(sym, desc, false, :one, :#{method}, nil, config, &block)
-          end
+        def #{method}_(sym, desc, config=nil, &block)
+          simple_option(sym, desc, false, :one, :#{method}, nil, config, &block)
+        end
 
-          def #{method}s_(sym, desc, config=nil, &block)
-            simple_option(sym, desc, false, :many, :#{method}, nil, config, &block)
-          end
-        EOF
-      end
+        def #{method}s_(sym, desc, config=nil, &block)
+          simple_option(sym, desc, false, :many, :#{method}, nil, config, &block)
+        end
+      EOF
     end
 
-    create_conversions
     alias :single :string
     alias :single_ :string_
 
@@ -127,32 +124,54 @@ module Choosy::DSL
     # Additional helpers
     
     def help(msg=nil, &block)
-      h = OptionBuilder.new(OptionBuilder::HELP)
-      h.short '-h'
-      h.long '--help'
       msg ||= "Show this help message"
-      h.desc msg
 
-      h.validate do
-        raise Choosy::HelpCalled.new(:help_option)
-      end 
+      h = OptionBuilder.new(OptionBuilder::HELP) do
+        short '-h'
+        long '--help'
+        desc msg
+        validate do
+          raise Choosy::HelpCalled.new(:help_option)
+        end 
+      end
 
       evaluate_option_builder!(h, &block)
     end
 
     def version(msg, &block)
-      v = OptionBuilder.new(OptionBuilder::VERSION)
-      v.long '--version'
-      v.desc "The version number"
-      # TODO: research how this should be refactored, used with manpage
-      # v.default msg
-      v.cast :boolean
+      v = OptionBuilder.new(OptionBuilder::VERSION) do
+        long '--version'
+        desc "The version number"
+        cast :boolean
+        validate do
+          raise Choosy::VersionCalled.new(msg)
+        end
+      end
 
-      v.validate do
-        raise Choosy::VersionCalled.new(msg)
+      option_eigenclass = class << v.entity; self; end
+      option_eigenclass.send :define_method, :version do
+        msg
       end
 
       evaluate_option_builder!(v, &block)
+    end
+
+    def no_color(msg, &block)
+      msg ||= "Disable the color"
+      cmd = entity
+
+      n = OptionBuilder.new(:no_color) do
+        long "--no-color"
+        desc msg
+        cast :boolean
+        validate do |args, options|
+          if cmd.printer.respond_to?(:color)
+            cmd.printer.color.disable!
+          end
+        end
+      end
+
+      evaluate_option_builder!(n, &block)
     end
 
     protected
