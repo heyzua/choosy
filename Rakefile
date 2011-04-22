@@ -24,7 +24,7 @@ task :doc => [ :rdoc ] do
               if ins =~ /^##-/
                 exclude = true
               end
-              output.puts "    #{ins}" unless exclude
+              output.puts ins unless exclude
               if ins =~ /^##\+/
                 exclude = false
               end
