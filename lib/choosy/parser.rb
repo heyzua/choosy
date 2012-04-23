@@ -1,7 +1,3 @@
-require 'choosy/errors'
-require 'choosy/parse_result'
-require 'choosy/dsl/option_builder'
-
 module Choosy
   class Parser
     attr_reader :flags, :terminals, :command

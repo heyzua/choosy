@@ -1,9 +1,3 @@
-require 'choosy/errors'
-require 'choosy/parser'
-require 'choosy/parse_result'
-require 'choosy/verifier'
-require 'choosy/dsl/super_command_builder'
-
 module Choosy
   class SuperParser
     attr_reader :terminals, :verifier

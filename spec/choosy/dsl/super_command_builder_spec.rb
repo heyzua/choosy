@@ -1,7 +1,3 @@
-require 'spec_helpers'
-require 'choosy/super_command'
-require 'choosy/dsl/super_command_builder'
-
 module Choosy::DSL
   describe SuperCommandBuilder do
     before :each do
@@ -109,11 +105,11 @@ module Choosy::DSL
           }.should raise_error(Choosy::HelpCalled, nil)
         end
 
-        it "should return the name of the first argument when called, as a symbol" do
+        it "should return the name of the first argument when called, as a string" do
           h = @builder.command :help
           attempting {
             h.arguments.validation_step.call(['foo'])
-          }.should raise_error(Choosy::HelpCalled, :foo)
+          }.should raise_error(Choosy::HelpCalled, 'foo')
         end
       end
     end

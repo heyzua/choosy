@@ -1,6 +1,3 @@
-require 'spec_helpers'
-require 'choosy/printing/color'
-
 module Choosy::Printing
   describe Color do
     before :each do

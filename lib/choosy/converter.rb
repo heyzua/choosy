@@ -1,8 +1,3 @@
-require 'choosy/errors'
-require 'time'
-require 'date'
-require 'yaml'
-
 module Choosy
   class Converter
     CONVERSIONS = {

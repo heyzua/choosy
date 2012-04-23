@@ -1,0 +1,64 @@
+#!/usr/bin/env ruby
+#=begin
+BEGIN {$VERBOSE = true}
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
+#=end
+
+# list-files
+require 'choosy'
+
+class ListFilesCLI
+  attr_reader :command
+
+  def run!(args)
+    exe = self  # The following block will change 'self', so we capture context here.
+
+    @command = Choosy::Command.new :'date-time' do
+      summary "This is a command that lists files in directories"
+      executor exe  # Commands need executors that implement 'execute!'.
+                    # We're using 'self'.
+
+      section "Description" do
+        para "This tool prints out some information about directories"
+      end
+
+      section "Options" do
+        integer :limit, "Limit the printed listing to a given number of files."
+        boolean :dirs_only, "Only print out directories"
+      end
+
+      help            # Enables the '-h|--help' option.
+      version "1.0"   # Enables the '--version' option.
+
+      arguments do
+        metaname 'PATH'   # What to display on the manpage
+        count    0..1     # The number of items allowed, restricted here by a range.
+      end
+    end.execute!(args)
+  end
+
+  # Called by the command at the end of the 'run!'
+  def execute!(args, options)
+    limit = options[:limit] || 0
+    paths = if args.empty?
+             ['.']
+           else
+             args
+           end
+
+    paths.each do |path|
+      Dir["#{path}/*"].each do |fname|
+        puts fname
+
+        limit -= 1
+        if limit == 0
+          return
+        end
+      end
+    end
+  end
+end
+
+if __FILE__ == $0
+  ListFilesCLI.new.run!(ARGV)
+end

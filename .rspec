@@ -1,1 +1,1 @@
---color --format progress
+--color --format progress -I lib -r choosy -r ./spec/spec_helpers.rb

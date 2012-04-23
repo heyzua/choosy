@@ -1,9 +1,3 @@
-require 'choosy/errors'
-require 'choosy/parser'
-require 'choosy/base_command'
-require 'choosy/super_parser'
-require 'choosy/dsl/super_command_builder'
-
 module Choosy
   class SuperCommand < BaseCommand
     attr_accessor :metaname, :default_command
@@ -66,7 +60,7 @@ module Choosy
     def handle_help(hc)
       command_name = hc.message
 
-      if command_name == :help_option || command_name == Choosy::DSL::SuperCommandBuilder::SUPER
+      if command_name == :help || command_name == Choosy::DSL::SuperCommandBuilder::SUPER
         printer.print!(self)
       else
         builder = command_builders[command_name]

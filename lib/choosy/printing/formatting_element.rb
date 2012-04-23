@@ -1,5 +1,3 @@
-require 'choosy/errors'
-
 module Choosy::Printing
   class FormattingElement
     attr_reader :value, :styles, :kind

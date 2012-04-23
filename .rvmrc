@@ -1,0 +1,9 @@
+#!/bin/bash
+
+rvm use 1.9.3
+
+if ! rvm gemset list | grep -q choosy; then
+    rvm gemset create choosy
+fi
+
+rvm use 1.9.3@choosy

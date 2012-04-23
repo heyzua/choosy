@@ -1,35 +1,49 @@
-require 'rubygems'
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'lib')
+
 require 'rake'
 require 'rspec/core/rake_task'
-
-$LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'lib')
+require 'cucumber/rake/task'
 require 'choosy/rake'
 
 desc "Default task"
 task :default => [:spec]
 
-desc "Run the RSpec tests"
-RSpec::Core::RakeTask.new :spec
+desc "Run all of the specifications."
+task :spec => ['spec:default']
+namespace :spec do
+  task :default => [:rspec, :cucumber]
 
-desc "Build documentation"
-task :doc => [ :rdoc ] do
-  File.open 'docs/README.markdown', 'r'  do |template|
-    File.open 'README.markdown', 'w' do |output|
+  desc "Run the RSpec tests."
+  RSpec::Core::RakeTask.new :rspec
+
+  desc "Runs all of the cucumber tasks. Add 'tag=TAG' to run only matching tags."
+  Cucumber::Rake::Task.new :cucumber do |cucumber|
+    cucumber.cucumber_opts = ["-t #{ENV['tag'] || "all"}", "features"]
+  end
+end
+
+desc "Rebuilds the README.md file."
+task :readme do
+  File.open 'docs/README.md', 'r'  do |template|
+    File.open 'README.md', 'w' do |output|
       template.each do |line|
-        if line =~ /^>>> (.*)/
-          puts $1
+        if line =~ /^INCLUDE\((.*?),\s*(.*?)\)/
+          output.puts "    ```#{$2}"
+
           File.open $1, 'r' do |toinsert|
             exclude = false
             toinsert.each_line do |ins|
-              if ins =~ /^##-/
+              if ins =~ /^#=begin/
                 exclude = true
               end
-              output.puts ins unless exclude
-              if ins =~ /^##\+/
+              output.puts "    #{ins}" unless exclude
+              if ins =~ /^#=end/
                 exclude = false
               end
             end
           end
+
+          output.puts "    ```"
         else
           output.puts line
         end
@@ -38,11 +52,8 @@ task :doc => [ :rdoc ] do
   end
 end
 
-desc "Create RDocs: TODO"
-task :rdoc
-
 desc "Cleans the generated files."
 task :clean => ['gem:clean']
 
 desc "Runs the full deploy"
-task :push => [:release, :clean]
+task :push => [:readme, 'choosy:release', :clean]

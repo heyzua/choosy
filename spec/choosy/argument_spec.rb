@@ -1,6 +1,3 @@
-require 'spec_helpers'
-require 'choosy/argument'
-
 module Choosy
   describe Argument do
     before :each do

@@ -1,6 +1,3 @@
-require 'choosy/errors'
-require 'choosy/printing/base_printer'
-
 module Choosy::Printing
   class HelpPrinter < BasePrinter
     attr_reader :buffer, :usage, :line_count

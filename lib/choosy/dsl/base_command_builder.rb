@@ -1,10 +1,3 @@
-require 'choosy/errors'
-require 'choosy/dsl/option_builder'
-require 'choosy/dsl/base_builder'
-require 'choosy/printing/manpage_printer'
-require 'choosy/printing/erb_printer'
-require 'choosy/printing/formatting_element'
-
 module Choosy::DSL
   class BaseCommandBuilder
     include BaseBuilder
@@ -131,7 +124,7 @@ module Choosy::DSL
         long '--help'
         desc msg
         validate do
-          raise Choosy::HelpCalled.new(:help_option)
+          raise Choosy::HelpCalled.new(:help)
         end 
       end
 

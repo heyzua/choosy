@@ -1,5 +1,3 @@
-require 'choosy/errors'
-require 'choosy/printing/help_printer'
 require 'erb'
 
 module Choosy::Printing

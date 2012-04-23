@@ -1,6 +1,3 @@
-require 'spec_helpers'
-require 'choosy/dsl/base_builder'
-
 module Choosy::DSL
   class FakeBuilder
     include BaseBuilder

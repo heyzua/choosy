@@ -1,6 +1,3 @@
-require 'choosy/errors'
-require 'choosy/dsl/option_builder'
-
 module Choosy
   class Verifier
     def verify!(result)

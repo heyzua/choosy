@@ -1,6 +1,3 @@
-require 'choosy/errors'
-require 'choosy/printing/color'
-
 module Choosy
   module Terminal
     DEFAULT_LINE_COUNT = 25

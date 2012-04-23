@@ -1,9 +1,3 @@
-require 'choosy/errors'
-require 'choosy/dsl/base_command_builder'
-require 'choosy/dsl/option_builder'
-require 'choosy/dsl/argument_builder'
-require 'choosy/printing/help_printer'
-
 module Choosy::DSL
   class CommandBuilder < BaseCommandBuilder
     def executor(exec=nil, &block)

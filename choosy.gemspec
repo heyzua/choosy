@@ -18,6 +18,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'autotest'
   gem.add_development_dependency 'autotest-notification'
   gem.add_development_dependency 'ZenTest'
+  gem.add_development_dependency 'cucumber'
 
   gem.required_rubygems_version = ">= 1.3.6"
   gem.require_path = 'lib'

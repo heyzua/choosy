@@ -1,7 +1,3 @@
-require 'choosy/errors'
-require 'choosy/dsl/base_command_builder'
-require 'choosy/command'
-
 module Choosy::DSL
   class SuperCommandBuilder < BaseCommandBuilder
     HELP = :help

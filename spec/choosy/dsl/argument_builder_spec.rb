@@ -1,6 +1,3 @@
-require 'spec_helpers'
-require 'choosy/dsl/argument_builder'
-
 module Choosy::DSL
   describe ArgumentBuilder do
     before :each do

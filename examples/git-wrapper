@@ -1,0 +1,57 @@
+#!/usr/bin/env ruby
+#=begin
+BEGIN {$VERBOSE = true}
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
+#=end
+
+# git-wrapper
+require 'choosy'
+
+class GitExecutor
+  def initialize(type)
+    @type = type
+  end
+
+  def execute!(args, options)
+    exec("git #{@type}")
+  end
+end
+
+class GitWrapperCLI
+  attr_reader :command
+
+  def run!(args)
+    exe = self  # The following block will change 'self', so we capture context here.
+
+    @command = Choosy::SuperCommand.new :'git-wrapper' do
+      summary "This is a command that lists files in directories"
+
+      section "Description" do
+        para "This tool prints out some information about directories"
+      end
+
+      section "Commands" do
+        command :status do
+          summary "Prints out the 'git status'"
+          executor GitExecutor.new(:status)
+
+          help
+        end
+
+        command :diff do
+          summary "Prints out the 'git diff'"
+          executor GitExecutor.new(:diff)
+
+          help
+        end
+      end
+
+      help            # Enables the '-h|--help' option.
+      version "1.0"   # Enables the '--version' option.
+    end.execute!(args)
+  end
+end
+
+if __FILE__ == $0
+  GitWrapperCLI.new.run!(ARGV)
+end

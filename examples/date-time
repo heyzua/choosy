@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+#=begin
+BEGIN {$VERBOSE = true}
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
+#=end
+
+# date-time
+require 'choosy'
+require 'time'
+
+class DateTimeCLI
+  attr_reader :command
+
+  def run!(args)
+    @command = Choosy::Command.new :'date-time' do
+      summary "This is a command that prints out the current time"
+
+      executor do |args, options| # An executor can just be a simple block.
+        if options[:utc]
+          puts Time.now.utc.strftime(options[:format])
+        else
+          puts Time.now.strftime(options[:format])
+        end
+      end
+
+      section "Description" do
+        para "This tool prints out the current time, with some added effects"
+      end
+
+      section "Options" do
+        boolean :utc, "Prints it using the UTC format"
+        string  :format, "The format of the output" do
+          default "%Y-%m-%d %H:%M:%S %z"
+        end
+      end
+
+      help            # Enables the '-h|--help' option.
+      version "1.0"   # Enables the '--version' option.
+    end.execute!(args)
+  end
+end
+
+if __FILE__ == $0
+  DateTimeCLI.new.run!(ARGV)
+end

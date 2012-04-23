@@ -1,5 +1,3 @@
-require 'choosy/errors'
-
 module Choosy::Printing
   class Color
     # Extrapolated from:

@@ -1,9 +1,3 @@
-require 'choosy/errors'
-require 'choosy/base_command'
-require 'choosy/dsl/command_builder'
-require 'choosy/parser'
-require 'choosy/verifier'
-
 module Choosy
   class Command < BaseCommand
     attr_accessor :executor, :arguments

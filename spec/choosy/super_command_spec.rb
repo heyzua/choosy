@@ -1,6 +1,3 @@
-require 'spec_helpers'
-require 'choosy/super_command'
-
 module Choosy
   describe SuperCommand do
     before :each do 

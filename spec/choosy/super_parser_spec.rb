@@ -1,8 +1,3 @@
-require 'spec_helpers'
-require 'choosy/super_parser'
-require 'choosy/super_command'
-require 'choosy/dsl/super_command_builder'
-
 module Choosy
   class SuperParserBuilder
     attr_reader :super

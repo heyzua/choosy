@@ -1,5 +1,3 @@
-require 'choosy/errors'
-
 module Choosy::Printing
   class ManpageFormatter
     def bold(line=nil)

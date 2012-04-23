@@ -1,5 +1,3 @@
-require 'choosy/verifier'
-
 module Choosy
   class BaseParseResult
     attr_reader :command, :options, :unparsed

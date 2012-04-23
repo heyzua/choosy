@@ -1,6 +1,3 @@
-require 'spec_helpers'
-require 'choosy/command'
-
 module Choosy
   describe BaseCommand do
     before :each do

@@ -1,6 +1,3 @@
-require 'choosy/printing/manpage'
-require 'spec_helpers'
-
 module Choosy::Printing
   describe ManpageFormatter do
     before :each do 

@@ -1,9 +1,3 @@
-require 'spec_helpers'
-require 'choosy/dsl/command_builder'
-require 'choosy/command'
-require 'choosy/converter'
-require 'choosy/errors'
-
 module Choosy::DSL
   class FakeExecutor
     attr_reader :options, :args

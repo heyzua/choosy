@@ -1,6 +1,3 @@
-require 'choosy/errors'
-require 'tsort'
-
 module Choosy
   class OptionBuilderHash < Hash
     include TSort

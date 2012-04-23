@@ -1,5 +1,3 @@
-require 'choosy/errors'
-
 module Choosy::DSL
   # Must have entity attribute
   module BaseBuilder

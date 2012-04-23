@@ -1,5 +1,3 @@
-require 'choosy/errors'
-
 module Choosy
   class Argument
     ZERO_ARITY     = (0 .. 0)

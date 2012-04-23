@@ -1,9 +1,3 @@
-require 'choosy/errors'
-require 'choosy/option'
-require 'choosy/dsl/option_builder'
-require 'choosy/printing/base_printer'
-require 'choosy/printing/manpage'
-
 module Choosy::Printing
   class ManpagePrinter < BasePrinter
     attr_reader :manpage, :name, :synopsis

@@ -1,6 +1,4 @@
-require 'spec_helpers'
 require 'tempfile'
-require 'choosy/version'
 
 module Choosy
   describe Version do

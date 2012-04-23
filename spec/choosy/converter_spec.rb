@@ -1,7 +1,3 @@
-require 'spec_helpers'
-require 'choosy/version'
-require 'choosy/converter'
-
 module Choosy
   describe Converter do
 

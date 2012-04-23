@@ -1,8 +1,3 @@
-require 'spec_helpers'
-require 'choosy/printing/base_printer'
-require 'choosy/command'
-require 'choosy/super_command'
-
 module Choosy::Printing
   describe BasePrinter do
     before :each do

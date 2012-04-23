@@ -1,8 +1,3 @@
-require 'spec_helpers'
-require 'choosy/dsl/base_command_builder'
-require 'choosy/command'
-require 'choosy/super_command'
-
 module Choosy::DSL
   describe BaseCommandBuilder do
     before :each do

@@ -1,8 +1,3 @@
-require 'choosy/errors'
-require 'choosy/argument'
-require 'choosy/converter'
-require 'choosy/dsl/base_builder'
-
 module Choosy::DSL
   class ArgumentBuilder
     include BaseBuilder

@@ -1,7 +1,3 @@
-require 'spec_helpers'
-require 'choosy/command'
-require 'choosy/printing/manpage_printer'
-
 module Choosy::Printing
   describe ManpagePrinter do
     before :each do

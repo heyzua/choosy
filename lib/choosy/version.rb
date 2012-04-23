@@ -1,7 +1,3 @@
-require 'yaml'
-require 'time'
-require 'choosy/errors'
-
 module Choosy
   class Version
     attr_accessor :date_format, :version_file

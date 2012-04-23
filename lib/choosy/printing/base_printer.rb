@@ -1,6 +1,3 @@
-require 'choosy/errors'
-require 'choosy/terminal'
-
 module Choosy::Printing
   class BasePrinter
     include Choosy::Terminal

@@ -1,7 +1,3 @@
-require 'spec_helpers'
-require 'choosy/command'
-require 'choosy/printing/help_printer'
-
 module Choosy
   describe Command do
     before :each do

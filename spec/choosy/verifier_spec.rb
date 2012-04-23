@@ -1,11 +1,4 @@
-require 'spec_helpers'
-require 'choosy/verifier'
-require 'choosy/errors'
-require 'choosy/parser'
-require 'choosy/command'
-
 module Choosy
-
   module VerifierHelper
     def reset!
       @c = Command.new(:verifier)

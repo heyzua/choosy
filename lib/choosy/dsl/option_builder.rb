@@ -1,8 +1,3 @@
-require 'choosy/option'
-require 'choosy/errors'
-require 'choosy/converter'
-require 'choosy/dsl/argument_builder'
-
 module Choosy::DSL
   class OptionBuilder < ArgumentBuilder
     HELP = :__help__

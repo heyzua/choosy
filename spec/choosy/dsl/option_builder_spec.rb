@@ -1,6 +1,3 @@
-require 'spec_helpers'
-require 'choosy'
-
 module Choosy::DSL
   describe OptionBuilder do
     before :each do

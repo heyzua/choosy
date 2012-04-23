@@ -1,6 +1,3 @@
-require 'choosy/errors'
-require 'choosy/argument'
-
 module Choosy
   class Option < Argument
     attr_accessor :name, :description

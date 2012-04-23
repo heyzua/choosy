@@ -1,8 +1,3 @@
-require 'spec_helpers'
-require 'choosy/parser'
-require 'choosy/command'
-require 'choosy/dsl/command_builder'
-
 module Choosy
   class ParserBuilder
     attr_reader :command, :lazy

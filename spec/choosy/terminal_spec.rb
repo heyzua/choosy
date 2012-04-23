@@ -1,6 +1,3 @@
-require 'spec_helpers'
-require 'choosy/terminal'
-
 module Choosy
   class TerminalTest
     include Terminal
