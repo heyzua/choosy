@@ -105,7 +105,7 @@ task :gem => ['gem:build']
 
 namespace :gem do
   desc "Builds the current gemspec."
-  task :build => ['version:load'] do
+  task :build => ['choosy:version:load'] do
     SH.files('gemspec') do |gemspec|
       puts "  Building gemspec: #{gemspec}"
       SH.attempt "gem build #{gemspec}"
