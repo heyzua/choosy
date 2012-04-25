@@ -50,12 +50,16 @@ module Choosy
       end
     end
 
-    def execute!(args)
-      begin
+    def execute!(args, propagate=false)
+      if propagate
         execute(args)
-      rescue Choosy::ClientExecutionError => e
-        $stderr << "#{@name}: #{e.message}\n"
-        exit 1
+      else
+        begin
+          execute(args)
+        rescue Choosy::ClientExecutionError => e
+          $stderr << "#{@name}: #{e.message}\n"
+          exit 1
+        end
       end
     end
 

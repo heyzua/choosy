@@ -105,11 +105,11 @@ module Choosy::DSL
           }.should raise_error(Choosy::HelpCalled, nil)
         end
 
-        it "should return the name of the first argument when called, as a string" do
+        it "should return the name of the first argument when called, as a symbol" do
           h = @builder.command :help
           attempting {
             h.arguments.validation_step.call(['foo'])
-          }.should raise_error(Choosy::HelpCalled, 'foo')
+          }.should raise_error(Choosy::HelpCalled, :foo)
         end
       end
     end
