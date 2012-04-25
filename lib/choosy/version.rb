@@ -1,3 +1,5 @@
+require 'yaml'
+
 module Choosy
   class Version
     attr_accessor :date_format, :version_file
